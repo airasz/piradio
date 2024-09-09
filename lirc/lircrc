@@ -1,0 +1,35 @@
+begin
+	button=KEY_UP
+	prog=radio_lcd
+	config=KEY_UP
+end
+begin
+	button=KEY_DOWN
+	prog=radio_lcd
+	config=KEY_DOWN
+end
+begin
+	button=KEY_RIGHT
+	prog=radio_lcd
+	config=KEY_RIGHT
+end
+begin
+	button=KEY_LEFT
+	prog=radio_lcd
+	config=KEY_LEFT
+end
+begin
+	button=KEY_POWER
+	prog=radio_lcd
+	config=KEY_POWER
+end
+begin
+	button=KEY_102ND
+	prog=radio_lcd
+	config=KEY_102ND
+end
+begin
+	button=KEY_MUTE
+	prog=radio_lcd
+	config=KEY_MUTE
+end
