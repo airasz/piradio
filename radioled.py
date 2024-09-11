@@ -5,7 +5,9 @@
 import Adafruit_SSD1306
 import oledUI
 import os
-import RPi.GPIO as GPIO
+import OPi.GPIO as GPIO
+# from pyA20.gpio import gpio
+# from pyA20.gpio import port
 from time import sleep
 # from apscheduler.scheduler import Scheduler
 # set up the pins
@@ -16,7 +18,9 @@ muted=False
 #pylirc.init("pylirc",  blocking)
 sleep(1)
 # import subprocess
-GPIO.setmode(GPIO.BCM)
+# GPIO.setmode(GPIO.BCM)
+GPIO.setboard(GPIO.ZERO)
+GPIO.setmode(GPIO.BOARD)    # set up BOARD BCM numbering
 # GPIO.setup(21,  GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 GPIO.setup(21, GPIO.IN)
 GPIO.setup(20, GPIO.IN)
