@@ -10,7 +10,10 @@
 <script type="text/javascript">
 function load()
 {
-setTimeout("location.href = 'http://192.168.1.120/radio/index.php';", 5000);
+// setTimeout("location.href = 'http://192.168.1.120/radio/index.php';", 5000);
+
+setTimeout(window.location.href, 5000);
+// window.location.href
 }
 </script>
 <body onload="load()">
