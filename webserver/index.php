@@ -5,14 +5,17 @@
 <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
 <title>Internet Radio</title>
 <link rel="stylesheet" type="text/css" href="radio.css">
-<link rel="Shortcut Icon" type="image/ico" href="favicon.ico">
+<link rel="Shortcut Icon" type="image/ico" href="favicon.ico">              
 
 <script type="text/javascript">
 function load()
 {
 // setTimeout("location.href = 'http://192.168.1.120/radio/index.php';", 5000);
+var url =window.location.href;
+url =url.substring(0, (url.indexOf("o/")+2));
+console.log("url="+url );
+setTimeout("location.href = '"+url+"';", 5000);
 
-setTimeout(window.location.href, 5000);
 // window.location.href
 }
 </script>
@@ -195,6 +198,7 @@ a:active {
 <?php
 $stn=$_GET['station'];
 exec("mpc play $stn");
+#echo "sts".$stn."\n"; 
 $com=$_GET['command'];
 exec("mpc $com");
 $status = shell_exec('mpc'); // get mpc status
@@ -247,45 +251,8 @@ echo substr($status, $volumepos+7, 4); // display current volume
 <button class="button" ><a href="?station=14" >Radio Suara Al-Iman</a></button>
 <button class="button" ><a href="?station=16" >Reggae 2</a></button>
 <br>
-<button class="button" ><a href="?station=17" >Reggae 3</a></button>
-<button class="button" ><a href="?station=18" >Reggae 4</a>  </button>
-<button class="button" ><a href="?station=19" >Reggae 5</a> </button>
-<button class="button" ><a href="?station=20" >Reggae 6</a></button>
-<button class="button" ><a href="?station=21" >Reggae 7</a> </button>
-<button class="button" ><a href="?station=22" >Oldies</a></button>
-<button class="button" ><a href="?station=23" >Candlelight</a></button>
-<button class="button" ><a href="?station=24" >60' 70' Hits</a></button>
-<br>
-<button class="button" ><a href="?station=25" >80' Hits</a></button>
-<button class="button" ><a href="?station=26" >90' Hits</a>  </button>
-<button class="button" ><a href="?station=27" >Classic Hits</a> </button>
-<button class="button" ><a href="?station=28" >Nederpop</button>
-<button class="button" ><a href="?station=29" >Cafe Genee</a> </button>
-<button class="button" ><a href="?station=30" >Levenslied</a></button>
-<button class="button" ><a href="?station=31" >Zomer Lounge</a></button>
-<button class="button" ><a href="?station=32" >Joe</a></button>
-<br>
 
 <br/><p><br/>
 
-<?php
-// if station is fip, embed their track now playing tweet
-if (strpos($stnname, 'Fip') !== false OR strpos($stnname, 'fip') !== false) {
-     echo "<a class=\"twitter-timeline\" data-dnt=\"true\" href=\"https://twitter.com/FipNowPlays\" data-tweet-limit=\"3\" data-widget-id=\"500685229732794369\">Tweets by @FipNowPlays</a><script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+\"://platform.twitter.com/widgets.js\";fjs.parentNode.insertBefore(js,fjs);}}(document,\"script\",\"twitter-wjs\");</script>";
-}
-
-if (strpos($stnname, 'Radio 1') !== false) {
-lastfm("bbcradio1");
-}
-
-
-if (strpos($stnname, 'Radio 2') !== false) {
-lastfm("bbcradio2");
-}
-
-if (strpos($stnname, '6Music') !== false) {
-lastfm("bbc6music");
-}
-?>
 </body>
 </html>
