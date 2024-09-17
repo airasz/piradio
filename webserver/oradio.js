@@ -1,6 +1,39 @@
-
+var bstop = false;
 function loadonce() {
     load_status();
+    loadvol();
+}
+
+function loadvol() {
+    var ajax_request = new XMLHttpRequest();
+    var tbl = document.getElementById('svol');
+    ajax_request.open("GET", "oradio.php?cmd=volume", true);
+    ajax_request.onreadystatechange = function () {
+        if (ajax_request.readyState == 4 && ajax_request.status == 200) {
+            tbl.value = ajax_request.responseText;
+        }
+        else {
+            // document.getElementById("loadingtbl").style.display = "block";
+        }
+    }
+
+    ajax_request.send();
+}
+
+function setvol() {
+    var ajax_request = new XMLHttpRequest();
+    var tbl = document.getElementById('svol');
+    ajax_request.open("GET", "oradio.php?cmd=mpc volume " + tbl.value, true);
+    // ajax_request.onreadystatechange = function () {
+    //     if (ajax_request.readyState == 4 && ajax_request.status == 200) {
+    //         tbl.value = ajax_request.responseText;
+    //     }
+    //     else {
+    //         // document.getElementById("loadingtbl").style.display = "block";
+    //     }
+    // }
+
+    ajax_request.send();
 }
 function load_status() {
     // document.getElementById("loadingtbl").style.display = "block";
