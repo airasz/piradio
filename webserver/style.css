@@ -104,7 +104,7 @@ input[type=submit]:hover {
     border: 0px;
     font-size: 16px;
     margin: 4px 2px;
-    border-radius: 10px;
+    /* border-radius: 10px; */
     background: linear-gradient(145deg, #d3d3d3, #ffffff);
     box-shadow: 5px 5px 8px #8a8a8a, -2px -2px 8px #fff;
     cursor: pointer;
@@ -117,7 +117,7 @@ input[type=submit]:hover {
     font-size: 16px;
     margin: 4px 2px;
     cursor: pointer;
-    border-radius: 50px;
+    /* border-radius: 50px; */
     /* background: linear-gradient(145deg, #d3d3d3, #ffffff);
                     box-shadow:  10px 10px 18px #e0e0e0, -2px -2px 18px #fff; */
 
