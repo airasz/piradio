@@ -42,23 +42,30 @@ if (isset($_GET["cmd"])) {
     }
 }
 function formatstatus($status){
-                            $newlinepos = strpos($status , "\n"); // find line break in status
+        $newlinepos = strpos($status , "\n"); // find line break in status
         $volumepos = strpos($status, "volume");
 
 
         if ($volumepos == 0) {
-            echo "paused";
+            echo "player stopped";
         } else {
             $stnname = substr($status, 0, $newlinepos); // get station name
             echo $stnname."<br>"; // display station name
-            $playpos=strpos($status, "[");
+            $playpos = strpos($status, "[");
+            $scrv = strpos($status, "(");
             // echo  substr($status, $playpos, $volumepos); // get station name
-            echo  substr($status, $playpos); // get station name
+            echo substr($status, $playpos, $scrv-$playpos); // get station name
+            // echo "<br>";
+            
+            // $state = substr($status, 27, 28); // get station name
+            // echo $state;
+            // echo "<br>";
+            // echo "playpos=".$playpos."|scrv=".$scrv;
             echo "<br>";
         }
         // echo $status;
-        echo PHP_EOL;
-        echo substr($status, $volumepos+7, 4); // display current volume
+                echo PHP_EOL;
+                echo substr($status, $volumepos, 11); // display current volume
 }
 
  ?>

@@ -1,7 +1,7 @@
 var bstop = false;
 function loadonce() {
     load_status();
-    loadvol();
+    // loadvol();
 }
 
 function loadvol() {
@@ -52,6 +52,8 @@ function load_status() {
     ajax_request.onreadystatechange = function () {
         if (ajax_request.readyState == 4 && ajax_request.status == 200) {
             tbl.innerHTML = ajax_request.responseText;
+            updatevolslider(ajax_request.responseText);
+            playbutton(ajax_request.responseText);
             setTimeout(load_status, 5000);//repeat call this function
         }
         else {
@@ -60,6 +62,22 @@ function load_status() {
     }
     // alert("getdata.php?d=" + dokter);
     ajax_request.send();
+}
+function updatevolslider(txt) {
+    // var vol = txt.substring(txt.length - 3, txt.length - 1);
+
+    var vol = txt.substring(txt.indexOf("volume") + 7, txt.length - 1);
+    var tbl = document.getElementById('svol');
+    console.log("vol=" + vol);
+    tbl.value = parseInt(vol);
+
+}
+function playbutton(txt) {
+    var ps = txt.substring(txt.indexOf("[") + 1, txt.indexOf("]"));
+    var tbl = document.getElementById('bplay');
+
+    // console.log("ps=" + ps);
+    tbl.innerHTML = (ps == "playing") ? "pause" : "play";
 }
 function sendcmd(cmd) {
     var ajax_request = new XMLHttpRequest();
