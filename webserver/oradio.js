@@ -35,6 +35,7 @@ function setvol() {
 
     ajax_request.send();
 }
+
 function load_status() {
     // document.getElementById("loadingtbl").style.display = "block";
     // alert("hai");
@@ -100,4 +101,7 @@ function sendcmd(cmd) {
     }
     // alert("getdata.php?d=" + dokter);
     ajax_request.send();
+} function playurl() {
+    iu = document.getElementById('purl').value;
+    sendcmd("mcp play " + iu);
 }
