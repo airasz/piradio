@@ -33,6 +33,9 @@ if (isset($_GET["cmd"])) {
         $newlinepos = strpos($status, "\n"); // find line break in status
         $volumepos = strpos($status, "volume");
         echo substr($status, $volumepos + 7, 4); // display current volume
+    } else if ($dt === "hostname") {
+        $status = shell_exec($dt);
+        echo $status; // display current volume
     } else {
 
         $status = shell_exec($dt);
