@@ -98,6 +98,12 @@ function sendcmd(cmd) {
     ajax_request.onreadystatechange = function () {
         if (ajax_request.readyState == 4 && ajax_request.status == 200) {
             tbl.innerHTML = ajax_request.responseText;
+            if (this.responseText.includes("stopped")) {
+                document.getElementById('bstop').style.display = "none";
+            } else {
+                document.getElementById('bstop').style.display = "initial";
+
+            }
         }
         else {
             // document.getElementById("loadingtbl").style.display = "block";
@@ -125,6 +131,12 @@ function gethostname() {
             // alert("hn=" + this.responseText);
             if (this.responseText.includes("banana")) {
                 colorscheme.setAttribute('href', 'cscheme.css');
+                // spn.style.cssText = 'display:inline-flex !important';
+                document.getElementById('title').innerHTML = this.responseText + " radio";
+            } else if (this.responseText.includes("orange")) {
+                colorscheme.setAttribute('href', 'orange.css');
+                document.getElementById('title').innerHTML = this.responseText + " radio";
+
             }
         }
         else {

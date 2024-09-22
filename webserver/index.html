@@ -34,7 +34,7 @@ align-items: center; display: none;">
 
 
         <div class="card_switch">
-            <h1>oradio</h1>
+            <h1 id="title">oradio</h1>
             <h2 id="cname">write by airasz</h2>
             <!-- <div id="info" style="min-height: 1cm;">
     </div> -->
@@ -47,10 +47,10 @@ align-items: center; display: none;">
 
             <button class="button1" onclick="sendcmd('mpc volume %2B5')"><a>vol UP</a></button>
             <button class="button1" onclick="sendcmd('mpc volume %2D5')"><a>Vol down</a></button>
-            <button class="button1" onclick="sendcmd('mpc next')"><a>Next</a></button>
             <button class="button1" onclick="sendcmd('mpc prev')"><a>prev</a></button>
+            <button class="button1" onclick="sendcmd('mpc next')"><a>Next</a></button>
             <button class="button1" id="bplay" onclick="sendcmd('mpc toggle')"><a>play/pause</a></button>
-            <button class="button1" onclick="sendcmd('mpc stop')"><a>Stop</a></button>
+            <button class="button1" id="bstop   " onclick="sendcmd('mpc stop')"><a>Stop</a></button>
             <button class="button1" onclick="sendcmd('mpc volume 0')"><a>Mute</a></button>
             <br>
 

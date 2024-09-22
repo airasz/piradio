@@ -1,0 +1,10 @@
+.card_switch {
+    background-color: #f2aa00 !important;
+}
+
+.button1 {
+    color: rgb(56, 66, 63) !important;
+    border-radius: 20px;
+    background: linear-gradient(145deg, #9cf742, #55734b) !important;
+    box-shadow: 5px 5px 8px #8a8a8a, -2px -2px 8px #ffe765 !important;
+}

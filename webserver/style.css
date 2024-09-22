@@ -169,10 +169,10 @@ input[type=submit]:hover {
     margin-top: 0mm;
     display: block;
     background-color: #dbdbdb;
-    /* border-radius: 10px; */
-    margin-right: 5mm;
+    border-radius: 10px;
+    /* margin-right: 5mm; */
     /* padding-bottom: 5mm; */
-    min-width: 9cm;
+    /* min-width: 9cm; */
     align-items: left;
     justify-content: left;
     /* display: flex; */
