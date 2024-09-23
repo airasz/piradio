@@ -1,35 +1,37 @@
 begin
+	remote=nexmedia
 	button=KEY_UP
-	prog=ir_listener
-	config=KEY_UP
+	prog=irexec
+	config=source /home/pi/ircommands/station_up.sh stup
 end
 begin
+	remote=nexmedia
 	button=KEY_DOWN
-	prog=ir_listener
-	config=KEY_DOWN
+	prog=irexec
+	config= echo "key down lircrc"
 end
 begin
 	button=KEY_RIGHT
-	prog=ir_listener
+	prog=irexec
 	config=KEY_RIGHT
 end
 begin
 	button=KEY_LEFT
-	prog=ir_listener
+	prog=irexec
 	config=KEY_LEFT
 end
 begin
 	button=KEY_POWER
-	prog=ir_listener
+	prog=irexec
 	config=KEY_POWER
 end
 begin
 	button=KEY_102ND
-	prog=ir_listener
+	prog=irexec
 	config=KEY_102ND
 end
 begin
 	button=KEY_MUTE
-	prog=ir_listener
+	prog=irexec
 	config=KEY_MUTE
 end
