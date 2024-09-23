@@ -30,6 +30,24 @@ begin
 end
 begin
 	remote=nexmedia
+	button=KEY_STOP
+	prog=irexec
+	config=mpc stop
+end
+begin
+	remote=nexmedia
+	button=KEY_PLAY
+	prog=irexec
+	config=mpc play
+end
+begin
+	remote=nexmedia
+	button=KEY_PAUSE
+	prog=irexec
+	config=mpc pause
+end
+begin
+	remote=nexmedia
 	button=KEY_102ND
 	prog=irexec
 	config=KEY_102ND
