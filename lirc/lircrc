@@ -2,35 +2,40 @@ begin
 	remote=nexmedia
 	button=KEY_UP
 	prog=irexec
-	config=source /home/pi/ircommands/station_up.sh stup
+	config=sh /home/pi/ircommands/station_up.sh
 end
 begin
 	remote=nexmedia
 	button=KEY_DOWN
 	prog=irexec
-	config= echo "key down lircrc"
+	config=mpc prev
 end
 begin
+	remote=nexmedia
 	button=KEY_RIGHT
 	prog=irexec
-	config=KEY_RIGHT
+	config= mpc volume +5
 end
 begin
+	remote=nexmedia
 	button=KEY_LEFT
 	prog=irexec
-	config=KEY_LEFT
+	config=mpc volume -5
 end
 begin
+	remote=nexmedia
 	button=KEY_POWER
 	prog=irexec
 	config=KEY_POWER
 end
 begin
+	remote=nexmedia
 	button=KEY_102ND
 	prog=irexec
 	config=KEY_102ND
 end
 begin
+	remote=nexmedia
 	button=KEY_MUTE
 	prog=irexec
 	config=KEY_MUTE
