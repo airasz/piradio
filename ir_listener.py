@@ -7,7 +7,7 @@ import os
 from time import sleep
 sleep(1)
 try:
-    sockid=lirc.init("ir_listener")
+    sockid=lirc.        init("ir_listener")
 except:
     print ("lirc cannot init")
 try:
@@ -15,7 +15,7 @@ try:
 except:
     print  ("lirc cannot init2")
 try:
-    sockid=lirc.init("ir_listener", verbose=True)
+    sockid=lirc.init("ir_listener", blocking=False)
 except:
     print  ("lirc cannot init2")
 

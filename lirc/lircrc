@@ -49,7 +49,7 @@ end
 begin
 	remote=nexmedia
 	button=KEY_102ND
-	prog=irexec
+	prog=ir_listener
 	config=KEY_102ND
 end
 begin
