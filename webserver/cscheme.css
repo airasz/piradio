@@ -12,5 +12,7 @@
     border-radius: 20px !important;
     background: linear-gradient(145deg, #177d02, #0ebb08) !important;
     box-shadow: 5px 5px 8px #000, -2px -2px 8px #f9ea6f !important;
+    /* background: rgb(164, 207, 1);
+    background: linear-gradient(360deg, rgba(164, 207, 1, 1) 0%, rgba(137, 146, 17, 1) 41%, rgba(208, 224, 1, 1) 43%, rgba(255, 231, 0, 0.9668067055923932) 100%); */
     cursor: pointer;
 }
