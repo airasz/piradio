@@ -1,8 +1,11 @@
-import RPi.GPIO as GPIO
+#!/usr/bin/env python
+
+
+from pyA20.gpio import gpio
 from time import time
 ir_pin=12
 def setup():
-    GPIO.setmode(GPIO.BOARD)  # Numbers GPIOs by physical location
+    # GPIO.setmode(GPIO.BOARD)  # Numbers GPIOs by physical location
     GPIO.setup(ir_pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
 
