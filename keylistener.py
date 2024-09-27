@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 import keyboard
 import os
-
 from time import sleep
+
 VOLUME_UP = 115
 VOLUME_DOWN = 114
 NEXT = 163
