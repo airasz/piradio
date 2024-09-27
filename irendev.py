@@ -3,7 +3,7 @@
 import time
 import evdev
 import os
-
+from time import sleep
 
 SWITCH_PLAYLIST = False
 MUTE = 113
