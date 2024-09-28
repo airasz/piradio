@@ -21,11 +21,18 @@ def getTotalQ():
     os.system("mpc playlist > tmp")
     status =  open('tmp', 'r'). read()
     tq = status.count('\n') + 1
+    global SWITCH_PLAYLIST
+    if tq < 10:
+        SWITCH_PLAYLIST= True
     print("total queue = "+str(tq))
     return tq
+
+
 os.system("mpc volume 50")
 os.system("ir-keytable -p all")
 TOQ = getTotalQ()
+
+
 def getVol():
     status = "radio volume: 50%"
     os.system("mpc status > tmp")
@@ -34,8 +41,7 @@ def getVol():
     volpos = status.index('volume')
     print(volpos)           
     volstatus = status[volpos:volpos+13]
-
-    print("volstatus        ="+volstatus )
+    print("volstatus=" + volstatus )
     percenpos = volstatus.index('%')
     svol = volstatus[8:percenpos]
 
@@ -128,6 +134,14 @@ try:
 except BlockingIOError:
     print("No commands received. \n")
     
+NUM_4 = "2099264"
+NUM_5 ="2099265"
+NUM_6 = "2099266"
+NUM_7 = "2099268"
+NUM_8 = "2099269"
+NUM_9 = "2099270"
+NUM_0 ="2099271"
+
 while True:
     event = dev.read_one()
     if event:
@@ -167,8 +181,25 @@ while True:
         if sval== "2099228": #1
             print("")
             playPos(1)
-        if sval== "":
+        if sval== "2099229": #2
             print("")
-        if sval== "":
+            playPos(2)
+        if sval== "2099230": #3
             print("")
+            playPos(3)
+        if sval== NUM_4: 
+            playPos(4)
+        if sval== NUM_5: 
+            playPos(5)
+        if sval== NUM_6: 
+            playPos(6)
+        if sval== NUM_7: 
+            playPos(7)
+        if sval== NUM_8: 
+            playPos(8)
+        if sval== NUM_9: 
+            playPos(9)
+        if sval== NUM_0: 
+            playPos(10)
+        
 
