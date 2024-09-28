@@ -29,7 +29,7 @@ def getTotalQ():
 
 
 os.system("mpc volume 50")
-os.system("ir-keytable -p all")
+# os.system("ir-keytable -p all")
 TOQ = getTotalQ()
 
 
@@ -141,21 +141,35 @@ NUM_7 = "2099268"
 NUM_8 = "2099269"
 NUM_9 = "2099270"
 NUM_0 ="2099271"
-
+VOLUP = 2099202
+VOLDOWN = 2099203
+STUP = 2099206
+STDOWN = 2099207
 while True:
     event = dev.read_one()
     if event:
         print(event.value)
+        hexval=hex(event.value)
+        print(hexval)
         sval=str(event.value)
         if sval== "2099218":
             print("UP")
             setVOL(True)
-        if event.value== D_UP:
-            print("dUP")
+        if event.value == VOLUP:
+            print("volume up")
+            setVOL(True)
+        if event.value == VOLDOWN:
             setVOL(False)
+        if event.value == STUP:
+            setSTATION(True)
+        if event.value == STDOWN:
+            setSTATION(False)
+        # if event.value== D_UP:
+        #     print("dUP")
+        #     setVOL(False)
         if sval== "2099219":
             print("DOWN")
-            setVOL(True)
+            setVOL(False)
         if sval== "2099222":
             print("right")
             setSTATION(True)
