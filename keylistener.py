@@ -19,7 +19,9 @@ C_VOL = 0
 
 def getVol():
     status = "radio volume: 50%"
+    os.system("mpc status | ./oled_output /dev/i2c-3 2")
     os.system("mpc status > tmp")
+
     status =  open('tmp', 'r').read()
     # print("s="+status )
     volpos = status.index('volume')
@@ -68,9 +70,9 @@ def setVOL(up):
 def setSTATION(next):
     if (getPlayState()) is True:
         if next is True:
-            os.system("mpc next")
+            os.system("mpc next | ./oled_output /dev/i2c-3 2")
         else:
-            os.system("mpc prev")
+            os.system("mpc prev | ./oled_output /dev/i2c-3 2")
 
 def switchPLAYLIST():
     global SWITCH_PLAYLIST

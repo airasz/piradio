@@ -134,7 +134,7 @@ class oled:
         if s == 23:
              draw.text((x,top+10), "Radio Quran 3", font=font, fill=255)
         if s == 24:
-             draw.text((x,top+10), "Radio Quran 4", font=font, fill=255)
+             draw.text((x,to  p+10), "Radio Quran 4", font=font, fill=255)
 
         # Display image.
         disp.image(image)
