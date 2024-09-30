@@ -29,6 +29,7 @@ if (isset($_GET["cmd"])) {
         // echo substr($status, $volumepos+7, 4); // display current volume
     } else if ($dt === "volume") {
         $status = shell_exec("mpc");
+
         formatstatus($status);
         $newlinepos = strpos($status, "\n"); // find line break in status
         $volumepos = strpos($status, "volume");
@@ -40,6 +41,8 @@ if (isset($_GET["cmd"])) {
 
         $status = shell_exec($dt);
         formatstatus($status);
+
+        updateoled();
         // echo $status;
     }
 }
@@ -69,6 +72,13 @@ function formatstatus($status)
     // echo $status;
     echo PHP_EOL;
     echo substr($status, $volumepos, 11); // display current volume
+}
+function updateoled()
+{
+    $status = shell_exec("hostname");
+    if (str_contains($status, "orangepi")) {
+        shell_exec("/usr/bin/python3 /root/updateOLED.py");
+    }
 }
 
 ?>

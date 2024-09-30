@@ -85,7 +85,8 @@ def switchPLAYLIST():
         os.system("mpc clear")
         sleep(0.1)
         os.system("mpc load radio")
-        
+
+
 while True:
     ev = keyboard.read_event()
     print(ev.scan_code)
@@ -107,3 +108,4 @@ while True:
     if ev.scan_code == SP and ev.event_type == keyboard.KEY_DOWN:
         switchPLAYLIST()
     
+
