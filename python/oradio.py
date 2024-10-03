@@ -6,11 +6,11 @@ import textwrap
 import subprocess
 import random
 import threading
-
 from time import sleep
 
 myoled= oledis.oled()
 localip = ""
+
 
 def getlocalip():
     global localip
@@ -23,7 +23,7 @@ def getlocalip():
     localip = "IP: " + localip
     
 getlocalip()
-
+P_COUNT=0
 def displaytooled(status):
     global localip
     if len(localip) < 8:
@@ -80,19 +80,41 @@ def displaytooled(status):
 
     # print("total dirt line = " + str(ttlline))
     # print(totpage)
-    for y in range(totpage):
-        for x in range(4):
-            idx=(y*4)+x
-            if idx < totline:
-                sm=str(msglist[idx])
-                text += sm
-                text +="\n"
-            else:
-                break
+
+
+    global P_COUNT
+
+#    print("P_COUNT = " + str(P_COUNT))
+    for x in range(4):
+        idx=(P_COUNT*4)+x
+        if idx < totline:
+            sm=str(msglist[idx])
+            text += sm
+            text +="\n"
+        else:
+            break
 
         # print(text)
-        myoled.display(text, (0,0))
-        text=""
+    myoled.display(text, (0,0))
+    text=""
+    P_COUNT+=1
+    if P_COUNT > (totpage-1):
+        P_COUNT=0
+
+#    for y in range(totpage):
+#        print("y page = " + str(y))
+#        for x in range(4):
+#            idx=(y*4)+x
+#            if idx < totline:
+#                sm=str(msglist[idx])
+#                text += sm
+#                text +="\n"
+#            else:
+#                break
+
+        # print(text)
+        #myoled.display(text, (0,0))
+        #text=""
         # if totpage > 1:
         #sleep(5)
 
@@ -110,24 +132,37 @@ def displaytooled(status):
 #        myoled.display("player stopped", (xpos,ypos))
 #        sleep(0.4)
 U_COUNT = 0
-def updateOled():
+MAXUCOUNT = 5
+STOP_COUNT = 0
+def loop():
     global U_COUNT
-    U_COUNT +=1
+    global MAXUCOUNT
+    global STOP_COUNT
     status = ""
     os.system("mpc > tmp")
     status = subprocess.check_output("mpc", shell=True)
     status =  status.decode("utf-8")
-    if U_COUNT > 5:
+    if U_COUNT == 0:
         if "playing" in status or "paused" in status:
             displaytooled(status)
+            MAXUCOUNT=5
+            STOP_COUNT=0
         else:
             ypos = random.randint(0,54)
             xpos = random.randint(0,50)
+            # myoled.clear(1)
             myoled.display("player stopped", (xpos,ypos))
+            MAXUCOUNT = 0
+            STOP_COUNT +=1
+            if STOP_COUNT > 600:
+                myoled.clear(1)
             #sleep(0.4)
+    U_COUNT +=1
+    if U_COUNT > MAXUCOUNT:
         U_COUNT = 0
     
-    threading.Timer(1, updateOled).start()  # Schedule the function to run again in 1 second
+    threading.Timer(1, loop).start()  # Schedule the function to run again in 1 second
 
 
-updateOled()
+loop()
+    

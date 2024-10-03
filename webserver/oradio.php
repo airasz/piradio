@@ -46,6 +46,34 @@ if (isset($_GET["cmd"])) {
         // echo $status;
     }
 }
+
+if (isset($_GET["sleep"])) {
+    $dt = $_GET["sleep"];
+    if ($dt !== "") {
+
+
+        // $status = shell_exec("echo \"40\" /tmp/mpcst.star");
+        // echo($status);
+
+        //$myfile = /*fopen("/home/orangepi/mpcst.star", "w") or die("Unable to open file!");
+
+        //fwrite($myfile, $dt);
+        //fclose($*/myfile);
+        // echo "create sleep timer in " . $dt;
+
+        $tmpfname = tempnam(sys_get_temp_dir(), "mpcst.star");
+        echo "will create file" . $tmpfname;
+        $handle = fopen($tmpfname, "w");
+        fwrite($handle, "writing to tempfile");
+        fclose($handle);
+
+        // do something here
+
+        //unlink($tmpfname);
+
+
+    }
+}
 function formatstatus($status)
 {
     $newlinepos = strpos($status, "\n"); // find line break in status
