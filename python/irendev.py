@@ -144,7 +144,9 @@ try:
     print("Receved command:", event_list)
 except BlockingIOError:
     print("No commands received. \n")
-
+NUM_1 = 2099228
+NUM_2 = 2099229
+NUM_3 = 2099230
 NUM_4 = 2099264
 NUM_5 = 2099265
 NUM_6 = 2099266
@@ -152,6 +154,7 @@ NUM_7 = 2099268
 NUM_8 = 2099269
 NUM_9 = 2099270
 NUM_0 = 2099271
+NUM_PAD = []
 VOLUP = 2099202
 VOLDOWN = 2099203
 STUP = 2099206
