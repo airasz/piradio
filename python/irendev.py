@@ -29,7 +29,7 @@ def getTotalQ():
     return tq
 
 
-# os.system("mpc volume 50")    
+# os.system("mpc volume 50")
 # os.system("ir-keytable -p all")
 TOQ = getTotalQ()
 
@@ -154,7 +154,7 @@ NUM_7 = 2099268
 NUM_8 = 2099269
 NUM_9 = 2099270
 NUM_0 = 2099271
-NUM_PAD = [2099228 ,2099229 ,2099230 ,2099264 ,2099265 ,2099266 ,2099268 ,2099269 ,2099270 ,2099271]
+NUMKEYS=[[1 , 2099228],[2 , 2099229],[3 , 2099230],[4 , 2099264],[5 , 2099265],[6 , 2099266],[7 , 2099268],[8 , 2099269],[9 , 2099270],[10 , 2099271]]
 VOLUP = 2099202
 VOLDOWN = 2099203
 STUP = 2099206
@@ -203,33 +203,39 @@ while True:
         if irval == 2099205:
             print("tv")  # switch playlist
             switchPLAYLIST()
+        for i in range(len(NUMKEYS)):
+            # NKV=int(NUMKEYS[i][1])
+            # NKI=int (NUMKEYS[i][0])
+            if irval == NUMKEYS[i][1]:
+                playPos(NUMKEYS[i][0])
+                break
         if irval == 2099214:  # 10+
             print("mai;")
             # global TEN
             TEN = True
-        if irval == 2099228:  # 1
-            print("")
-            playPos(1)
-        if irval == 2099229:  # 2
-            print("")
-            playPos(2)
-        if irval == 2099230:  # 3
-            print("")
-            playPos(3)
-        if irval == NUM_4:
-            playPos(4)
-        if irval == NUM_5:
-            playPos(5)
-        if irval == NUM_6:
-            playPos(6)
-        if irval == NUM_7:
-            playPos(7)
-        if irval == NUM_8:
-            playPos(8)
-        if irval == NUM_9:
-            playPos(9)
-        if irval == NUM_0:
-            playPos(10)
+        # if irval == 2099228:  # 1
+        #     print("")
+        #     playPos(1)
+        # if irval == 2099229:  # 2
+        #     print("")
+        #     playPos(2)
+        # if irval == 2099230:  # 3
+        #     print("")
+        #     playPos(3)
+        # if irval == NUM_4:
+        #     playPos(4)
+        # if irval == NUM_5:
+        #     playPos(5)
+        # if irval == NUM_6:
+        #     playPos(6)
+        # if irval == NUM_7:
+        #     playPos(7)
+        # if irval == NUM_8:
+        #     playPos(8)
+        # if irval == NUM_9:
+        #     playPos(9)
+        # if irval == NUM_0:
+        #     playPos(10)
         # mini remote=========================
             # if irval ==79:
             #     setVOL(True)
