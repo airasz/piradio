@@ -64,6 +64,8 @@ align-items: center; display: none;">
             </div>
             <p><br>
             <p>
+            <div style="display: none;">
+
                 <button class="button1" onclick="sendcmd('mpc play 1')"><a>Radio Rodja Low</a></button>
                 <button class="button1" onclick="sendcmd('mpc play 2')"><a>Radio Radio Muslim Jogja</a></button>
                 <button class="button1" onclick="sendcmd('mpc play 3')"><a>Radio Kita Cirebon</a></button>
@@ -80,7 +82,13 @@ align-items: center; display: none;">
                 <button class="button1" onclick="sendcmd('mpc play 14')"><a>Radio Rodja HQ</a></button>
                 <button class="button1" onclick="sendcmd('mpc play 15')"><a>Radio Suara
                         Al-Iman</a></button></a></button>
-                <!-- <div>
+
+            </div>
+            <div class="buttonstation" id="stations">
+
+            </div>
+
+            <!-- <div>
                 <p>play url</p>
                 <div style="display: flex;">
                     <input id="purl" type="text" class="slider" name="playurl" onclick="playurl()"

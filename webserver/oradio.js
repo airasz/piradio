@@ -2,6 +2,8 @@ var bstop = false;
 function loadonce() {
     gethostname();
 
+    console.log("send playlist request");
+    polpulatesl();
     // colorscheme.setAttribute('href', 'cscheme.css');
     load_status();
 
@@ -73,7 +75,7 @@ function updatevolslider(txt) {
 
     var vol = txt.substring(txt.indexOf("volume") + 7, txt.length - 1);
     var tbl = document.getElementById('svol');
-    console.log("vol=" + vol);
+    // console.log("vol=" + vol);
     tbl.value = parseInt(vol);
 
 }
@@ -83,6 +85,8 @@ function playbutton(txt) {
 
     // console.log("ps=" + ps);
     tbl.innerHTML = (ps == "playing") ? "pause" : "play";
+    if (document.getElementById('bstop') !== null)
+        document.getElementById('bstop').style.display = (txt.includes("stopped")) ? "none" : "initial"
 }
 function sendcmd(cmd) {
     var ajax_request = new XMLHttpRequest();
@@ -98,12 +102,14 @@ function sendcmd(cmd) {
     ajax_request.onreadystatechange = function () {
         if (ajax_request.readyState == 4 && ajax_request.status == 200) {
             tbl.innerHTML = ajax_request.responseText;
-            if (this.responseText.includes("stopped")) {
-                document.getElementById('bstop').style.display = "none";
-            } else {
-                document.getElementById('bstop').style.display = "initial";
+            // if (this.responseText.includes("stopped")) {
+            //     document.getElementById('bstop').style.display = "none";
+            // } else {
+            //     document.getElementById('bstop').style.display = "initial";
 
-            }
+            // }
+            playbutton(this.responseText);
+            polpulatesl();
         }
         else {
             // document.getElementById("loadingtbl").style.display = "block";
@@ -129,6 +135,7 @@ function gethostname() {
         if (ajax_request.readyState == 4 && ajax_request.status == 200) {
 
             // alert("hn=" + this.responseText);
+            document.title = this.responseText + " radio";
             if (this.responseText.includes("banana")) {
                 colorscheme.setAttribute('href', 'cscheme.css');
                 // spn.style.cssText = 'display:inline-flex !important';
@@ -144,5 +151,20 @@ function gethostname() {
         }
     }
     // alert("getdata.php?d=" + dokter);
+    ajax_request.send();
+}
+//populate station list to button
+function polpulatesl() {
+    var ajax_request = new XMLHttpRequest();
+    var stations = document.getElementById('stations');
+    ajax_request.open("GET", "oradio.php?cmd=playlist", true);
+    ajax_request.onreadystatechange = function () {
+        if (ajax_request.readyState == 4 && ajax_request.status == 200) {
+            stations.innerHTML = this.responseText;
+        }
+        else {
+            stations.innerHTML = "station list failed to loaded";
+        }
+    }
     ajax_request.send();
 }
