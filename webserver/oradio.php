@@ -4,7 +4,7 @@
 //     shell_exec($cmd);
 // }
 // $status = $_GET["status"];
-
+$
 if (isset($_GET["cmd"])) {
     $dt = $_GET["cmd"];
     if ($dt === "status") {
@@ -20,6 +20,16 @@ if (isset($_GET["cmd"])) {
     } else if ($dt === "hostname") {
         $status = shell_exec($dt);
         echo $status; // display current volume
+    } else if ($dt === "iplaylist") {
+        $status = shell_exec("ls /var/lib/mpd/playlists/");
+        $status = str_replace(".m3u", "", $status);
+        $starr = explode("\n", $status);
+
+        $length = count($starr);
+        for ($i = 0; $i < ($length - 1); $i++) {
+            echo "<button class=\"button1\" onclick=\"sendcmd('mpc load " . $starr[$i] . "')\"><a>" . strval($i + 1) . ". load " . $starr[$i] . "</a></button>";
+        }
+        // echo $status; // display current volume
     } else if ($dt === "playlist") {
         $status = shell_exec("mpc playlist");
         $status = str_replace("http://", "", $status);
@@ -30,12 +40,38 @@ if (isset($_GET["cmd"])) {
             echo "<button class=\"button1\" onclick=\"sendcmd('mpc play " . strval($i + 1) . "')\"><a>" . strval($i + 1) . ". " . $starr[$i] . "</a></button>";
         }
 
-    } else {
+    }
+    else if($dt==="mpc load koplo") {
+        echo $dt;
+        $status = shell_exec("mpc clear");
+        $status = shell_exec($dt);
+        $status = shell_exec("mpc play");
+        // echo $status; // display current volume
+    } else if($dt==="mpc load radio") {
+        echo $dt;
+        $status = shell_exec("mpc clear");
+        $status = shell_exec($dt);
+        $status = shell_exec("mpc play");
+        // echo $status; // display current volume
+    }
+    // else if( str_contains($dt, "koplo")) {
+    //     echo $dt;
+    //     $status = shell_exec("mpc clear");
+    //     $status = shell_exec($dt);
+    //     $status = shell_exec("mpc play");
+    //     // echo $status; // display current volume
+    // } else if (str_contains($dt, "radio")) {
+    //     $status = shell_exec("mpc clear");
+    //     $status = shell_exec($dt);
+    //     $status = shell_exec("mpc play");
+    //     // echo $status; // display current volume
+    // }
+    else {
 
         $status = shell_exec($dt);
         formatstatus($status);
 
-        updateoled();
+        // updateoled();
         // echo $status;
     }
 }

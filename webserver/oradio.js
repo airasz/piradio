@@ -4,6 +4,7 @@ function loadonce() {
 
     console.log("send playlist request");
     polpulatesl();
+    polpulatepl();
     // colorscheme.setAttribute('href', 'cscheme.css');
     load_status();
 
@@ -168,3 +169,19 @@ function polpulatesl() {
     }
     ajax_request.send();
 }
+//populate playlist to button
+function polpulatepl() {
+    var ajax_request = new XMLHttpRequest();
+    var stations = document.getElementById('playlists');
+    ajax_request.open("GET", "oradio.php?cmd=iplaylist", true);
+    ajax_request.onreadystatechange = function () {
+        if (ajax_request.readyState == 4 && ajax_request.status == 200) {
+            stations.innerHTML = this.responseText;
+        }
+        else {
+            stations.innerHTML = "station list failed to loaded";
+        }
+    }
+    ajax_request.send();
+}
+
