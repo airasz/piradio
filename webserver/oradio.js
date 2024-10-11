@@ -110,7 +110,7 @@ function sendcmd(cmd) {
 
             // }
             playbutton(this.responseText);
-            polpulatesl();
+            polpulatesl2();
         }
         else {
             // document.getElementById("loadingtbl").style.display = "block";
@@ -140,10 +140,10 @@ function gethostname() {
             if (this.responseText.includes("banana")) {
                 colorscheme.setAttribute('href', 'cscheme.css');
                 // spn.style.cssText = 'display:inline-flex !important';
-                document.getElementById('title').innerHTML = this.responseText + " radio";
+                document.getElementById('title').innerHTML = this.responseText + " radio &#x1F34C";
             } else if (this.responseText.includes("orange")) {
                 colorscheme.setAttribute('href', 'orange.css');
-                document.getElementById('title').innerHTML = this.responseText + " radio";
+                document.getElementById('title').innerHTML = this.responseText + " radio &#x1F34A";
 
             }
         }
@@ -164,6 +164,21 @@ function polpulatesl() {
         if (ajax_request.readyState == 4 && ajax_request.status == 200) {
             stations.innerHTML = this.responseText;
             setTimeout(polpulatesl, 15000);//repeat call this function
+        }
+        else {
+            stations.innerHTML = "station list failed to loaded";
+        }
+    }
+    ajax_request.send();
+}
+function polpulatesl2() {
+    console.log("refresh playlist button")
+    var ajax_request = new XMLHttpRequest();
+    var stations = document.getElementById('stations');
+    ajax_request.open("GET", "oradio.php?cmd=playlist", true);
+    ajax_request.onreadystatechange = function () {
+        if (ajax_request.readyState == 4 && ajax_request.status == 200) {
+            stations.innerHTML = this.responseText;
         }
         else {
             stations.innerHTML = "station list failed to loaded";
