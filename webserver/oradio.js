@@ -156,12 +156,14 @@ function gethostname() {
 }
 //populate station list to button
 function polpulatesl() {
+    console.log("refresh playlist button")
     var ajax_request = new XMLHttpRequest();
     var stations = document.getElementById('stations');
     ajax_request.open("GET", "oradio.php?cmd=playlist", true);
     ajax_request.onreadystatechange = function () {
         if (ajax_request.readyState == 4 && ajax_request.status == 200) {
             stations.innerHTML = this.responseText;
+            setTimeout(polpulatesl, 15000);//repeat call this function
         }
         else {
             stations.innerHTML = "station list failed to loaded";

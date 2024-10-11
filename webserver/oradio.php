@@ -4,7 +4,6 @@
 //     shell_exec($cmd);
 // }
 // $status = $_GET["status"];
-$
 if (isset($_GET["cmd"])) {
     $dt = $_GET["cmd"];
     if ($dt === "status") {
@@ -30,14 +29,20 @@ if (isset($_GET["cmd"])) {
             echo "<button class=\"button1\" onclick=\"sendcmd('mpc load " . $starr[$i] . "')\"><a>" . strval($i + 1) . ". load " . $starr[$i] . "</a></button>";
         }
         // echo $status; // display current volume
-    } else if ($dt === "playlist") {
+    }  else if ($dt === "playlist") {
         $status = shell_exec("mpc playlist");
-        $status = str_replace("http://", "", $status);
+        // $status = str_replace("http://", "", $status);
+        // $status = substr($status.strpos("//")+2);
         $starr = explode("\n", $status);
 
         $length = count($starr);
         for ($i = 0; $i < ($length - 1); $i++) {
-            echo "<button class=\"button1\" onclick=\"sendcmd('mpc play " . strval($i + 1) . "')\"><a>" . strval($i + 1) . ". " . $starr[$i] . "</a></button>";
+
+            $stsion = strval($starr[$i]);
+            if (strpos($stsion, "//")!==false){
+                $stsion = substr($stsion, strpos($stsion,"//")+2);
+            }
+            echo "<button class=\"button1\" onclick=\"sendcmd('mpc play " . strval($i + 1) . "')\"><a>" . strval($i + 1) . ". " . $stsion . "</a></button>";
         }
 
     }
