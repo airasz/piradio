@@ -12,10 +12,21 @@ SP = 240
 P_VOL = 0
 C_VOL = 0
 
-D_UP = 2099218
-D_DOWN = 2099219
-TEN = False
+#remot key nexmedia
+KR_POWER = 2099200
+KR_OPT = 2099287
+KR_D_UP = 2099218
+KR_D_DOWN = 2099219
+KR_VOLUP = 2099202
+KR_VOLDOWN = 2099203
+KR_STUP = 2099206
+KR_STDOWN = 2099207
+KR_NUMKEYS=[[1 , 2099228],[2 , 2099229],[3 , 2099230],[4 , 2099264],[5 , 2099265],[6 , 2099266],[7 , 2099268],[8 , 2099269],[9 , 2099270],[10 , 2099271]]
 
+#temporary flag
+TEN = False
+NUM_VOL=0
+TO_REBOOT= False
 
 def getTotalQ():
     status = "radio volume: 50%"
@@ -28,11 +39,9 @@ def getTotalQ():
     print("total queue = " + str(tq))
     return tq
 
-
 # os.system("mpc volume 50")
 # os.system("ir-keytable -p all")
 TOQ = getTotalQ()
-
 
 def getVol():
     status = "radio volume: 50%"
@@ -53,7 +62,6 @@ def getVol():
     global P_VOL
     P_VOL = vol
 
-
 def mute():
     getVol()
     print("P_VOL=" + str(P_VOL))
@@ -63,7 +71,6 @@ def mute():
         os.system("mpc volume 0")
     else:
         os.system("mpc volume " + str(C_VOL))
-
 
 def getPlayState():
     status = "radio volume: 50%"
@@ -89,7 +96,6 @@ def setVOL(up):
         else:
             os.system("mpc volume -5")
 
-
 def setSTATION(next):
     if (getPlayState()) is True:
         if next is True:
@@ -97,9 +103,18 @@ def setSTATION(next):
         else:
             os.system("mpc prev")
 
+def reboot():
+    global TO_REBOOT
+    if TO_REBOOT is False:
+        TO_REBOOT = True
+    else:
+        os.system("reboot")
 
+VOLTO=0
 def playPos(pos):
     global TEN
+    global VOLTO
+    global NUM_VOL
     if TEN is True:
         global TOQ
         if TOQ > 10:
@@ -108,9 +123,31 @@ def playPos(pos):
             TEN = False
         else:
             os.system("mpc play " + str(pos))
-    else:
-        os.system("mpc play " + str(pos))
 
+    else:
+        if NUM_VOL == 1:
+            VOLTO=pos * 10
+            print("start vol========== "+ str(VOLTO))
+            NUM_VOL =2
+        elif NUM_VOL == 2:
+            VOLTO+= pos
+            NUM_VOL=0
+            os.system("mpc volume " + str(VOLTO))
+        else:
+            os.system("mpc play " + str(pos))
+
+def startVol():
+    global NUM_VOL
+    global TEN
+    if TEN is True:
+        TEN =False
+    NUM_VOL=1
+
+def startTenPos():
+    # global TEN
+    TEN = True
+    if NUM_VOL !=0:
+        NUM_VOL=0
 
 def switchPLAYLIST():
     global SWITCH_PLAYLIST
@@ -124,7 +161,6 @@ def switchPLAYLIST():
         sleep(0.1)
         os.system("mpc load radio")
 
-
 def get_ir_values():
     devices = [evdev.InputDevice(path) for path in evdev.list_devices()]
     for device in devices:
@@ -133,7 +169,6 @@ def get_ir_values():
             print("Using device", device.path, "\n")
             return device
         print("No device found!")
-
 
 dev = get_ir_values()
 time.sleep(1)
@@ -144,21 +179,6 @@ try:
     print("Receved command:", event_list)
 except BlockingIOError:
     print("No commands received. \n")
-NUM_1 = 2099228
-NUM_2 = 2099229
-NUM_3 = 2099230
-NUM_4 = 2099264
-NUM_5 = 2099265
-NUM_6 = 2099266
-NUM_7 = 2099268
-NUM_8 = 2099269
-NUM_9 = 2099270
-NUM_0 = 2099271
-NUMKEYS=[[1 , 2099228],[2 , 2099229],[3 , 2099230],[4 , 2099264],[5 , 2099265],[6 , 2099266],[7 , 2099268],[8 , 2099269],[9 , 2099270],[10 , 2099271]]
-VOLUP = 2099202
-VOLDOWN = 2099203
-STUP = 2099206
-STDOWN = 2099207
 while True:
     event = dev.read_one()
     if event:
@@ -170,16 +190,16 @@ while True:
         if irval == 2099218:
             print("UP")
             setVOL(True)
-        if event.value == VOLUP:
+        if event.value == KR_VOLUP:
             print("volume up")
             setVOL(True)
-        if event.value == VOLDOWN:
+        if event.value == KR_VOLDOWN:
             setVOL(False)
-        if event.value == STUP:
+        if event.value == KR_STUP:
             setSTATION(True)
-        if event.value == STDOWN:
+        if event.value == KR_STDOWN:
             setSTATION(False)
-        # if event.value== D_UP:
+        # if event.value== KR_D_UP:
         #     print("dUP")
         #     setVOL(False)
         if irval == 2099219:
@@ -203,16 +223,18 @@ while True:
         if irval == 2099205:
             print("tv")  # switch playlist
             switchPLAYLIST()
-        for i in range(len(NUMKEYS)):
-            # NKV=int(NUMKEYS[i][1])
-            # NKI=int (NUMKEYS[i][0])
-            if irval == NUMKEYS[i][1]:
-                playPos(NUMKEYS[i][0])
+        if irval == KR_OPT:
+            print("opt")  # start vol
+            startVol()
+        for i in range(len(KR_NUMKEYS)):
+            # NKV=int(KR_NUMKEYS[i][1])
+            # NKI=int (KR_NUMKEYS[i][0])
+            if irval == KR_NUMKEYS[i][1]:
+                playPos(KR_NUMKEYS[i][0])
                 break
         if irval == 2099214:  # 10+
             print("mai;")
-            # global TEN
-            TEN = True
+            startTenPos()
         # if irval == 2099228:  # 1
         #     print("")
         #     playPos(1)
