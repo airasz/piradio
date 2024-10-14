@@ -61,3 +61,25 @@ case "$1" in
         mixer_index     "0"             # optional
 }
 sh '/root/oradio.sh'
+
+banana pi instruction
+apt install mpc mpd
+apt install apache2 php
+mkdir /var/www/html/radio
+
+systemctl status lirc*
+systemctl stop lircd.service
+mode2 -d /dev/lirc0
+
+mv /etc/lirc/lircd_nexmedia.conf /etc/lirc/lircd.conf.d/
+pip3 install evdev
+apt install evtest
+
+evtest
+
+apt-get install ir-keytable
+ir-keytable -p all
+
+/usr/bin/systemctl stop lircd.socket lircd.service
+/usr/bin/systemctl start lircd.socket lircd.service
+irw
