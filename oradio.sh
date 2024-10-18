@@ -7,6 +7,6 @@ done
 
 echo "I have network"
 mpc play
-#python3   /home/pi/irendev.py
+python3   /home/root/iradio.py
 #  GNU nano 5.4                                       /root/oradio.sh     
 exit 0
