@@ -11,24 +11,6 @@
     margin: 4px 2px;
     border-radius: 20px !important;
     background: linear-gradient(145deg, #177d02, #0ebb08) !important;
-    box-shadow: 5px 5px 8px #0f5303, -2px -2px 8px #f9ea6f !important;
-    /* background: rgb(164, 207, 1);
-    background: linear-gradient(360deg, rgba(164, 207, 1, 1) 0%, rgba(137, 146, 17, 1) 41%, rgba(208, 224, 1, 1) 43%, rgba(255, 231, 0, 0.9668067055923932) 100%); */
+    box-shadow: 5px 5px 8px #000, -2px -2px 8px #f9ea6f !important;
     cursor: pointer;
-}
-.button1:active {
-    color: rgb(255, 255, 255) !important;
-    padding: 8px;
-    border: 0px;
-    font-size: 16px;
-    margin: 4px 2px;
-    border-radius: 20px !important;
-    background: linear-gradient(145deg, #177d02, #0ebb08) !important;
-    box-shadow: 5px 5px 3px #46d819, -2px -2px 6px #96d01a !important;
-    cursor: pointer;
-}
-.groupbox{
-
-/* box-shadow: 6px 6px 12px #b3b0b0, -2px -2px 12px #fff !important; */
-  box-shadow: inset 2px 2px 4px #072f02, inset -2px -2px 4px rgb(0, 96, 24);
 }

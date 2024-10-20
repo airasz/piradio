@@ -83,3 +83,8 @@ ir-keytable -p all
 /usr/bin/systemctl stop lircd.socket lircd.service
 /usr/bin/systemctl start lircd.socket lircd.service
 irw
+
+enable mpd
+$ sudo systemctl enable mpd
+...
+$ sudo systemctl start mpd  

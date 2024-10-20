@@ -6,6 +6,25 @@
 // $status = $_GET["status"];
 if (isset($_GET["cmd"])) {
     $dt = $_GET["cmd"];
+    // echo $dt;
+    if (str_starts_with($dt, "mpc load")){
+        $status = shell_exec("ls /var/lib/mpd/playlists/");
+        $status = str_replace(".m3u", "", $status);
+        $starr = explode("\n", $status);
+        $plname= substr($dt, 9);
+        echo "plname= ".$plname."...";
+        $length = count($starr);
+        for ($i = 0; $i < ($length - 1); $i++) {
+            if ($plname===$starr[$i]){
+                $statu = shell_exec("mpc clear");
+                $statu = shell_exec($dt);
+                $statu = shell_exec("mpc play");
+                break;
+            }
+
+        }
+        return;
+    }
     if ($dt === "status") {
         $status = shell_exec("mpc");
         formatstatus($status);
@@ -37,7 +56,6 @@ if (isset($_GET["cmd"])) {
 
         $length = count($starr);
         for ($i = 0; $i < ($length - 1); $i++) {
-
             $stsion = strval($starr[$i]);
             if (strpos($stsion, "//")!==false){
                 $stsion = substr($stsion, strpos($stsion,"//")+2);
@@ -46,19 +64,19 @@ if (isset($_GET["cmd"])) {
         }
 
     }
-    else if($dt==="mpc load koplo") {
-        echo $dt;
-        $status = shell_exec("mpc clear");
-        $status = shell_exec($dt);
-        $status = shell_exec("mpc play");
-        // echo $status; // display current volume
-    } else if($dt==="mpc load radio") {
-        echo $dt;
-        $status = shell_exec("mpc clear");
-        $status = shell_exec($dt);
-        $status = shell_exec("mpc play");
-        // echo $status; // display current volume
-    }
+    // else if($dt==="mpc load koplo") {
+    //     echo $dt;
+    //     $status = shell_exec("mpc clear");
+    //     $status = shell_exec($dt);
+    //     $status = shell_exec("mpc play");
+    //     // echo $status; // display current volume
+    // } else if($dt==="mpc load radio") {
+    //     echo $dt;
+    //     $status = shell_exec("mpc clear");
+    //     $status = shell_exec($dt);
+    //     $status = shell_exec("mpc play");
+    //     // echo $status; // display current volume
+    // }
     // else if( str_contains($dt, "koplo")) {
     //     echo $dt;
     //     $status = shell_exec("mpc clear");

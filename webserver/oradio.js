@@ -31,6 +31,15 @@ function setvol() {
     var ajax_request = new XMLHttpRequest();
     var tbl = document.getElementById('svol');
     ajax_request.open("GET", "oradio.php?cmd=mpc volume " + tbl.value, true);
+    // ajax_request.onreadystatechange = function () {
+    //     if (ajax_request.readyState == 4 && ajax_request.status == 200) {
+    //         tbl.value = ajax_request.responseText;
+    //     }
+    //     else {
+    //         // document.getElementById("loadingtbl").style.display = "block";
+    //     }
+    // }
+
     ajax_request.send();
 }
 
@@ -74,6 +83,7 @@ function updatevolslider(txt) {
 function playbutton(txt) {
     var ps = txt.substring(txt.indexOf("[") + 1, txt.indexOf("]"));
     var tbl = document.getElementById('bplay');
+
     // console.log("ps=" + ps);
     tbl.innerHTML = (ps == "playing") ? "pause" : "play";
     if (document.getElementById('bstop') !== null)
@@ -83,7 +93,12 @@ function sendcmd(cmd) {
     var ajax_request = new XMLHttpRequest();
 
     var tbl = document.getElementById('radiostatus');
+    // ajax_request.open('POST', 'oradio.php');
     ajax_request.open("GET", "oradio.php?cmd=" + cmd, true);
+
+    // ajax_request.send(form_data);
+
+    // new Response(form_data).text().then(console.log)
     ajax_request.onreadystatechange = function () {
         if (ajax_request.readyState == 4 && ajax_request.status == 200) {
             tbl.innerHTML = ajax_request.responseText;
@@ -161,7 +176,12 @@ function polpulatesl2() {
     var stations = document.getElementById('stations');
     ajax_request.open("GET", "oradio.php?cmd=playlist", true);
     ajax_request.onreadystatechange = function () {
-        stations.innerHTML = (ajax_request.readyState == 4 && ajax_request.status == 200)? this.responseText:"playlist group failed to loaded";
+        if (ajax_request.readyState == 4 && ajax_request.status == 200) {
+            stations.innerHTML = this.responseText;
+        }
+        else {
+            stations.innerHTML = "station list failed to loaded";
+        }
     }
     ajax_request.send();
 }
@@ -171,8 +191,12 @@ function polpulatepl() {
     var stations = document.getElementById('playlists');
     ajax_request.open("GET", "oradio.php?cmd=iplaylist", true);
     ajax_request.onreadystatechange = function () {
-
-        stations.innerHTML = (ajax_request.readyState == 4 && ajax_request.status == 200)? this.responseText:"playlist group failed to loaded";
+        if (ajax_request.readyState == 4 && ajax_request.status == 200) {
+            stations.innerHTML = this.responseText;
+        }
+        else {
+            stations.innerHTML = "station list failed to loaded";
+        }
     }
     ajax_request.send();
 }
