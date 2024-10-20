@@ -2,6 +2,7 @@
 # import RPi.GPIO as GPIO
 import time
 import evdev
+from evdev import InputDevice, categorize, ecodes
 import os
 from time import sleep
 
@@ -34,8 +35,11 @@ def getTotalQ():
     status = open("tmp", "r").read()
     tq = status.count("\n") + 1
     global SWITCH_PLAYLIST
-    if tq < 10:
-        SWITCH_PLAYLIST = True
+
+    if "muslim" in status:
+        SWITCH_PLAYLIST = False
+    # if tq < 10:
+    #     SWITCH_PLAYLIST = True
     print("total queue = " + str(tq))
     return tq
 
@@ -84,24 +88,23 @@ def getPlayState():
 
 def playToggle():
     if (getPlayState()) is True:
+        os.system("mpc "+ ("stop" if getPlayState() else "play"))
         os.system("mpc stop")
     else:
         os.system("mpc play")
 
 def setVOL(up):
     if (getPlayState()) is True:
-        if up is True:
-            print("set volume up")
-            os.system("mpc volume +5")
-        else:
-            os.system("mpc volume -5")
+        os.system("mpc "+ ("volume +5" if up else "volume -5"))
+        # if up is True:
+        #     print("set volume up")
+        #     os.system("mpc volume +5")
+        # else:
+        #     os.system("mpc volume -5")
 
 def setSTATION(next):
     if (getPlayState()) is True:
-        if next is True:
-            os.system("mpc next")
-        else:
-            os.system("mpc prev")
+        os.system("mpc "+ ("next" if next else "prev"))
 
 def reboot():
     global TO_REBOOT
@@ -144,22 +147,36 @@ def startVol():
     NUM_VOL=1
 
 def startTenPos():
-    # global TEN
+    global TEN
+    global NUM_VOL
     TEN = True
     if NUM_VOL !=0:
         NUM_VOL=0
 
+
 def switchPLAYLIST():
     global SWITCH_PLAYLIST
     SWITCH_PLAYLIST = not SWITCH_PLAYLIST
-    if SWITCH_PLAYLIST is True:
-        os.system("mpc clear")
-        sleep(0.1)
-        os.system("mpc load koplo")
-    else:
-        os.system("mpc clear")
-        sleep(0.1)
-        os.system("mpc load radio")
+    status = os.popen("ls /var/lib/mpd/playlists/").read()
+    status = status.replace(".m3u", "")
+    starr = status.split("\n")
+
+    length = len(starr)
+    # for i in range(length - 1):
+    #     print(starr[i])
+
+    os.system("mpc clear")
+    sleep(0.1)
+    os.system("mpc load " + (str(starr[0]) if SWITCH_PLAYLIST else str(starr[1])))
+    os.system("mpc play")
+    # if SWITCH_PLAYLIST is True:
+    #     os.system("mpc clear")
+    #     sleep(0.1)
+    #     os.system("mpc load koplo")
+    # else:
+    #     os.system("mpc clear")
+    #     sleep(0.1)
+    #     os.system("mpc load radio")
 
 def get_ir_values():
     devices = [evdev.InputDevice(path) for path in evdev.list_devices()]
@@ -168,7 +185,7 @@ def get_ir_values():
         if device.name == "sunxi-ir":
             print("Using device", device.path, "\n")
             return device
-        print("No device found!")
+        # print("No device found!")
 
 dev = get_ir_values()
 time.sleep(1)
@@ -187,54 +204,59 @@ while True:
         print(hexval)
         # sval=str(event.value)
         irval = event.value
-        if irval == 2099218:
-            print("UP")
-            setVOL(True)
-        if event.value == KR_VOLUP:
-            print("volume up")
-            setVOL(True)
-        if event.value == KR_VOLDOWN:
-            setVOL(False)
-        if event.value == KR_STUP:
-            setSTATION(True)
-        if event.value == KR_STDOWN:
-            setSTATION(False)
-        # if event.value== KR_D_UP:
-        #     print("dUP")
-        #     setVOL(False)
-        if irval == 2099219:
-            print("DOWN")
-            setVOL(False)
-        if irval == 2099222:
-            print("right")
-            setSTATION(True)
-        if irval == 2099220:
-            print("left")
-            setSTATION(False)
-        if irval == 2099278:
-            print("play")
-            os.system("mpc play")
-        if irval == 2099277:
-            print("stop")
-            os.system("mpc stop")
-        if irval == 2099204:
-            print("mute")
-            mute()
-        if irval == 2099205:
-            print("tv")  # switch playlist
-            switchPLAYLIST()
-        if irval == KR_OPT:
-            print("opt")  # start vol
-            startVol()
+
         for i in range(len(KR_NUMKEYS)):
             # NKV=int(KR_NUMKEYS[i][1])
             # NKI=int (KR_NUMKEYS[i][0])
             if irval == KR_NUMKEYS[i][1]:
                 playPos(KR_NUMKEYS[i][0])
                 break
-        if irval == 2099214:  # 10+
-            print("mai;")
+        if irval == 2099218:
+            print("UP")
+            setVOL(True)
+        elif event.value == KR_VOLUP:
+            print("volume up")
+            setVOL(True)
+        elif event.value == KR_VOLDOWN:
+            setVOL(False)
+        elif event.value == KR_STUP:
+            setSTATION(True)
+        elif event.value == KR_STDOWN:
+            setSTATION(False)
+        # elif event.value== KR_D_UP:
+        #     print("dUP")
+        #     setVOL(False)
+        elif irval == 2099219:
+            print("DOWN")
+            setVOL(False)
+        elif irval == 2099222:
+            print("right")
+            setSTATION(True)
+        elif irval == 2099220:
+            print("left")
+            setSTATION(False)
+        elif irval == 2099278:
+            print("play")
+            os.system("mpc play")
+        elif irval == 2099277:
+            print("stop")
+            os.system("mpc stop")
+        elif irval == 2099204:
+            print("mute")
+            mute()
+        elif irval == 2099205:
+            print("tv")  # switch playlist
+            switchPLAYLIST()
+        elif irval == KR_OPT:
+            print("opt")  # start vol
+            startVol()
+        elif irval == 2099214:  # 10+
+            print("mail")
             startTenPos()
+        elif irval == KR_POWER:  # 10+
+            print("reboot")
+            reboot()
+    sleep(0.01)
         # if irval == 2099228:  # 1
         #     print("")
         #     playPos(1)
