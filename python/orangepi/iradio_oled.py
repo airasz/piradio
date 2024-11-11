@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 
 import os
 import oledis
@@ -7,12 +7,30 @@ import subprocess
 import random
 import threading
 from time import sleep
-import mpc_sleep_timer
+import mpcstimer
+import math
+import json
 
 myoled= oledis.oled()
-stimer=mpc_sleep_timer.mpctimer()
-local_ip = ""
-NETSTAT = ""
+stimer=mpcstimer.mpctimer()
+local_ip = "192.168.1.123"
+cputemp=""
+NETSTAT = "0MB"
+systemReady=0
+
+T_ENABLE= False
+SEC_CD = 0
+def load_variable():
+    global SEC_CD
+    global T_ENABLE
+    try:
+        with open("/home/timer.json", "r") as f:
+            data = json.load(f)
+            T_ENABLE = data.get("enable", False)
+            SEC_CD = data.get("seconds", 120)
+    except FileNotFoundError:
+        pass
+
 def getlocal_ip():
     global local_ip
     cmd= "hostname -I"
@@ -22,12 +40,22 @@ def getlocal_ip():
         local_ip=local_ip[:(local_ip.index(":")-4)]
         # local_ip=local_ip.rstrip
         # local_ip=local_ip.replace("\n", "")
-
+    local_ip=local_ip.replace("\n", "")
     local_ip = "IP: " + local_ip
     print(local_ip)
+getlocal_ip()
+
+def updateCPUtemp():
+    global cputemp
+    cmd= "cat /sys/class/thermal/thermal_zone0/temp"
+    result= subprocess.check_output(cmd, shell=True)
+    cputemp =  "cpu temp: "+result.decode("utf-8")[:2] + "c"
+    # print(cputemp)
 # getlocal_ip()
 P_COUNT=0
 def displaytooled(status):
+    global T_ENABLE
+    global SEC_CD
     global local_ip
     global NETSTAT
     if len(local_ip) < 8:
@@ -35,40 +63,50 @@ def displaytooled(status):
 
     mlpl = 22# maximum length per line
     #srink status
-    inrep = status.index("repeat")
-    status= status[:inrep]
+    if "repeat" in status:
+        inrep = status.index("repeat")
+        status= status[:inrep]
 
-    # crop station info
-    inbrace =status.index("[")
-    station = status[:inbrace]
-    # print("station = " + station)
-    # split limited length char to list
-    infolist=textwrap.wrap(station, mlpl)
+        # crop station info
+        inbrace =status.index("[")
+        station = status[:inbrace]
+        # print("station = " + station)
+        # split limited length char to list
+        infolist=textwrap.wrap(station, mlpl)
 
-    # crop playing info
-    indvol=status.index("volume")
-    indel=status.index("/0")
-    state=status[inbrace:indel]
-    state=state.replace("#", " ")
-    # split limited length char to list
-    msglist=textwrap.wrap(state, mlpl)
+        # crop playing info
+        indvol=status.index("volume")
+        indel=status.index("/0")
+        state=status[inbrace:indel]
+        state=state.replace("#", " ")
+        # split limited length char to list
+        msglist=textwrap.wrap(state, mlpl)
 
-    #crop volume info
-    stvol=status[indvol:]
+        #crop volume info
+        stvol=status[indvol:]
 
-    # print("state = " + state)
+        # print("state = " + state)
 
-    for i in infolist:
-        msglist.append(i)
+        for i in infolist:
+            msglist.append(i)
 
-        # msglist.append(i)
-    msglist.append(stvol)
-    if stimer.isrunning() is True:
-        sst="sleep in : "+stimer.update()
+            # msglist.append(i)
+        msglist.append(stvol)
+
+
+    load_variable()
+    if T_ENABLE is True:
+    # if stimer.isrunning() is True:
+        mins, secs = divmod(SEC_CD, 60)
+        hours, mins = divmod(mins, 60)
+        timer = f'{hours:02d}:{mins:02d}:{secs:02d}'
+        sst="sleep in : "+ timer
+        # sst="sleep in : "+stimer.update()
         msglist.append(sst)
     msglist.append(local_ip)
     #msglist.append("test")
-    msglist.append(NETSTAT)    
+    msglist.append(NETSTAT)
+    msglist.append(cputemp)
 
     status= status.replace("(0%)", "")
     status= status.replace("(volume", "\nvolume")
@@ -152,12 +190,71 @@ def getNetData():
         #required intall netstat
         global NETSTAT
         OUT = subprocess.check_output("netstat -e -n -i | grep wlan0  -A 10 | grep 'RX packets' |  tail -1 | awk '{print $6$7}'", shell=True)
+        #OUT = subprocess.check_output("ifconfig wlan0 | grep wlan0  -A 10 | grep 'RX packets' |  tail -1 | awk '{print $6$7}'", shell=True)
         NETSTAT=str(OUT)
         sbr = NETSTAT.index("(")+1
         ebr = NETSTAT.index(")")
         NETSTAT = "RX = " + NETSTAT[sbr:ebr]
         NETSTAT= NETSTAT.replace('i','')
+        
+        # OUT = subprocess.check_output("iwconfig wlan0 | grep Quality |  awk '{print substr ($4$5, 7, 3)}'", shell=True)
+        # dbm=b'\xff'
+        dbm = subprocess.check_output("/usr/sbin/iwconfig wlan0 | grep Signal | /usr/bin/awk '{print $4}' | /usr/bin/cut -d'=' -f2", shell=True)
+        # dbm = subprocess.check_output("/usr/sbin/iwconfig wlan0 | grep Signal | awk '{print $4}'", shell=True)
+        # try:
+        #     dbm = subprocess.check_output("iwconfig wlan0 | grep Signal | /usr/bin/awk '{print $4}' | /usr/bin/cut -d'=' -f2", shell=True)
+        # except:
+        #     dbm=b'\xff'
+        #OUT = subprocess.check_output("ifconfig wlan0 | grep wlan0  -A 10 | grep 'RX packets' |  tail -1 | awk '{print $6$7}'", shell=True)
 
+        signal =  dbm.decode("utf-8")
+        # signal=str(dbg)
+        # if dbm:
+            # dbm_num = int(dbm)
+            # print("prcnt= "+ str(translate(dbm_num, -100,0,0,100)))
+            # quality = 2 * (dbm_num + 100)
+            # print("{0} dbm_num = {1}%".format(dbm_num, quality))
+            # signal = str("sig = {1}%".format(dbm_num, quality))
+        # sbr = signal.index("(")+1
+        # ebr = signal.index("d")
+        # dbtopercent(dbm)
+
+        # NETSTAT = NETSTAT + " "+signal[5:]+ "dBm"
+        NETSTAT = NETSTAT + dbtopercent(dbm) #+ signal[1:]
+        # if dbm:
+            # NETSTAT = NETSTAT + dbtopercent(dbm) #+ signal[1:]
+        # try:
+        #     NETSTAT = NETSTAT + dbtopercent(dbm) #+ signal[1:]
+        # except:
+        #     NETSTAT
+def translate(value, leftMin, leftMax, rightMin, rightMax):
+    # Figure out how 'wide' each range is
+    leftSpan = leftMax - leftMin
+    rightSpan = rightMax - rightMin
+
+    # Convert the left range into a 0-1 range (float)
+    valueScaled = float(value - leftMin) / float(leftSpan)
+
+
+    # Convert the 0-1 range into a value in the right range.
+    return rightMin + (valueScaled * rightSpan)
+def dbtopercent(value):
+    # inval=0
+    # try:
+    #     inval=int(value)
+    # except:
+    #     inval =(-50)
+    # percent = 100 x (1 – (PdBm_max – PdBm) / (PdBm_max – PdBm_min))
+
+    inval=int(value)
+    if inval != 0:
+        percent = 100 * (1 - ((-1) - inval) / ((-1)- (-98)))
+        pct=str(math.floor(percent))
+        # pct=pct[:]
+        # print("percent="+pct)
+        return " sig: " +pct + "%"
+    else:
+        return " sig: 0%"
 
 # def getUsage():
 #     global NETSTAT
@@ -175,6 +272,7 @@ def loop():
     global STOP_COUNT
     global P_COUNT
     global SCREEN_SLEEP
+    global systemReady
     old_status=""
     status = ""
     # os.system("mpc > tmp")
@@ -205,7 +303,7 @@ def loop():
             STOP_COUNT +=1
 
             # print("STOP_COUNT" + str(STOP_COUNT))
-            if STOP_COUNT > 10:
+            if STOP_COUNT > 200:
                 myoled.display("",(0,0))
                 STOP_COUNT=11
                 if SCREEN_SLEEP is False:
@@ -218,7 +316,12 @@ def loop():
             #sleep(0.4)
     U_COUNT +=1
     if U_COUNT == 5:
+
+        systemReady+=1
+        if systemReady > 8:
+            systemReady = 8
         getNetData()
+        updateCPUtemp()
         #NETSTAT =  status.decode("utf-8")
     if U_COUNT > MAXUCOUNT:
         U_COUNT = 0
@@ -230,9 +333,21 @@ def loop():
 loop()
 
 class display:
-    def resettimer(self, msg):
+    # def resettimer(self, msg):
+    #     U_COUNT = 1;
+    #     print("reset timer")
+    #     return
+
+    def resettimer(self):
+        global U_COUNT
         U_COUNT = 1;
         print("reset timer")
+        return
+
+    def delay(self, time):
+        global U_COUNT
+        if time > 0:
+            U_COUNT = 0- time
         return
 
     def display(self, msg, pos):
@@ -241,6 +356,9 @@ class display:
 
     def display(self, msg, rndom):
         mx=128-len(msg)*6
+        print("mx="+str(mx))
+        if mx<0:
+            mx =0
         ypos = random.randint(0,54) if rndom else 0
         xpos =  random.randint(0,mx)if rndom else 0
         myoled.display(msg, (xpos,ypos))
