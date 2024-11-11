@@ -262,8 +262,8 @@ def dbtopercent(value):
 #         OUT = subprocess.check_output("netstat -e -n -i | grep wlan0  -A 5 | grep 'RX packets' |  tail -1 | awk '{print $6$7}'", shell=True)
 #         NETSTAT=str(OUT)
 #
-U_COUNT = 0
-MAXUCOUNT = 5
+U_COUNT = 20
+MAXUCOUNT = 25
 STOP_COUNT = 0
 SCREEN_SLEEP = False
 def loop():
@@ -290,22 +290,22 @@ def loop():
     stimer.loopy()
     # print(stimer.update())
     # print("U_COUNT" + str(U_COUNT))
-    if U_COUNT == 0:
+    if U_COUNT == 20:
         if "playing" in status or "paused" in status:
             displaytooled(status)
-            MAXUCOUNT=5
+            MAXUCOUNT=25
             STOP_COUNT=0
         
         else:
             # myoled.clear(1)
             # myoled.display("player stopped", (xpos,ypos))
-            MAXUCOUNT = 0
+            MAXUCOUNT = 20
             STOP_COUNT +=1
 
             # print("STOP_COUNT" + str(STOP_COUNT))
             if STOP_COUNT > 200:
                 myoled.display("",(0,0))
-                STOP_COUNT=11
+                STOP_COUNT=201
                 if SCREEN_SLEEP is False:
                     SCREEN_SLEEP = True
                     # myoled.clear(1)
@@ -315,7 +315,7 @@ def loop():
                 myoled.display("player stopped", (xpos,ypos))
             #sleep(0.4)
     U_COUNT +=1
-    if U_COUNT == 5:
+    if U_COUNT == 25:
 
         systemReady+=1
         if systemReady > 8:
@@ -324,7 +324,7 @@ def loop():
         updateCPUtemp()
         #NETSTAT =  status.decode("utf-8")
     if U_COUNT > MAXUCOUNT:
-        U_COUNT = 0
+        U_COUNT = 20
 
     old_status=status
     threading.Timer(1, loop).start()  # Schedule the function to run again in 1 second
@@ -340,7 +340,7 @@ class display:
 
     def resettimer(self):
         global U_COUNT
-        U_COUNT = 1;
+        U_COUNT = 15;
         print("reset timer")
         return
 
@@ -350,8 +350,18 @@ class display:
             U_COUNT = 0- time
         return
 
+    def frezeeDisplay(self, delay):
+        global U_COUNT
+        U_COUNT = 20-delay;
+        print("reset timer for " + str(delay))
+        return
+
     def display(self, msg, pos):
         myoled.display(msg, pos)
+        return
+
+    def displaybig(self, msg):
+        myoled.displaybig(msg)
         return
 
     def display(self, msg, rndom):

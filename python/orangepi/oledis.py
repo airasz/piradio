@@ -4,28 +4,39 @@ from luma.oled.device import ssd1306
 from luma.core.legacy import show_message
 from luma.core.legacy.font import proportional, SINCLAIR_FONT
 
+from pathlib import Path
+from PIL import ImageFont
+# font25 = ImageFont.truetype(Dejavu, 25)
 
+font_path = str(Path(__file__).resolve().parent.joinpath('fonts', 'DejaVuSansMono.ttf'))
+font2 = ImageFont.truetype(font_path, 10)
+font3 = ImageFont.truetype(font_path, 30)
 
 def do_nothing(obj):
 	pass
 
-serial = i2c(port=3, address=0x3c)
+serial = i2c(port=1, address=0x3c)
 device = ssd1306(serial, rotate=2)
 device.cleanup = do_nothing
 
 class oled:
 	def display(self, msg):
 		with canvas(device) as draw:
-			draw.text((0, 0), msg, fill="white")
+			draw.text((0, 0), msg, fill="white",font=font2)
 		return
 
 	def display(self, msg, cursor):
 		with canvas(device) as draw:
-			draw.text(cursor, msg, fill="white")
+			draw.text(cursor, msg, fill="white",font=font2)
+		return
+	def displaybig(self, msg):
+		with canvas(device) as draw:
+			draw.text((0, 0), msg, fill="white",font=font3)
 		return
 
+
 	def showmsg(self, msg):
-		show_message(device, msg, fill="white", font=proportional(SINCLAIR_FONT))
+		show_message(device, msg, fill="white", font=font2)
 		return
 
 	def clear(self, cmode):

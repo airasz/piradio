@@ -90,6 +90,9 @@ KRC_CCALL       ="FFFA05" #preset station 10+
 CDOWN=0
 
 
+def interuptDisplay(msg):
+    display.display(msg, False)
+    display.frezeeDisplay(5)
 
 def load_variable():
     global CDOWN
@@ -159,17 +162,6 @@ def getPlayState():
     else:
         return False
 
-def setVOL(up):
-    status = ""
-    if (getPlayState()) is True:
-        # status = cmd("mpc volume " + "+5" if up else "-5")# if next else cmd("mpc prev")
-        status = cmd("mpc volume +5") if up else cmd("mpc volume -5")
-        # if up is True:
-        #     status = cmd("mpc volume +5")
-        # else:
-        #     status = cmd("mpc volume -5")
-    display.resettimer()
-    displaytooled(status)
 
 def startVol():
     display.display("jump volume...", True)
@@ -191,7 +183,7 @@ def startsetsleep():
     if stimer.isrunning() is True:
         if stimerStop==0:
             display.display("timer is running\npress again to stop", False)
-            display.resettimer()
+            display.frezeeDisplay(5)
             stimerStop+=1
         elif stimerStop==1:
             jdata={"enable":False,
@@ -203,11 +195,11 @@ def startsetsleep():
                 json.dump(jdata, f)
             display.display("timer is stopped", False)
             stimerStop=0
-            display.resettimer()
+            display.frezeeDisplay(5)
     else:
         display.display("set sleep...", True)
         MIN_SLEEP=1
-        display.resettimer()
+        display.frezeeDisplay(5)
 
 def startTenPos():
     display.display("jump station to...", True)
@@ -228,37 +220,38 @@ def setSTATION(next):
         status = cmd("mpc next") if next else cmd("mpc prev")
 
     print("status = "+status)
-    display.resettimer()
-    displaytooled(status)
+    display.frezeeDisplay(5)
+    # displaytooled(status)
 
 
 def setVOL(up):
     status = ""
     if (getPlayState()) is True:
-        if up is True:
-            print("set volume up")
-            os.system("mpc volume +5")
-        else:
-            os.system("mpc volume -5")
-        status = cmd("mpc volume")
-        display.display(status, True)
+        status = subprocess.check_output("mpc volume | awk '{print$2}'", shell=True)
+        vol=str(status.decode("utf-8"))
+        vol=vol[:len(vol)-2]
+        intvol = int(vol)
+        # status = cmd("mpc volume " + "+5" if up else "-5")# if next else cmd("mpc prev")
+        status = cmd("mpc volume +5") if up else cmd("mpc volume -5")
 
-def setSTATION(next):
-    if (getPlayState()) is True:
-        display.display("station " +( "next" if next else "prev"), True)
-        if next is True:
+        # if up is True:
+        #     status = cmd("mpc volume +5")
+        # else:
+        #     status = cmd("mpc volume -5")
+    print("vol"+vol)
+    display.displaybig("v"+vol)
+    display.frezeeDisplay(5)
 
-            os.system("mpc next")
-        else:
-            os.system("mpc prev")
 
 def reboot():
     global TO_REBOOT
     if TO_REBOOT is False:
         TO_REBOOT = True
         display.display("goto reboot", True)
-        display.resettimer("goto reboot")
+        display.frezeeDisplay(5)
     else:
+        display.display("rebooting...", True)
+        sleep(1)
         os.system("reboot")
 
 
@@ -323,18 +316,18 @@ def clickNum(pos):
             MIN_SLEEPV=0
             MIN_SLEEPV=pos*10
             display.display("sleep in "+ str(pos)+"x minutes", False)
-            display.resettimer()
+            display.frezeeDisplay(5)
             MIN_SLEEP=2
         elif MIN_SLEEP==2:
             MIN_SLEEPV+=pos
             display.display("sleep in "+ str(MIN_SLEEPV)+" minutes\nClick OK to confirm", False)
-            display.resettimer()
+            display.frezeeDisplay(5)
 
 
 
 
 
-    # display.resettimer()
+    # display.frezeeDisplay(5)
     # displaytooled(status)
 
 
@@ -375,7 +368,7 @@ def switchPLAYLIST():
     sleep(1)
     status = cmd("mpc play")
     displaytooled(status)
-    display.resettimer()
+    display.frezeeDisplay(5)
 
 
 def getstationlen(): #get total playlist
@@ -472,7 +465,7 @@ def ok():
         # stimer.startcdown(MIN_SLEEPV)
         os.system("/usr/bin/python startsleeper.py "+ str(MIN_SLEEPV))
         display.display("sleep timer starting", True)
-        display.resettimer()
+        display.frezeeDisplay(5)
         MIN_SLEEP=0
 
 def millis():
@@ -499,7 +492,7 @@ def processIR(irval):
     if irval== KR_YELLOW:
         EN_NEXMEDIA_R= not EN_NEXMEDIA_R
         display.display(("REMOTE control\n"+"unlocked" if EN_NEXMEDIA_R else "locked"), False)
-        display.resettimer()
+        display.frezeeDisplay(5)
     if EN_NEXMEDIA_R:
         for i in range(len(KR_nNUM)):
             if irval == KR_nNUM[i][1]:
@@ -559,7 +552,7 @@ def processIR(irval):
         if irval[:2]=="41":
             # interuptDisplay("unregistered key remote\nor this remote locked")
             display.display("unregistered key remote\nor this remote locked", False)
-            display.resettimer()
+            display.frezeeDisplay(5)
 
 
 def processIRc(irval):
