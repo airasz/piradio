@@ -29,11 +29,17 @@ class oled:
 		with canvas(device) as draw:
 			draw.text(cursor, msg, fill="white",font=font2)
 		return
+
 	def displaybig(self, msg):
 		with canvas(device) as draw:
 			draw.text((0, 0), msg, fill="white",font=font3)
 		return
 
+	def displayfs(self, msg, font_size):
+		cfont = ImageFont.truetype(font_path, font_size)
+		with canvas(device) as draw:
+			draw.text((0, 0), msg, fill="white",font=cfont)
+		return
 
 	def showmsg(self, msg):
 		show_message(device, msg, fill="white", font=font2)

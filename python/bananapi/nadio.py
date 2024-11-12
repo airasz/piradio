@@ -298,7 +298,7 @@ def startsetsleep():
                 "svalue":0,
                 "seconds":0
             }
-            with open("timer.json", "w") as f:
+            with open("/home/timer.json", "w") as f:
                 json.dump(jdata, f)
             interuptDisplay("sleep timer stopped")
 

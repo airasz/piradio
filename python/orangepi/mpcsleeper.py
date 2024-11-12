@@ -5,7 +5,10 @@ import threading
 import time
 from time import sleep
 import json
+import psutil
 
+
+SCRIPTNAME_='mpcsleeper.py'
 DATAFILE_='/home/timer.json'
 CDOWN = False
 T_ENABLE= False
@@ -14,6 +17,20 @@ S_VAL = 0
 STARTRUNNING_ = False
 
 
+
+for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
+    # print(proc.info['cmdline'])
+    if proc.info['cmdline'] is not None and SCRIPTNAME_ in proc.info['cmdline']:
+        # print("exit cause already running instance")
+        print(proc.info['pid'])
+        print(psutil.Process().pid)
+        # sys.exit()
+        if proc.info['pid']!=psutil.Process().pid:
+            print("this script is already running")
+            quit()
+    # if SCRIPTNAME_ in proc.info['cmdline'] and proc.info['pid']!=psutil.Process().pid:
+    #     print("this script is already running")
+        # sys.exit()
 
 def writeAfterStart():
     global CDOWN

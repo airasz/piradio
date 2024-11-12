@@ -353,7 +353,7 @@ class display:
     def frezeeDisplay(self, delay):
         global U_COUNT
         U_COUNT = 20-delay;
-        print("reset timer for " + str(delay))
+        # print("reset timer for " + str(delay))
         return
 
     def display(self, msg, pos):
@@ -362,6 +362,11 @@ class display:
 
     def displaybig(self, msg):
         myoled.displaybig(msg)
+        return
+
+
+    def displayfs(self, msg, fs):
+        myoled.displayfs(msg, fs)
         return
 
     def display(self, msg, rndom):

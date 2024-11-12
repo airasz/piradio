@@ -49,6 +49,8 @@ NUM_VOL=0
 MIN_SLEEP=0
 MIN_SLEEPV=0
 TO_REBOOT= False
+TS_ENABLE=False
+STOP_SLEEP=0
 # PLAYlists
 
 KR_RIGHT    	="4106897"
@@ -89,6 +91,11 @@ KRC_CCALL       ="FFFA05" #preset station 10+
 
 CDOWN=0
 
+# os.system("/usr/bin/python mpcsleeper.py && exit 0")
+# try:
+#     os.system("/usr/bin/python mpcsleeper.py | exit 0")
+# except:
+    # print("cannot start mpc sleep timer")
 
 def interuptDisplay(msg):
     display.display(msg, False)
@@ -96,10 +103,12 @@ def interuptDisplay(msg):
 
 def load_variable():
     global CDOWN
+    global TS_ENABLE
     try:
         with open("/home/timer.json", "r") as f:
             data = json.load(f)
             CDOWN = data.get("seconds", CDOWN)
+            TS_ENABLE= data.get("enable", False)
     except FileNotFoundError:
         pass
 
@@ -164,7 +173,8 @@ def getPlayState():
 
 
 def startVol():
-    display.display("jump volume...", True)
+    display.displayfs("jump volume...", 15)
+    display.frezeeDisplay(5)
     global NUM_VOL
     global TEN
     global MIN_SLEEP
@@ -180,7 +190,9 @@ def startsetsleep():
     global NUM_VOL
     global TEN
     global MIN_SLEEP
-    if stimer.isrunning() is True:
+    global TS_ENABLE
+    load_variable()
+    if TS_ENABLE is True:
         if stimerStop==0:
             display.display("timer is running\npress again to stop", False)
             display.frezeeDisplay(5)
@@ -191,7 +203,7 @@ def startsetsleep():
                 "svalue":0,
                 "seconds":0
             }
-            with open("timer.json", "w") as f:
+            with open("/home/timer.json", "w") as f:
                 json.dump(jdata, f)
             display.display("timer is stopped", False)
             stimerStop=0
@@ -239,7 +251,8 @@ def setVOL(up):
         # else:
         #     status = cmd("mpc volume -5")
     print("vol"+vol)
-    display.displaybig("v"+vol)
+    # display.displaybig("v"+vol)
+    display.displayfs("v"+vol, 25)
     display.frezeeDisplay(5)
 
 
@@ -247,10 +260,12 @@ def reboot():
     global TO_REBOOT
     if TO_REBOOT is False:
         TO_REBOOT = True
-        display.display("goto reboot", True)
+        # display.display("goto reboot", True)
+        myoled.displayfs("press again\nto reboot", 16)
         display.frezeeDisplay(5)
     else:
-        display.display("rebooting...", True)
+        myoled.displayfs("rebooting...", 16)
+        display.frezeeDisplay(5)
         sleep(1)
         os.system("reboot")
 
@@ -266,6 +281,8 @@ def exitset():
     NUM_VOL = 0
     STOP_SLEEP = False
     MIN_SLEEP = 0
+    myoled.displayfs("operation\ncanceled", 16)
+    display.frezeeDisplay(2)
     # display.onmenu(False)
 
 
@@ -287,41 +304,53 @@ def clickNum(pos):
         global TOQ
         if TOQ > 10:
             pos = pos + 10
-            display.display("play pos "+ str(pos), True)
+            # display.display("play pos "+ str(pos), True)
+            myoled.displayfs("play pos "+ str(pos),15)
+            display.frezeeDisplay(3)
             os.system("mpc play " + str(pos))
             TEN = False
         else:
-            display.display("play pos "+ str(pos), True)
+            # display.display("play pos "+ str(pos), True)
+            myoled.displayfs("play pos "+ str(pos),15)
+            display.frezeeDisplay(3)
             os.system("mpc play " + str(pos))
 
     else:
         # display.display("volume to "+ str(pos + 10 if TEN else pos), True)
         if NUM_VOL==0 and MIN_SLEEP==0:
-            display.display("play pos "+ str(pos), True)
+            # display.display("play pos "+ str(pos), True)
+            myoled.displayfs("play pos "+ str(pos),15)
+            display.frezeeDisplay(3)
             os.system("mpc play " + str(pos))
             return
         if NUM_VOL == 1:
             VOLTO=pos * 10
-            display.display("volume to "+ str(pos)+"x", True)
+            # display.display("volume to "+ str(pos)+"x", True)
+            myoled.displayfs("volume to\n"+ str(pos)+"x",15)
+            display.frezeeDisplay(5)
             print("start vol========== "+ str(VOLTO))
             NUM_VOL =2
         elif NUM_VOL == 2:
             VOLTO+= pos
             NUM_VOL=0
-            display.display("volume to "+ str(VOLTO), True)
+            # display.display("volume to "+ str(VOLTO), True)
+            myoled.displayfs("set volume to\n"+ str(VOLTO),15)
+            display.frezeeDisplay(3)
             os.system("mpc volume " + str(VOLTO))
 
         if MIN_SLEEP==1:
             # MIN_SLEEPV+=pos**MIN_SLEEP
             MIN_SLEEPV=0
             MIN_SLEEPV=pos*10
-            display.display("sleep in "+ str(pos)+"x minutes", False)
-            display.frezeeDisplay(5)
+            # display.display("sleep in "+ str(pos)+"x minutes", False)
+            myoled.displayfs("sleep in\n"+ str(pos)+"x minutes",15)
+            display.frezeeDisplay(8)
             MIN_SLEEP=2
         elif MIN_SLEEP==2:
             MIN_SLEEPV+=pos
-            display.display("sleep in "+ str(MIN_SLEEPV)+" minutes\nClick OK to confirm", False)
-            display.frezeeDisplay(5)
+            # display.display("sleep in "+ str(MIN_SLEEPV)+" minutes\nClick OK to confirm", False)
+            myoled.displayfs("sleep in\n"+ str(MIN_SLEEPV)+" minutes\nClick OK to\nconfirm",15)
+            display.frezeeDisplay(8)
 
 
 
@@ -363,12 +392,13 @@ def switchPLAYLIST():
     print(("mpc load " + PLAYlists[0]) if SWITCH_PLAYLIST else ("mpc load " + PLAYlists[1]))
     status = cmd("mpc load " + PLAYlists[1]) if SWITCH_PLAYLIST else cmd("mpc load " + PLAYlists[0])
     getstationlen()
-
-    myoled.display(status, (0,0))
+    status= status.replace(" ", "\n")
+    myoled.displayfs(status, 16)
+    display.frezeeDisplay(2)
     sleep(1)
     status = cmd("mpc play")
     displaytooled(status)
-    display.frezeeDisplay(5)
+    display.frezeeDisplay(3)
 
 
 def getstationlen(): #get total playlist
@@ -464,8 +494,9 @@ def ok():
     if MIN_SLEEP>0:
         # stimer.startcdown(MIN_SLEEPV)
         os.system("/usr/bin/python startsleeper.py "+ str(MIN_SLEEPV))
-        display.display("sleep timer starting", True)
-        display.frezeeDisplay(5)
+        # display.display("starting sleep timer\n", True)
+        myoled.displayfs("starting sleep timer\nin "+ str(MIN_SLEEPV)+" minutes",15)
+        display.frezeeDisplay(3)
         MIN_SLEEP=0
 
 def millis():
@@ -491,8 +522,9 @@ def processIR(irval):
     global EN_NEXMEDIA_R
     if irval== KR_YELLOW:
         EN_NEXMEDIA_R= not EN_NEXMEDIA_R
-        display.display(("REMOTE control\n"+"unlocked" if EN_NEXMEDIA_R else "locked"), False)
-        display.frezeeDisplay(5)
+        display.display("REMOTE control\n"+("unlocked" if EN_NEXMEDIA_R else "locked"), False)
+        display.frezeeDisplay(3)
+        return
     if EN_NEXMEDIA_R:
         for i in range(len(KR_nNUM)):
             if irval == KR_nNUM[i][1]:
@@ -548,6 +580,8 @@ def processIR(irval):
             startsetsleep()
         elif irval==KR_OK:
             ok()
+        elif irval==KR_EXIT:
+            exitset()
     else:
         if irval[:2]=="41":
             # interuptDisplay("unregistered key remote\nor this remote locked")
