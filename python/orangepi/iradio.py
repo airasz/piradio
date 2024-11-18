@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import keyboard
 import os
@@ -13,6 +13,8 @@ from threading import *
 
 # from sshkeyboard import listen_keyboard
 display=iradio_oled.display()
+myoled= oledis.oled()
+
 VOLUME_UP = 115
 VOLUME_DOWN = 114
 
@@ -32,7 +34,12 @@ TOQ=0
 
 NUMKEYS=[[1 , 79],[2 , 80],[3 , 81],[4 ,75],[5 , 76],[6 , 77],[7 ,71],[8 , 72],[9 , 73],[10 , 82]]
 
-myoled= oledis.oled()
+
+#temporary flag
+TEN = False
+NUM_VOL=0
+TO_REBOOT= False
+
 
 def cmd(cmd):
     rtr=""
@@ -51,6 +58,7 @@ def getVol():
     # os.system("mpc status > tmp")
     # status =  open('tmp', 'r').read()
 
+    # status = os.popen("mpc").read()
     status = subprocess.check_output("mpc", shell=True)
     status =  status.decode("utf-8")
     # myoled.display(status, (0,0))
@@ -114,6 +122,29 @@ def setSTATION(next):
     print("status = "+status)
     display.resettimer(status)
     displaytooled(status)
+
+
+def setVOL(up):
+    if (getPlayState()) is True:
+        if up is True:
+            print("set volume up")
+            os.system("mpc volume +5")
+        else:
+            os.system("mpc volume -5")
+
+def setSTATION(next):
+    if (getPlayState()) is True:
+        if next is True:
+            os.system("mpc next")
+        else:
+            os.system("mpc prev")
+
+def reboot():
+    global TO_REBOOT
+    if TO_REBOOT is False:
+        TO_REBOOT = True
+    else:
+        os.system("reboot")
 
 
 def playPos(pos):

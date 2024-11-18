@@ -97,9 +97,10 @@ CDOWN=0
 # except:
     # print("cannot start mpc sleep timer")
 
-def interuptDisplay(msg):
-    display.display(msg, False)
-    display.frezeeDisplay(5)
+def interuptDisplay(delay, fontsize, msg):
+    if fontsize==0:
+        display.frezeeDisplay(delay)
+        display.display(msg, False)
 
 def load_variable():
     global CDOWN
@@ -173,8 +174,8 @@ def getPlayState():
 
 
 def startVol():
+    display.frezeeDisplay(8)
     display.displayfs("jump volume...", 15)
-    display.frezeeDisplay(5)
     global NUM_VOL
     global TEN
     global MIN_SLEEP
@@ -194,8 +195,8 @@ def startsetsleep():
     load_variable()
     if TS_ENABLE is True:
         if stimerStop==0:
+            display.frezeeDisplay(3)
             display.display("timer is running\npress again to stop", False)
-            display.frezeeDisplay(5)
             stimerStop+=1
         elif stimerStop==1:
             jdata={"enable":False,
@@ -203,17 +204,18 @@ def startsetsleep():
                 "svalue":0,
                 "seconds":0
             }
+            display.frezeeDisplay(3)
             with open("/home/timer.json", "w") as f:
                 json.dump(jdata, f)
             display.display("timer is stopped", False)
             stimerStop=0
-            display.frezeeDisplay(5)
     else:
+        display.frezeeDisplay(8)
         display.display("set sleep...", True)
         MIN_SLEEP=1
-        display.frezeeDisplay(5)
 
 def startTenPos():
+    display.frezeeDisplay(8)
     display.display("jump station to...", True)
     global TEN
     global NUM_VOL
@@ -228,11 +230,12 @@ def setSTATION(next):
     ypos = random.randint(0,54)
     xpos = random.randint(0,50)
     if (getPlayState()) is True:
-        display.display("playing next" if next else "playing previous", True)
+        # display.display("playing next" if next else "playing previous", True)
+        display.displayfs("playing\nnext" if next else "playing\nprevious", 18)
         status = cmd("mpc next") if next else cmd("mpc prev")
 
     print("status = "+status)
-    display.frezeeDisplay(5)
+    display.frezeeDisplay(3)
     # displaytooled(status)
 
 
@@ -252,8 +255,8 @@ def setVOL(up):
         #     status = cmd("mpc volume -5")
     print("vol"+vol)
     # display.displaybig("v"+vol)
+    display.frezeeDisplay(3)
     display.displayfs("v"+vol, 25)
-    display.frezeeDisplay(5)
 
 
 def reboot():
@@ -261,11 +264,11 @@ def reboot():
     if TO_REBOOT is False:
         TO_REBOOT = True
         # display.display("goto reboot", True)
+        display.frezeeDisplay(5)
         myoled.displayfs("press again\nto reboot", 16)
-        display.frezeeDisplay(5)
     else:
-        myoled.displayfs("rebooting...", 16)
         display.frezeeDisplay(5)
+        myoled.displayfs("rebooting...", 16)
         sleep(1)
         os.system("reboot")
 
@@ -327,7 +330,7 @@ def clickNum(pos):
             VOLTO=pos * 10
             # display.display("volume to "+ str(pos)+"x", True)
             myoled.displayfs("volume to\n"+ str(pos)+"x",15)
-            display.frezeeDisplay(5)
+            display.frezeeDisplay(3)
             print("start vol========== "+ str(VOLTO))
             NUM_VOL =2
         elif NUM_VOL == 2:
@@ -356,7 +359,7 @@ def clickNum(pos):
 
 
 
-    # display.frezeeDisplay(5)
+    # display.frezeeDisplay(3)
     # displaytooled(status)
 
 
@@ -584,9 +587,9 @@ def processIR(irval):
             exitset()
     else:
         if irval[:2]=="41":
-            # interuptDisplay("unregistered key remote\nor this remote locked")
+            # interuptDisplay(3,  unregistered key remote\nor this remote locked")
             display.display("unregistered key remote\nor this remote locked", False)
-            display.frezeeDisplay(5)
+            display.frezeeDisplay(3)
 
 
 def processIRc(irval):

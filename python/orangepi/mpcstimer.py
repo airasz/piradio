@@ -1,13 +1,43 @@
+#!/usr/bin/env python3
 import os.path
 import os
 import threading
 import time
 
-startpath = '/tmp/mpcst.start'
-stoppath = '/tmp/mpcst.stop'
 CDOWN = False
 SEC_CD = 0
 T_RUNNING = False
+
+# def countingDown():
+#     global CDOWN
+#     global SEC_CD
+#     print("sec cd = "+str(SEC_CD))
+#     if CDOWN is True:
+#         mins, secs = divmod(SEC_CD, 60)
+#         timer = f'{mins:02d}:{secs:02d}'
+#         #print(f'Time left: {timer}', end='\r')
+#         SEC_CD -= 1
+#         #print(SEC_CD)
+#         if SEC_CD==0:
+#             print("\nTime's up!")
+#             os.system("mpc stop")
+#             CDOWN =False
+#             #quit()
+#
+#     threading.Timer(1, countingDown).start()  # Schedule the function to run again in 1 second
+#
+#
+# countingDown()
+#
+# def startccdown(minutes):
+#     global CDOWN
+#     global SEC_CD
+#     CDOWN = True
+#     SEC_CD = minutes*60
+#     print("starting timer")
+#     return "starting timer"
+
+
 
 class mpctimer:
     def cekStart(self):
@@ -25,17 +55,19 @@ class mpctimer:
                 SEC_CD = tval
                 print(SEC_CD)
                 #os.remove(startpath)
-
-    def cekStop(self):
-        global stoppath
+    def startcdown(self, minutes):
         global CDOWN
         global SEC_CD
-        mstart = os.path.isfile(stoppath)
-        if mstart is True:
-            SEC_CD = 0
-            CDOWN = False
-            print("file exists")
-            os.remove(stoppath)
+        CDOWN=True
+        SEC_CD=minutes*60
+        return
+
+    def stopcdown(self):
+        global CDOWN
+        global SEC_CD
+        CDOWN=False
+        SEC_CD=0
+        return
 
     def countdown(self):
         global CDOWN
@@ -54,10 +86,10 @@ class mpctimer:
                 #quit()
 
     def loopy(self):
-        self.cekStart()
-        self.cekStop()
+        # self.cekStart()
+        # self.cekStop()
         self.countdown()
-        #threading.Timer(1, loop).start()  # Schedule the function to run again in 1 second
+        # threading.Timer(1, loopy).start()  # Schedule the function to run again in 1 second
 
     def isrunning(self):
         global CDOWN
