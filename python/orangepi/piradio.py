@@ -356,9 +356,6 @@ def clickNum(pos):
             display.frezeeDisplay(8)
 
 
-
-
-
     # display.frezeeDisplay(3)
     # displaytooled(status)
 
