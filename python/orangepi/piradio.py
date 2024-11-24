@@ -229,18 +229,19 @@ def setSTATION(next):
     status = ""
     ypos = random.randint(0,54)
     xpos = random.randint(0,50)
+    display.frezeeDisplay(3)
     if (getPlayState()) is True:
         # display.display("playing next" if next else "playing previous", True)
         display.displayfs("playing\nnext" if next else "playing\nprevious", 18)
         status = cmd("mpc next") if next else cmd("mpc prev")
 
     print("status = "+status)
-    display.frezeeDisplay(3)
     # displaytooled(status)
 
 
 def setVOL(up):
     status = ""
+    vol=""
     if (getPlayState()) is True:
         status = subprocess.check_output("mpc volume | awk '{print$2}'", shell=True)
         vol=str(status.decode("utf-8"))
@@ -264,10 +265,10 @@ def reboot():
     if TO_REBOOT is False:
         TO_REBOOT = True
         # display.display("goto reboot", True)
-        display.frezeeDisplay(5)
+        display.frezeeDisplay(8)
         myoled.displayfs("press again\nto reboot", 16)
     else:
-        display.frezeeDisplay(5)
+        display.frezeeDisplay(3)
         myoled.displayfs("rebooting...", 16)
         sleep(1)
         os.system("reboot")
@@ -284,8 +285,8 @@ def exitset():
     NUM_VOL = 0
     STOP_SLEEP = False
     MIN_SLEEP = 0
-    myoled.displayfs("operation\ncanceled", 16)
     display.frezeeDisplay(2)
+    myoled.displayfs("operation\ncanceled", 16)
     # display.onmenu(False)
 
 
@@ -308,37 +309,37 @@ def clickNum(pos):
         if TOQ > 10:
             pos = pos + 10
             # display.display("play pos "+ str(pos), True)
-            myoled.displayfs("play pos "+ str(pos),15)
             display.frezeeDisplay(3)
+            myoled.displayfs("play pos "+ str(pos),15)
             os.system("mpc play " + str(pos))
             TEN = False
         else:
             # display.display("play pos "+ str(pos), True)
-            myoled.displayfs("play pos "+ str(pos),15)
             display.frezeeDisplay(3)
+            myoled.displayfs("play pos "+ str(pos),15)
             os.system("mpc play " + str(pos))
 
     else:
         # display.display("volume to "+ str(pos + 10 if TEN else pos), True)
         if NUM_VOL==0 and MIN_SLEEP==0:
             # display.display("play pos "+ str(pos), True)
-            myoled.displayfs("play pos "+ str(pos),15)
             display.frezeeDisplay(3)
+            myoled.displayfs("play pos "+ str(pos),15)
             os.system("mpc play " + str(pos))
             return
         if NUM_VOL == 1:
             VOLTO=pos * 10
             # display.display("volume to "+ str(pos)+"x", True)
+            display.frezeeDisplay(5)
             myoled.displayfs("volume to\n"+ str(pos)+"x",15)
-            display.frezeeDisplay(3)
             print("start vol========== "+ str(VOLTO))
             NUM_VOL =2
         elif NUM_VOL == 2:
             VOLTO+= pos
             NUM_VOL=0
             # display.display("volume to "+ str(VOLTO), True)
+            display.frezeeDisplay(5)
             myoled.displayfs("set volume to\n"+ str(VOLTO),15)
-            display.frezeeDisplay(3)
             os.system("mpc volume " + str(VOLTO))
 
         if MIN_SLEEP==1:
@@ -346,14 +347,17 @@ def clickNum(pos):
             MIN_SLEEPV=0
             MIN_SLEEPV=pos*10
             # display.display("sleep in "+ str(pos)+"x minutes", False)
+            display.frezeeDisplay(5)
             myoled.displayfs("sleep in\n"+ str(pos)+"x minutes",15)
-            display.frezeeDisplay(8)
             MIN_SLEEP=2
         elif MIN_SLEEP==2:
             MIN_SLEEPV+=pos
             # display.display("sleep in "+ str(MIN_SLEEPV)+" minutes\nClick OK to confirm", False)
-            myoled.displayfs("sleep in\n"+ str(MIN_SLEEPV)+" minutes\nClick OK to\nconfirm",15)
             display.frezeeDisplay(8)
+            myoled.displayfs("sleep in\n"+ str(MIN_SLEEPV)+" minutes\nClick OK to\nconfirm",13)
+
+
+
 
 
     # display.frezeeDisplay(3)
@@ -389,12 +393,12 @@ def switchPLAYLIST():
 
     status = cmd("mpc clear")
     sleep(0.1)
-    print(("mpc load " + PLAYlists[0]) if SWITCH_PLAYLIST else ("mpc load " + PLAYlists[1]))
+    print(("mpc load " + PLAYlists[1]) if SWITCH_PLAYLIST else ("mpc load " + PLAYlists[0]))
     status = cmd("mpc load " + PLAYlists[1]) if SWITCH_PLAYLIST else cmd("mpc load " + PLAYlists[0])
     getstationlen()
     status= status.replace(" ", "\n")
-    myoled.displayfs(status, 16)
     display.frezeeDisplay(2)
+    myoled.displayfs(status, 16)
     sleep(1)
     status = cmd("mpc play")
     displaytooled(status)
@@ -407,8 +411,9 @@ def getstationlen(): #get total playlist
     global SWITCH_PLAYLIST
     status = subprocess.check_output("mpc playlist", shell=True)
     status =  status.decode("utf-8")
-    if "radioislam" in status:
+    if "radioislam" in status or "Rodja" in status:
         SWITCH_PLAYLIST = True
+        print("SWITCH_PLAYLIST " + "True" if True else "False")
     T_LINES = status.count('\n')
     TOQ = T_LINES
     print("playlist="+ str(T_LINES))
@@ -495,8 +500,8 @@ def ok():
         # stimer.startcdown(MIN_SLEEPV)
         os.system("/usr/bin/python startsleeper.py "+ str(MIN_SLEEPV))
         # display.display("starting sleep timer\n", True)
-        myoled.displayfs("starting sleep timer\nin "+ str(MIN_SLEEPV)+" minutes",15)
         display.frezeeDisplay(3)
+        myoled.displayfs("starting sleep timer\nin "+ str(MIN_SLEEPV)+" minutes",15)
         MIN_SLEEP=0
 
 def millis():
@@ -522,8 +527,8 @@ def processIR(irval):
     global EN_NEXMEDIA_R
     if irval== KR_YELLOW:
         EN_NEXMEDIA_R= not EN_NEXMEDIA_R
-        display.display("REMOTE control\n"+("unlocked" if EN_NEXMEDIA_R else "locked"), False)
         display.frezeeDisplay(3)
+        display.display("REMOTE control\n"+("unlocked" if EN_NEXMEDIA_R else "locked"), False)
         return
     if EN_NEXMEDIA_R:
         for i in range(len(KR_nNUM)):
@@ -585,8 +590,8 @@ def processIR(irval):
     else:
         if irval[:2]=="41":
             # interuptDisplay(3,  unregistered key remote\nor this remote locked")
-            display.display("unregistered key remote\nor this remote locked", False)
             display.frezeeDisplay(3)
+            display.display("unregistered key remote\nor this remote locked", False)
 
 
 def processIRc(irval):

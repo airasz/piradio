@@ -49,6 +49,8 @@ if (isset($_GET["cmd"])) {
         }
         // echo $status; // display current volume
     }  else if ($dt === "playlist") {
+        $ns=intval(shell_exec("mpc -f [%position%] | awk 'NR==1 {print}'"));
+
         $status = shell_exec("mpc playlist");
         // $status = str_replace("http://", "", $status);
         // $status = substr($status.strpos("//")+2);
@@ -60,7 +62,12 @@ if (isset($_GET["cmd"])) {
             if (strpos($stsion, "//")!==false){
                 $stsion = substr($stsion, strpos($stsion,"//")+2);
             }
-            echo "<button class=\"button1\" onclick=\"sendcmd('mpc play " . strval($i + 1) . "')\"><a>" . strval($i + 1) . ". " . $stsion . "</a></button>";
+            if (($i+1)===$ns){
+                echo "<button class=\"button1 bplay\" onclick=\"sendcmd('mpc play " . strval($i + 1) . "')\"><a>" . strval($i + 1) . ". " . $stsion . "</a></button>";}
+            else{
+                echo "<button class=\"button1\" onclick=\"sendcmd('mpc play " . strval($i + 1) . "')\"><a>" . strval($i + 1) . ". " . $stsion . "</a></button>";
+
+            }
         }
 
     }
@@ -101,23 +108,28 @@ if (isset($_GET["cmd"])) {
 
 if (isset($_GET["sleep"])) {
     $dt = $_GET["sleep"];
-    if ($dt !== "") {
-
-
+    // echo $dt;
+    // if ($dt>0){
+    //     echo "hai";
+    // }
+    if ($dt!=="") {
+        // echo("try set timer ");
+        // $status = shell_exec("/usr/bin/python3 /root/startsleeper.py ".$dt);
+        $status = shell_exec("/usr/bin/python /root/startsleeper.py 3");
         // $status = shell_exec("echo \"40\" /tmp/mpcst.star");
-        // echo($status);
+        // echo "sleep timer set to ".$status;
 
         //$myfile = /*fopen("/home/orangepi/mpcst.star", "w") or die("Unable to open file!");
 
         //fwrite($myfile, $dt);
         //fclose($*/myfile);
         // echo "create sleep timer in " . $dt;
-
+/*
         $tmpfname = tempnam(sys_get_temp_dir(), "mpcst.star");
         echo "will create file" . $tmpfname;
         $handle = fopen($tmpfname, "w");
         fwrite($handle, "writing to tempfile");
-        fclose($handle);
+        fclose($handle);*/
 
         // do something here
 
@@ -125,6 +137,54 @@ if (isset($_GET["sleep"])) {
 
 
     }
+    if ($dt!==""){
+    //     $array = Array (
+    //             "enable" => true,
+    //             "startrun => true,
+    //             "svalue" => int($dt),
+    //             "seconds" => 0
+    //
+    // );
+    //
+    // // Encode array to json
+    // $json = json_encode($array);
+    //
+    // // Display it
+    // echo "$json";
+    //
+    // // Generate json file
+    // file_put_contents("/root/test._data.json", $json);
+
+
+    $myJson = new stdClass();
+    $myJson->enable = true;
+    $myJson->startrun = true;
+    $myJson->svalue = intval($dt)*60;
+    $sc=intval($dt)*60;
+    $myJson->seconds = 0;
+
+    $myJSONvar = json_encode($myJson);
+
+    // echo $myJSONvar;
+    echo "star sleep in ".timeformat($sc);
+    // Generate json file
+    file_put_contents("/home/timer.json", $myJSONvar);
+    }
+
+}
+
+if (isset($_GET["getsleep"])) {
+    $path = '/home/timer.json';
+    $jsonString = file_get_contents($path);
+    $jsonData = json_decode($jsonString, true);
+    echo $jsonString;
+    // var_dump($jsonData);
+}
+
+
+function timeformat($seconds) {
+  $t = round($seconds);
+  return sprintf('%02d:%02d:%02d', $t/3600, floor($t/60)%60, $t%60);
 }
 function formatstatus($status)
 {

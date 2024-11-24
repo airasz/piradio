@@ -10,6 +10,7 @@ from time import sleep
 import mpcstimer
 import math
 import json
+import psutil
 
 myoled= oledis.oled()
 stimer=mpcstimer.mpctimer()
@@ -20,6 +21,9 @@ systemReady=0
 
 T_ENABLE= False
 SEC_CD = 0
+
+
+
 def load_variable():
     global SEC_CD
     global T_ENABLE
@@ -33,7 +37,7 @@ def load_variable():
 
 def getlocal_ip():
     global local_ip
-    cmd= "hostname -I"
+    cmd= "hostname -I | awk '{print$1}'"
     result= subprocess.check_output(cmd, shell=True)
     local_ip =  result.decode("utf-8")
     if ":" in local_ip:
@@ -51,6 +55,15 @@ def updateCPUtemp():
     result= subprocess.check_output(cmd, shell=True)
     cputemp =  "cpu temp: "+result.decode("utf-8")[:2] + "c"
     # print(cputemp)
+
+
+def sysinfo():
+    sinfo=""
+    cpu_percent = psutil.cpu_percent(interval=1)
+    sinfo=(f"CPU: {cpu_percent}% ")
+    memory_usage = psutil.virtual_memory()
+    sinfo+=(f"Mem: {memory_usage.percent}%")
+    return sinfo
 # getlocal_ip()
 P_COUNT=0
 def displaytooled(status):
@@ -84,6 +97,99 @@ def displaytooled(status):
 
         #crop volume info
         stvol=status[indvol:]
+
+        # print("state = " + state)
+
+        for i in infolist:
+            msglist.append(i)
+
+            # msglist.append(i)
+        msglist.append(stvol)
+
+
+    load_variable()
+    if T_ENABLE is True:
+    # if stimer.isrunning() is True:
+        mins, secs = divmod(SEC_CD, 60)
+        hours, mins = divmod(mins, 60)
+        timer = f'{hours:02d}:{mins:02d}:{secs:02d}'
+        sst="sleep in : "+ timer
+        # sst="sleep in : "+stimer.update()
+        msglist.append(sst)
+    msglist.append(local_ip)
+    #msglist.append("test")
+    msglist.append(NETSTAT)
+    msglist.append(cputemp)
+
+    status= status.replace("(0%)", "")
+    status= status.replace("(volume", "\nvolume")
+
+    # myoled.display(status, (0,0))
+
+    #myoled.showmsg(status)
+
+    msglist.append(sysinfo())
+    totline=len(msglist)
+    # print(totline)
+    sm=""
+    text=""
+    totpage=int(len(msglist)/4)
+    ttlline=4*totpage
+    if totline> ttlline:
+        totpage+=1 #get actual page
+
+    # print("total dirt line = " + str(ttlline))
+    # print(totpage)
+
+    global P_COUNT
+
+#    print("P_COUNT = " + str(P_COUNT))
+    for x in range(4):
+        idx=(P_COUNT*4)+x
+        if idx < totline:
+            sm=str(msglist[idx])
+            text += sm
+            text +="\n"
+        else:
+            break
+
+        # print(text)
+    myoled.display(text, (0,0))
+    text=""
+    P_COUNT+=1
+    if P_COUNT > (totpage-1):
+        P_COUNT=0
+
+def displaytooled2():
+    global T_ENABLE
+    global SEC_CD
+    global local_ip
+    global NETSTAT
+    if len(local_ip) < 8:
+        getlocal_ip()
+
+    mlpl = 22# maximum length per line
+
+    status=subprocess.check_output("mpc", shell=True).decode("utf-8")
+
+    #srink status
+    if "repeat" in status:
+        station=subprocess.check_output("mpc current", shell=True).decode("utf-8")
+        # station=station.decode("utf-8")
+        # print("station = " + station)
+        # split limited length char to list
+        infolist=textwrap.wrap(station, mlpl)
+
+        # crop playing info
+        state=subprocess.check_output("mpc | awk 'NR==2 {print$1$2}'", shell=True).decode("utf-8").replace("\n","")
+        # print("state"+state+">")
+        # state=state.decode("utf-8")
+        state=state.replace("#", " ")
+        # split limited length char to list
+        msglist=textwrap.wrap(state, mlpl)
+
+        #crop volume info
+        stvol=subprocess.check_output("mpc volume", shell=True).decode("utf-8").replace("\n","")
 
         # print("state = " + state)
 
@@ -276,8 +382,7 @@ def loop():
     old_status=""
     status = ""
     # os.system("mpc > tmp")
-    status = subprocess.check_output("mpc", shell=True)
-    status =  status.decode("utf-8")
+    status = subprocess.check_output("mpc", shell=True).decode("utf-8")
     # print(status)
     # if status != old_status:
     # if anychange(status) is True:
@@ -292,16 +397,15 @@ def loop():
     # print("U_COUNT" + str(U_COUNT))
     if U_COUNT == 20:
         if "playing" in status or "paused" in status:
+            # displaytooled2()
             displaytooled(status)
             MAXUCOUNT=25
             STOP_COUNT=0
-        
         else:
             # myoled.clear(1)
             # myoled.display("player stopped", (xpos,ypos))
             MAXUCOUNT = 20
             STOP_COUNT +=1
-
             # print("STOP_COUNT" + str(STOP_COUNT))
             if STOP_COUNT > 200:
                 myoled.display("",(0,0))

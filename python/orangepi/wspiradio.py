@@ -12,14 +12,25 @@ import serial
 import subprocess
 from threading import *
 import json
+import asyncio
+import serial_asyncio
 
+
+import tornado
+import os.path
+import tornado.httpserver
+import tornado.websocket
+import tornado.ioloop
+import tornado.web
 import mpcstimer
+import wsradio
 
 # from sshkeyboard import listen_keyboard
 display=iradio_oled.display()
 myoled= oledis.oled()
 stimer=mpcstimer.mpctimer()
-
+# ws=wsradio.WSHandler()
+ws=wsradio
 VOLUME_UP = 115
 VOLUME_DOWN = 114
 
@@ -132,7 +143,7 @@ def getVol():
     # status =  open('tmp', 'r').read()
 
     # status = os.popen("mpc").read()
-    status = subprocess.check_output("mpc volume | awk '{print$2", shell=True)
+    status = subprocess.check_output("mpc", shell=True)
     status =  status.decode("utf-8")
     # myoled.display(status, (0,0))
     displaytooled(status)
@@ -143,7 +154,8 @@ def getVol():
 
     print("volstatus        ="+volstatus )
     percenpos = volstatus.index('%')
-    svol = status.replace("%", "")
+    svol = volstatus[8:percenpos]
+
     print("svol="+svol )
     vol = int(svol)
 
@@ -238,20 +250,16 @@ def setSTATION(next):
     # displaytooled(status)
 
 
-def setVOL(up):
+def setVOL_old(up):
     status = ""
     vol=""
     if (getPlayState()) is True:
-        status = cmd("mpc volume +5") if up else cmd("mpc volume -5")
-
         status = subprocess.check_output("mpc volume | awk '{print$2}'", shell=True)
         vol=str(status.decode("utf-8"))
-        vol=vol.replace("%","")
-        # vol=vol[:len(vol)-2]
-
+        vol=vol[:len(vol)-2]
         intvol = int(vol)
-
         # status = cmd("mpc volume " + "+5" if up else "-5")# if next else cmd("mpc prev")
+        status = cmd("mpc volume +5") if up else cmd("mpc volume -5")
 
         # if up is True:
         #     status = cmd("mpc volume +5")
@@ -260,7 +268,18 @@ def setVOL(up):
     print("vol"+vol)
     # display.displaybig("v"+vol)
     display.frezeeDisplay(3)
-    display.displayfs("v"+vol, 25)
+    display.displayfs("v"+str(invol), 25)
+    broadcast_message("vol="+vol)
+
+def setVOL(up):
+    status = ""
+    vol=""
+    status = subprocess.check_output(("mpc volume +5 | grep volume | awk '{print$2}'") if up else ("mpc volume -5 | grep volume | awk '{print$2}'"), shell=True).decode("utf-8")
+    print("vol "+status)
+    # display.displaybig("v"+vol)
+    display.frezeeDisplay(3)
+    display.displayfs("v "+status, 25)
+    broadcast_message("vol="+status)
 
 
 def reboot():
@@ -381,11 +400,8 @@ def switchPLAYLIST():
     # import os
 
     # status = os.popen("ls /var/lib/mpd/playlists/").read()
-    # status = cmd("ls /var/lib/mpd/playlists/")
-    # status = status.replace(".m3u", "")
-    status = cmd("lsplaylists")
-
-
+    status = cmd("ls /var/lib/mpd/playlists/")
+    status = status.replace(".m3u", "")
     PLAYlists = status.split()
     # print(PLAYlists[0])
     # length = len(starr)
@@ -408,6 +424,7 @@ def switchPLAYLIST():
     sleep(1)
     status = cmd("mpc play")
     displaytooled(status)
+    broadcast_message("info="+status)
     display.frezeeDisplay(3)
 
 
@@ -509,9 +526,11 @@ def ok():
         display.frezeeDisplay(3)
         myoled.displayfs("starting sleep timer\nin "+ str(MIN_SLEEPV)+" minutes",15)
         MIN_SLEEP=0
+        broadcast_message("info=starting sleep timer\nin "+ str(MIN_SLEEPV)+" minutes")
 
 def millis():
-  return round(time.time() * 1000)
+    return round(time.time() * 1000)
+
 
 PREVMILL=0;
 
@@ -521,14 +540,8 @@ def secondy():
         print("second")
         PREVMILL= millis()
 
-ser = serial.Serial(
-        port='/dev/ttyS5', #Replace ttyS0 with ttyAM0 for Pi1,Pi2,Pi0
-        baudrate = 9600,
-        parity=serial.PARITY_NONE,
-        stopbits=serial.STOPBITS_ONE,
-        bytesize=serial.EIGHTBITS,
-        timeout=0.1
-)
+
+
 def processIR(irval):
     global EN_NEXMEDIA_R
     if irval== KR_YELLOW:
@@ -643,18 +656,175 @@ def processIRc(irval):
 
 
 
-while True:
-    x=ser.readline()
-    s=x.decode("utf-8")
-    ss=s[:2]
-    if ss == "FF":
-        processIRc(s)
-    elif ss == "41":
-        processIR(s)
-        # print (s)
-    # print ("ss="+ss)
-    sleep(0.01)
-    # except:
-    # print("device failed")
-else:
-    os.exit(0)
+
+
+
+# ser = serial.Serial(
+#         port='/dev/ttyS5', #Replace ttyS0 with ttyAM0 for Pi1,Pi2,Pi0
+#         baudrate = 9600,
+#         parity=serial.PARITY_NONE,
+#         stopbits=serial.STOPBITS_ONE,
+#         bytesize=serial.EIGHTBITS,
+#         timeout=0.1
+# )
+
+#Tornado Folder Paths
+settings = dict(
+    template_path = os.path.join(os.path.dirname(__file__), "templates"), static_path = os.path.join(os.path.dirname(__file__), "static")
+    )
+
+
+def broadcast_message(message):
+    print("broadcast_message "+ message)
+    for client in WSHandler.clients:
+        client.write_message(message)
+        # client.write_message("info="+message)
+
+
+
+class MainHandler(tornado.web.RequestHandler):
+    def get(self):
+        print ("[HTTP](MainHandler) User Connected.")
+        self.render("index.html")
+
+class shellCmd(tornado.web.RequestHandler):#scmd
+    def get(self,input):
+        # print("input="+str(input))
+        # cmd=self.get_argument('hostname')
+        if input=="playlist":
+            idd=0
+            if (getPlayState()) is True:
+                idd=int(subprocess.check_output("mpc -f [%position%] | awk 'NR==1 {print}'",shell=True).decode("utf-8"))
+            sr=subprocess.check_output("mpc playlist", shell=True).decode("utf-8")
+            pl=sr.splitlines(keepends=False)
+            rp=""
+            for i in range(len(pl)):
+                if "://" in pl[i]:
+                    pl[i]=pl[i][pl[i].index("//")+2:]
+                if i+1==idd:
+                    rp+= "<button class=\"button1 bplay\" onclick=\"sendcmd('mpc play " + str(i+1) +"')\"><a>"+str(i+1)+". "+pl[i]+"</a></button>"
+                else:
+                    rp+= "<button class=\"button1\" onclick=\"sendcmd('mpc play " + str(i+1) +"')\"><a>"+str(i+1)+". "+pl[i]+"</a></button>"
+            self.write(rp)
+        elif input== "iplaylist":
+            sr=subprocess.check_output("mpc lsplaylists", shell=True).decode("utf-8")
+            pl=sr.splitlines(keepends=False)
+            rp=""
+            for i in range(len(pl)):
+                rp+= "<button class=\"button1\" onclick=\"sendcmd('mpc load " + pl[i] +"')\"><a>"+str(i+1)+". "+pl[i]+"</a></button>"
+            self.write(rp)
+        elif input== "status":
+            sr=subprocess.check_output("mpc", shell=True).decode("utf-8")
+            self.write(sr)
+        elif input== "hostname":
+            sr=subprocess.check_output("hostname", shell=True).decode("utf-8")
+            self.write(sr)
+        else:
+            self.write("hai")
+    def post(self):
+        value = self.get_argument('cmd')
+        sr=subprocess.check_output("mpc volume "+ value, shell=True).decode("utf-8")
+        self.write("volume"+sr)
+        # print(cmd)
+
+# WebSocket handler
+class WSHandler(tornado.websocket.WebSocketHandler):
+    clients = set()
+    def open(self):
+        # print("WebSocket opened by ")
+        print(f"Client connected: {self.request.remote_ip}")
+        self.clients.add(self)
+
+    def on_close(self):
+        print("WebSocket closed")
+        self.clients.remove(self)
+
+    def on_message(self, message):
+        print (f'[WS] Incoming message:{message}'), message
+
+        if message.startswith("0>"):
+            sbmsg=message[2:]
+            if sbmsg.startswith("mpc load"):
+                subprocess.check_output("mpc clear", shell=True)
+                subprocess.check_output(sbmsg, shell=True).decode("utf-8")
+                subprocess.check_output("mpc play   ", shell=True).decode("utf-8")
+            else:
+                sr=subprocess.check_output(sbmsg, shell=True).decode("utf-8")
+
+    @classmethod
+    async def send_message(cls, message):
+        for client in cls.clients:
+            if client.ws_connection:  # Check if the client is still connected
+                await client.write_message(message)
+
+# Serial reader
+class SerialReader(asyncio.Protocol):
+    def __init__(self):
+        self.transport = None
+
+    def connection_made(self, transport):
+        self.transport = transport
+        print("Serial port opened", transport)
+
+    def data_received(self, data):
+        message = data.decode('utf-8').strip()
+        print(f"Received from serial: {message}")
+        ss=message[:2]
+        if ss == "FF":
+            processIRc(message)
+        elif ss == "41":
+            processIR(message)
+            # print (s)
+        # asyncio.create_task(WSHandler.send_message(message))#echoing
+
+    def connection_lost(self, exc):
+        print("Serial port closed")
+        asyncio.get_event_loop().stop()
+
+async def start_serial_reader(port, baudrate):
+    loop = asyncio.get_event_loop()
+    await serial_asyncio.create_serial_connection(loop, SerialReader, port, baudrate)
+
+# Tornado application setup
+def make_app():
+    return tornado.web.Application([
+        (r'/', MainHandler),
+        (r'/scmd/(\w+)', shellCmd),
+        (r"/websocket", WSHandler),
+        (r"/(.*)", tornado.web.StaticFileHandler, {"path": "/root/static"})
+    ],
+        **settings)
+
+if __name__ == "__main__":
+    port = '/dev/ttyS5'  # Change this to your serial port
+    baudrate = 9600  # Change this to your desired baudrate
+
+    app = make_app()
+    app.listen(8888)
+
+    # Start the serial reader
+    asyncio.ensure_future(start_serial_reader(port, baudrate))
+
+    # Start the Tornado I/O loop
+    tornado.ioloop.IOLoop.current().start()
+
+
+
+print("start listening serial")
+
+#
+# while True:
+#     x=ser.readline()
+#     s=x.decode("utf-8")
+#     ss=s[:2]
+#     if ss == "FF":
+#         processIRc(s)
+#     elif ss == "41":
+#         processIR(s)
+#         # print (s)
+#     # print ("ss="+ss)
+#     sleep(0.01)
+#     # except:
+#     # print("device failed")
+# else:
+#     os.exit(0)
