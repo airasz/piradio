@@ -32,11 +32,14 @@ align-items: center; display: none;">
         <h1 id="title">oradio</h1>
         <h2 id="cname">write by airasz</h2>
         <!-- <div id="info" style="min-height: 1cm;"></div> -->
+
+        <div style="display:flex">
         <div class="card-body" id="card-body">
           <div id="radiostatus"></div>
           <div id="sleepinfo"></div>
         </div>
         <!-- and class card-body-->
+        <div style="display:inline-block">
         <button class="button1" onclick="sendcmd('mpc volume %2B5')">
           <a>vol UP</a>
         </button>
@@ -59,6 +62,9 @@ align-items: center; display: none;">
           <a>Mute</a>
         </button>
         <br>
+        </div>
+
+        </div>
         <div class="card-body text-center" style="margin-bottom: 10px;">
           <div class="contr" style="display: grid;">
             <p3>volume</p3>

@@ -26,9 +26,15 @@ h1 {
     -2px -2px 8px #ffe765 !important;
 }
 
-.bplay{
-   background: linear-gradient(90deg, rgba(223,123,0,1) 0%, rgba(255,214,0,0.9724090319721639) 28%, rgba(237,218,0,1) 66%, rgba(255,231,0,1) 100%)!important;
-  color:#af0003 !important;
+.bplay {
+  background: linear-gradient(
+    90deg,
+    rgba(223, 123, 0, 1) 0%,
+    rgba(255, 214, 0, 0.9724090319721639) 28%,
+    rgba(237, 218, 0, 1) 66%,
+    rgba(255, 231, 0, 1) 100%
+  ) !important;
+  color: #af0003 !important;
   cursor: pointer;
 }
 .groupbox {

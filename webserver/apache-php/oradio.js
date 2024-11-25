@@ -107,7 +107,8 @@ function load_status() {
       getsleep();
       polpulatesl2();
       count = 0;
-      // setTimeout(load_status, 5000); //repeat call this function
+      // setTimeout(playbutton, 1000, ajax_request.responseText); //repeat call this function
+      // setTimeout(polpulatesl2, 2000); //repeat call this function
     } else {
       // document.getElementById("loadingtbl").style.display = "block";
     }
@@ -155,6 +156,7 @@ function sendcmd(cmd) {
       // }
       playbutton(this.responseText);
       polpulatesl2();
+      count=0;
     } else {
       // document.getElementById("loadingtbl").style.display = "block";
     }
@@ -220,6 +222,7 @@ function polpulatesl2() {
   ajax_request.open("GET", "oradio.php?cmd=playlist", true);
   ajax_request.onreadystatechange = function () {
     if (ajax_request.readyState == 4 && ajax_request.status == 200) {
+      console.log("filling playlist");
       stations.innerHTML = this.responseText;
     } else {
       stations.innerHTML =
