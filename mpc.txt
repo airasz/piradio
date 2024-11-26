@@ -22,15 +22,15 @@ mpc add https://cast1.my-control-panel.com/proxy/radioso2/stream
 mpc add https://cast2.my-control-panel.com/proxy/radioso5/stream
 mpc add https://cast2.my-control-panel.com/proxy/radioso9/stream
 mpc add https://cast2.my-control-panel.com/proxy/radios19/stream
-mpc add https://svara-stream.radioddns.net:8443/surabaya_kotafm_
+mpc add https://svara-stream.radioddns.net/surabaya_kotafm_
 mpc add http://streaming.girifm.com:8010/stream
 mpc add https://streaming.campursarifm.com/listen/campursari/campursari892
 mpc add https://mettaswara.com:8700/cps
 mpc add https://mettaswara.com:8700/koplo
 mpc add https://mettaswara.com:8700/java
 mpc add https://mettaswara.com:8700/slow
-mpc add https://streaming.campursarifm.com/listen/campursari/campursari892
-
+mpc add http://202.147.199.98/relay?type=http
+mpc add https://r5.siar.us:9420/aac.m4a
 
 //save to playlist
 mpc save radio
