@@ -43,11 +43,9 @@ design by airasz
     <div class="main">
       <div class="card_switch">
         <h1 id="title">oradio</h1>
-        <h2 id="cname">write by airasz</h2>
         <!-- <div id="info" style="min-height: 1cm;"></div> -->
         <div class="card-body" id="card-body">
-          <div id="radiostatus"></div>
-          <div id="sleepinfo"></div>
+          <div id="radiostatus" style="color: black"></div>
         </div>
         <!-- and class card-body-->
         <button class="button1" onclick="sendcmd('mpc volume +5')">
@@ -88,9 +86,6 @@ design by airasz
             />
           </div>
         </div>
-        <p>
-          <br />
-        </p>
 
         <p></p>
         <div class="buttonstation" id="stations"></div>
@@ -98,8 +93,14 @@ design by airasz
           <p4>Playlist Group</p4>
           <div class="buttonstation" id="playlists"></div>
         </div>
-        <div>
-          <form method="post">
+        <div class="groupbox">
+          <div id="sleepinfo">
+            <div id="timerinfo" style="color: black"></div>
+            <button class="button1" id="bstop" onclick="sendwsm('stopsleep')">
+              <a>Abort</a>
+            </button>
+          </div>
+          <form id="sleepform" method="post">
             <div class="ceditbox" id="cedit1">
               <p4> set sleep timer in minutes : </p4>
               <input
@@ -122,6 +123,8 @@ design by airasz
         </div>
         <!-- <div><p>play url</p><div style="display: flex;"><input id="purl" type="text" class="slider" name="playurl" onclick="playurl()"
                         style="min-width: 280px;"><button class="button1" onclick="playurl()"><a>play</a></button></div></div> -->
+
+        <h2 id="cname">write by airasz</h2>
       </div>
       <!-- and class card_switch-->
     </div>

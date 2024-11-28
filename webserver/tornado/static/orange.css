@@ -1,5 +1,5 @@
 .card_switch {
-  background-color: #f2aa00 !important;
+  background-color: #ee5307 !important;
 }
 h1 {
   color: rgb(0, 120, 141);
@@ -13,7 +13,7 @@ h1 {
   background: linear-gradient(145deg, #177d02, #0ebb08);
   box-shadow:
     5px 5px 8px #46370a,
-    -2px -2px 8px #ffe765 !important;
+    -2px -2px 8px #fb9868!important;
 }
 .button1:active {
   color: rgb(255, 255, 255);
@@ -34,6 +34,13 @@ h1 {
 .groupbox {
   /* box-shadow: 6px 6px 12px #b3b0b0, -2px -2px 12px #fff !important; */
   box-shadow:
-    inset 2px 2px 4px #998907,
-    inset -2px -2px 4px rgb(251, 225, 124);
+    inset 2px 2px 4px #6f3c10, inset -2px -2px 4px rgb(240, 117, 57);
 }
+
+
+input[type="text"] {
+  /* width: 10%; */
+  box-shadow:
+    inset 2px 2px 4px #915454, inset -2px -2px 4px rgb(247, 154, 154) !important;
+}
+

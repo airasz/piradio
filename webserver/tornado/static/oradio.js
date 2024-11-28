@@ -68,6 +68,11 @@ function onMessage(event) {
     // var sdata = event.data.substring(2);
     // document.getElementById("light").innerHTML = sdata;// timer clock
     console.log("pls");
+  } else if (event.data.startsWith("resettimer")) {
+    count = 4;
+    // var sdata = event.data.substring(2);
+    // document.getElementById("light").innerHTML = sdata;// timer clock
+    console.log("pls");
   }
   // else {
   //
@@ -113,29 +118,37 @@ function setvol() {
 function getsleep() {
   // console.log("get sleep")
   var ajax_request = new XMLHttpRequest();
-  var sinfo = document.getElementById("sleepinfo");
+  var sinfo = document.getElementById("timerinfo");
   ajax_request.open("GET", "scmd/getsleep", true);
   ajax_request.onreadystatechange = function () {
     if (ajax_request.readyState == 4 && ajax_request.status == 200) {
-      var toHHMMSS = (secs) => {
-        var sec_num = parseInt(secs, 10);
-        var hours = Math.floor(sec_num / 3600);
-        var minutes = Math.floor(sec_num / 60) % 60;
-        var seconds = sec_num % 60;
-
-        return [hours, minutes, seconds]
-          .map((v) => (v < 10 ? "0" + v : v))
-          .filter((v, i) => v !== "00" || i > 0)
-          .join(":");
-      };
-      const obj = JSON.parse(this.responseText);
-      // console.log(this.responseText)
-      if (obj.enable === true) {
-        var sscond;
-        sscond = obj.seconds;
-        // console.log(obj.seconds)
-        sinfo.innerHTML = "player sleep in > " + toHHMMSS(sscond);
+      if (this.responseText === "off") {
+        document.getElementById("sleepinfo").style.display = "none";
+        document.getElementById("sleepform").style.display = "block";
+      } else {
+        document.getElementById("sleepinfo").style.display = "block";
+        document.getElementById("sleepform").style.display = "none";
       }
+      sinfo.innerHTML = this.responseText;
+      // var toHHMMSS = (secs) => {
+      //   var sec_num = parseInt(secs, 10);
+      //   var hours = Math.floor(sec_num / 3600);
+      //   var minutes = Math.floor(sec_num / 60) % 60;
+      //   var seconds = sec_num % 60;
+      //
+      //   return [hours, minutes, seconds]
+      //     .map((v) => (v < 10 ? "0" + v : v))
+      //     .filter((v, i) => v !== "00" || i > 0)
+      //     .join(":");
+      // };
+      // const obj = JSON.parse(this.responseText);
+      // // console.log(this.responseText)
+      // if (obj.enable === true) {
+      //   var sscond;
+      //   sscond = obj.seconds;
+      //   // console.log(obj.seconds)
+      //   sinfo.innerHTML = "player sleep in > " + toHHMMSS(sscond);
+      // }
     } else {
       // document.getElementById("loadingtbl").style.display = "block";
     }
@@ -165,8 +178,10 @@ function load_status() {
         ajax_request.responseText.indexOf("repeat"),
       );
       playbutton(ajax_request.responseText);
+      updatevolslider(ajax_request.responseText);
       polpulatesl();
-      // getsleep();
+      getsleep();
+      scroll_to();
       count = 0;
       // setTimeout(load_status, 5000); //repeat call this function
     } else {
@@ -176,6 +191,15 @@ function load_status() {
   // alert("getdata.php?d=" + dokter);
   ajax_request.send();
 }
+
+function scroll_to(){
+  var el = document.getElementById("stations");
+  var bplaying= document.getElementById("playing");
+  if (bplaying!==null)
+  bplaying.focus();
+}
+
+
 function updatevolslider(txt) {
   // var vol = txt.substring(txt.length - 3, txt.length - 1);
 
@@ -196,35 +220,12 @@ function playbutton(txt) {
       : "initial";
 }
 function sendcmd(cmd) {
-  // var ajax_request = new XMLHttpRequest();
-  //
-  // var tbl = document.getElementById("radiostatus");
-  // // ajax_request.open('POST', 'oradio.php');
-  // ajax_request.open("GET", "scmd/" + cmd, true);
-  //
-  // // ajax_request.send(form_data);
-  //
-  // // new Response(form_data).text().then(console.log)
-  // ajax_request.onreadystatechange = function () {
-  //   if (ajax_request.readyState == 4 && ajax_request.status == 200) {
-  //     tbl.innerHTML = ajax_request.responseText;
-  //     // if (this.responseText.includes("stopped")) {
-  //     //     document.getElementById('bstop').style.display = "none";
-  //     // } else {
-  //     //     document.getElementById('bstop').style.display = "initial";
-  //
-  //     // }
-  //     playbutton(this.responseText);
-  //     polpulatesl2();
-  //   } else {
-  //     // document.getElementById("loadingtbl").style.display = "block";
-  //   }
-  // };
-  // // alert("getdata.php?d=" + dokter);
-  // ajax_request.send();
-
   websocket.send("0>" + cmd);
-  count=4;
+  count = 4;
+}
+function sendwsm(cmd) {
+  websocket.send("1>" + cmd);
+  count = 4;
 }
 function playurl() {
   iu = document.getElementById("purl").value;
