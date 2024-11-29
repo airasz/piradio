@@ -63,7 +63,7 @@ if (isset($_GET["cmd"])) {
                 $stsion = substr($stsion, strpos($stsion,"//")+2);
             }
             if (($i+1)===$ns){
-                echo "<button class=\"button1 bplay\" onclick=\"sendcmd('mpc play " . strval($i + 1) . "')\"><a>" . strval($i + 1) . ". " . $stsion . "</a></button>";}
+                echo "<button id=\"playing\"class=\"button1 bplay\" nclick=\"sendcmd('mpc play " . strval($i + 1) . "')\"><a>" . strval($i + 1) . ". " . $stsion . "</a></button>";}
             else{
                 echo "<button class=\"button1\" onclick=\"sendcmd('mpc play " . strval($i + 1) . "')\"><a>" . strval($i + 1) . ". " . $stsion . "</a></button>";
 

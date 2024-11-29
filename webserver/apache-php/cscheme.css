@@ -18,19 +18,19 @@
   border-radius: 20px !important;
   background: linear-gradient(145deg, #177d02, #0ebb08);
   box-shadow:
-    5px 5px 8px #000,
-    -2px -2px 8px #f9ea6f !important;
+    5px 5px 8px #66aa03,
+    -2px -2px 8px #aef04f !important;
   cursor: pointer;
 }
 
 .button1:active {
   color: rgb(56, 66, 63);
   border-radius: 20px;
-  background: linear-gradient(145deg, #5a971e, #76c85b);
-  /*     box-shadow: 5px 5px 8px #8a8a8a, -2px -2px 8px #ffe765 !important; */
+  background: linear-gradient(145deg, #4d811a, #63a84c);
+  /*     box-shadow: 5px 5px 8px #8a8a8a, -2px -2px 8px #d0bb52 !important; */
   box-shadow:
-    5px 5px 8px #f8ea7d,
-    -2px -2px 8px #ffe765 !important;
+    5px 5px 4px #aef04e,
+    -5px -5px 8px #66aa03 !important;
 }
 .bplay {
   color: #095900;

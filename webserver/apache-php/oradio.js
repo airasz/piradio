@@ -2,6 +2,7 @@ var bstop = false;
 var count = 0;
 function loop() {
   count++;
+  // console.log("count=" + count);
   if (count > 5) {
     load_status();
     // count=0;
@@ -106,15 +107,22 @@ function load_status() {
       playbutton(ajax_request.responseText);
       getsleep();
       polpulatesl2();
+      scroll_to();
       count = 0;
-      // setTimeout(playbutton, 1000, ajax_request.responseText); //repeat call this function
-      // setTimeout(polpulatesl2, 2000); //repeat call this function
+      // setTimeout(load_status, 5000); //repeat call this function
     } else {
       // document.getElementById("loadingtbl").style.display = "block";
     }
   };
   // alert("getdata.php?d=" + dokter);
   ajax_request.send();
+}
+
+function scroll_to(){
+  var el = document.getElementById("stations");
+  var bplaying= document.getElementById("playing");
+  if (bplaying!==null)
+  bplaying.focus();
 }
 function updatevolslider(txt) {
   // var vol = txt.substring(txt.length - 3, txt.length - 1);
@@ -156,7 +164,6 @@ function sendcmd(cmd) {
       // }
       playbutton(this.responseText);
       polpulatesl2();
-      count=0;
     } else {
       // document.getElementById("loadingtbl").style.display = "block";
     }
@@ -222,7 +229,6 @@ function polpulatesl2() {
   ajax_request.open("GET", "oradio.php?cmd=playlist", true);
   ajax_request.onreadystatechange = function () {
     if (ajax_request.readyState == 4 && ajax_request.status == 200) {
-      console.log("filling playlist");
       stations.innerHTML = this.responseText;
     } else {
       stations.innerHTML =
