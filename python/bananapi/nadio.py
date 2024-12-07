@@ -21,7 +21,7 @@ SP = 240
 P_VOL = 0
 C_VOL = 0
 DBG_EVENT=False
-EN_NEXMEDIA_R=True
+EN_NEXMEDIA_R=False
 
 #remot key nexmedia
 KR_POWER =  2099200
@@ -37,7 +37,6 @@ KR_OK=      2099221
 KR_SLEEP=   2099231
 KR_EXIT=    2099216
 KR_NUMKEYS=[[1 , 2099228],[2 , 2099229],[3 , 2099230],[4 , 2099264],[5 , 2099265],[6 , 2099266],[7 , 2099268],[8 , 2099269],[9 , 2099270],[10 , 2099271]]
-
 KB_NUMKEYS=[[1 , 458841],[2 , 458842],[3 , 458843],[4 , 458844],[5 , 458845],[6 , 458846],[7 , 458847],[8 , 458848],[9 , 458849],[10 , 458850]]
 
 #KB_NUMKEYS=[[1 , KEY_KP1],[2 , KEY_KP2],[3 , KEY_KP3],[4 , KEY_KP4],[5 , KEY_KP5],[6 , KEY_KP6],[7 , KEY_KP7],[8 , KEY_KP8],[9 , KEY_KP9],[10 , KEY_KP0]]
@@ -56,9 +55,9 @@ TS_ENABLE=False
 STOP_SLEEP=0
 
 
-def interuptDisplay(msg):
+def interuptDisplay(delay, msg):
+    display.frezeeDisplay(delay)
     display.display(msg, False)
-    display.frezeeDisplay(5)
 
 # def interuptDisplay(msg, delay):
 #     display.display(msg, False)
@@ -128,20 +127,9 @@ TOQ = getTotalQ()
 
 # os.system("/usr/bin/python3 mpcsleeper.py")
 def getVol():
-    status = "radio volume: 50%"
-    os.system("mpc status > tmp")
-    status = open("tmp", "r").read()
+    status = subprocess.check_output("mpc volume | grep volume | awk '{print$2}'",shell=True).decode("utf-8").replace("%","")
     # print("s="+status )
-    volpos = status.index("volume")
-    print(volpos)
-    volstatus = status[volpos : volpos + 13]
-    print("volstatus=" + volstatus)
-    percenpos = volstatus.index("%")
-    svol = volstatus[8:percenpos]
-
-    print("svol=" + svol)
-    vol = int(svol)
-
+    vol = int(status)
     print("vol=" + str(vol))
     global P_VOL
     P_VOL = vol
@@ -167,20 +155,26 @@ def getPlayState():
         return False
 
 def playToggle():
-    if (getPlayState()) is True:
-        os.system("mpc "+ ("stop" if getPlayState() else "play"))
-        os.system("mpc stop")
-    else:
-        os.system("mpc play")
+    os.system("mpc "+ ("stop" if getPlayState() else "play"))
+    # if (getPlayState()) is True:
+    #     os.system("mpc stop")
+    # else:
+    #     os.system("mpc play")
 
 def setVOL(up):
-    if (getPlayState()) is True:
-        status = subprocess.check_output("mpc volume | awk '{print$2}'", shell=True)
-        vol=str(status.decode("utf-8"))
-        vol=vol[:len(vol)-2]
-        intvol = int(vol)
-        os.system("mpc "+ ("volume +5" if up else "volume -5"))
-        interuptDisplay("v "+ vol)
+    status = ""
+    vol=""
+    status = subprocess.check_output(("mpc volume +5 | grep volume | awk '{print$2}'") if up else ("mpc volume -5 | grep volume | awk '{print$2}'"), shell=True).decode("utf-8")
+    print("vol "+status)
+    interuptDisplay(3, "set volume\n"+ status)
+#     if (getPlayState()) is True:
+#         status = subprocess.check_output("mpc volume | awk '{print$2}'", shell=True)
+#         vol=str(status.decode("utf-8"))
+#         vol=vol[:len(vol)-2]
+#         intvol = int(vol)
+#         os.system("mpc "+ ("volume +5" if up else "volume -5"))
+#
+#         interuptDisplay(3, "set volume\n"+ vol)
 
         # if up is True:
         #     os.system("mpc volume +5")
@@ -195,17 +189,17 @@ def setVOL(up):
 
 def setSTATION(next):
     if (getPlayState()) is True:
-        interuptDisplay("playing next" if next else "playing previous")
+        interuptDisplay(3, "playing next" if next else "playing previous")
         os.system("mpc "+ ("next" if next else "prev"))
 
 def reboot():
     global TO_REBOOT
     if TO_REBOOT is False:
         TO_REBOOT = True
-        interuptDisplay("press again to reboot")
+        interuptDisplay(8, "press again to reboot")
 
     else:
-        interuptDisplay("rebooting...")
+        interuptDisplay(5, "rebooting...")
         sleep(1)
         os.system("reboot")
 
@@ -222,29 +216,29 @@ def playPos(pos):
         global TOQ
         if TOQ > 10:
             pos = pos + 10
-            interuptDisplay("play pos "+ str(pos))
+            interuptDisplay(3, "play pos "+ str(pos))
             os.system("mpc play " + str(pos))
             TEN = False
         else:
-            interuptDisplay("play pos "+ str(pos))
+            interuptDisplay(3, "play pos "+ str(pos))
             os.system("mpc play " + str(pos))
 
     else:
         # display.display("volume to "+ str(pos + 10 if TEN else pos))
         if NUM_VOL==0 and MIN_SLEEP==0:
-            interuptDisplay("play pos "+ str(pos))
+            interuptDisplay(3, "play pos "+ str(pos))
             os.system("mpc play " + str(pos))
             exitset()
             return
         if NUM_VOL == 1:
             VOLTO=pos * 10
-            interuptDisplay("volume to "+ str(pos)+"x")
+            interuptDisplay(5, "volume to "+ str(pos)+"x")
             print("start vol========== "+ str(VOLTO))
             NUM_VOL =2
         elif NUM_VOL == 2:
             VOLTO+= pos
             NUM_VOL=0
-            interuptDisplay("volume to "+ str(VOLTO))
+            interuptDisplay(5, "volume to "+ str(VOLTO))
             os.system("mpc volume " + str(VOLTO))
             exitset()
 
@@ -252,12 +246,12 @@ def playPos(pos):
             # MIN_SLEEPV+=pos**MIN_SLEEP
             MIN_SLEEPV=0
             MIN_SLEEPV=pos*10
-            interuptDisplay("sleep in "+ str(pos)+"x minutes")
+            interuptDisplay(5, "sleep in "+ str(pos)+"x minutes")
             #
             MIN_SLEEP=2
         elif MIN_SLEEP==2:
             MIN_SLEEPV+=pos
-            interuptDisplay("sleep in "+ str(MIN_SLEEPV)+" minutes\nClick OK to confirm")
+            interuptDisplay(5, "sleep in "+ str(MIN_SLEEPV)+" minutes\nClick OK to confirm")
 
 
 
@@ -267,7 +261,7 @@ def startVol():
     if TEN is True:
         TEN =False
     NUM_VOL=1
-    interuptDisplay("jump volume to...")
+    interuptDisplay(8, "jump volume to...")
     display.onmenu(True)
 
 
@@ -277,7 +271,7 @@ def startTenPos():
     TEN = True
     if NUM_VOL !=0:
         NUM_VOL=0
-    interuptDisplay("set play pos 1...")
+    interuptDisplay(8, "set play pos 1...")
     display.onmenu(True)
 
 def startsetsleep():
@@ -291,33 +285,33 @@ def startsetsleep():
     if TS_ENABLE is True:
         if STOP_SLEEP==0:
             STOP_SLEEP+=1
-            interuptDisplay("press again to stop")
+            interuptDisplay(5, "press again to stop")
         else:
             jdata={"enable":False,
                 "startrun":False,
                 "svalue":0,
                 "seconds":0
             }
-            with open("/home/timer.json", "w") as f:
+            with open("timer.json", "w") as f:
                 json.dump(jdata, f)
-            interuptDisplay("sleep timer stopped")
+            interuptDisplay(5, "sleep timer stopped")
 
             STOP_SLEEP=0
     else:
-        interuptDisplay("set sleep...")
+        interuptDisplay(8, "set sleep...")
         MIN_SLEEP=1
 
     # if stimer.isrunning() is True:
     #     if stimerStop==0:
-    #         interuptDisplay("timer is running\npress again to stop")
+    #         interuptDisplay(5, "timer is running\npress again to stop")
     #         display.resettimer()
     #         stimerStop+=1
     #     elif stimerStop==1:
-    #         interuptDisplay("timer is stopped")
+    #         interuptDisplay(5, "timer is stopped")
     #         stimerStop=0
     #         display.resettimer()
     # else:
-    #     interuptDisplay("set sleep...")
+    #     interuptDisplay(5, "set sleep...")
     #     MIN_SLEEP=1
     #     display.resettimer()
 
@@ -327,7 +321,7 @@ def ok():
     if MIN_SLEEP>0:
         # stimer.startcdown(MIN_SLEEPV)
         os.system("/usr/bin/python3 startsleeper.py "+ str(MIN_SLEEPV))
-        interuptDisplay("sleep timer starting for "+str(MIN_SLEEPV) +" minutes")
+        interuptDisplay(5, "sleep timer starting for "+str(MIN_SLEEPV) +" minutes")
         MIN_SLEEP=0
         exitset()
 
@@ -351,7 +345,7 @@ def getstationlen(): #get total playlist
     global SWITCH_PLAYLIST
     status = subprocess.check_output("mpc playlist", shell=True)
     status =  status.decode("utf-8")
-    if "radioislam" in status:
+    if "muslim" in status:
         SWITCH_PLAYLIST = False
     T_LINES = status.count('\n')
     TOQ = T_LINES
@@ -391,14 +385,14 @@ def switchPLAYLIST():
     status = cmd("mpc load " + PLAYlists[1]) if SWITCH_PLAYLIST else cmd("mpc load " + PLAYlists[0])
     getstationlen()
 
-    interuptDisplay(status)
+    interuptDisplay(2, status)
     sleep(1)
     status = cmd("mpc play")
     display.frezeeDisplay(1)
 
 def processIR(irval):
     global EN_NEXMEDIA_R
-    print(irval)
+    # print(irval)
     # display.resettimer()
     #hexval = hex(irval)
    # print(hexval)
@@ -408,12 +402,12 @@ def processIR(irval):
     # interuptDisplay(sval)
     if irval== KR_GREEN:
         EN_NEXMEDIA_R= not EN_NEXMEDIA_R
-        interuptDisplay("REMOTE control\n"+"unlocked" if EN_NEXMEDIA_R else "locked")
+        interuptDisplay(3, "REMOTE control\n"+("unlocked" if EN_NEXMEDIA_R else "locked"))
         # if EN_NEXMEDIA_R if False:
-        #     interuptDisplay("REMOTE control unlocked")
+        #     interuptDisplay(5, "REMOTE control unlocked")
         # else:
-        #     interuptDisplay("REMOTE control unlocked")
-
+        #     interuptDisplay(5, "REMOTE control unlocked")
+        return
 
         # print
     if EN_NEXMEDIA_R:
@@ -477,7 +471,7 @@ def processIR(irval):
             exitset()
     else:
         if irval >2000000:
-            interuptDisplay("unregistered key remote\nor this remote locked")
+            interuptDisplay(5, "unregistered key remote\nor this remote locked")
 
 def processKB(kval):
     print("processKB"+ str(kval))
@@ -607,6 +601,7 @@ async def print_events(device):
             print("etype= "+str(event.type))
             print("ecode= " + str(event.code))
             print("evalue= " + str(event.value))
+            print(categorize(event))
         if event.type == ecodes.EV_KEY:
             c=categorize(event)
             print("keystate= " + str(c.keystate))
