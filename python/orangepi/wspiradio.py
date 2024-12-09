@@ -2,8 +2,7 @@
 # -*- coding: utf-8 -*-
 import keyboard
 import os
-import oledis
-import iradio_oled
+import sys
 import textwrap
 from time import sleep
 import time
@@ -11,10 +10,15 @@ import random
 import serial
 import subprocess
 from threading import *
+import threading
 import json
 import asyncio
 import serial_asyncio
 
+
+import oledis
+import iradio_oled
+import mpcstimer
 
 import tornado
 import os.path
@@ -22,15 +26,15 @@ import tornado.httpserver
 import tornado.websocket
 import tornado.ioloop
 import tornado.web
-import mpcstimer
-import wsradio
+# import wsradio
 
 # from sshkeyboard import listen_keyboard
 display=iradio_oled.display()
 myoled= oledis.oled()
+sleeptimer= iradio_oled.sleeptimer()
 stimer=mpcstimer.mpctimer()
 # ws=wsradio.WSHandler()
-ws=wsradio
+# ws=wsradio
 VOLUME_UP = 115
 VOLUME_DOWN = 114
 
@@ -48,12 +52,15 @@ C_VOL = 0
 T_LINES = 0
 TEN = False
 TOQ=0
+PLAY_CURL=False
 
 NUMKEYS=[[1 , 79],[2 , 80],[3 , 81],[4 ,75],[5 , 76],[6 , 77],[7 ,71],[8 , 72],[9 , 73],[10 , 82]]
 
-KR_nNUM=[[1, "41038C7"],[2, "410B847"],[3, "4107887"],[4, "41002FD"],[5, "410827D"],[6, "41042BD"],[7, "41022DD"],[8, "410A25D"],[9, "410629D"],[0, "410E21D"]]
+KR_nNUM=[[1, "41038C7"],[2, "410B847"],[3, "4107887"],[4, "41002FD"],[5, "410827D"],[6, "41042BD"],[7, "41022DD"],[8, "410A25D"],[9, "410629D"],[10, "410E21D"]]
 
-KR_cNUM=[[1, "FF30CF"],[2, "FFB04F"],[3, "FF708F"],[4, "FF08F7"],[5, "FF8877"],[6, "FF48B7"],[7, "FF28D7"],[8, "FF04FB"],[9, "FF847B"],[0, "FF44BB"]]
+KR_cNUM=[[1, "FF30CF"],[2, "FFB04F"],[3, "FF708F"],[4, "FF08F7"],[5, "FF8877"],[6, "FF48B7"],[7, "FF28D7"],[8, "FF04FB"],[9, "FF847B"],[10, "FF44BB"]]
+
+KR_wNUM= [[1,"FD40BF"],[2,"FDC03F"],[3,"FD20DF"],[4,"FDA05F"],[5,"FD609F"],[6,"FDE01F"],[7,"FD10EF"],[8,"FD906F"],[9,"FD50AF"],[10,"FD30CF"]]
 #temporary flag
 TEN = False
 NUM_VOL=0
@@ -62,6 +69,12 @@ MIN_SLEEPV=0
 TO_REBOOT= False
 TS_ENABLE=False
 STOP_SLEEP=0
+RADIOSLEEPTIMERENABLED=True
+RADIOSECONDSLEEPTIMER=3600
+USERSLEEPTIMERENABLED=True
+USERSECONDSLEEPTIMER=3600
+
+
 # PLAYlists
 
 KR_RIGHT    	="4106897"
@@ -99,6 +112,21 @@ KRC_MENU    	="FFCA35"
 KRC_MODE       	="FF2AD5" #swich playlist
 KRC_CALL       	="FF8A75" #preset volume"
 KRC_CCALL       ="FFFA05" #preset station 10+
+
+# REMOTE PUTIH"
+KW_POWER= "FD00FF"
+KW_MUTE= "FD807F"
+KW_SLEEP= "FDC23D"
+KW_VOLUP= "FD12ED"
+KW_VOLDOWN= "FD926D"
+KW_STUP= "FD52AD"
+KW_STDOWN= "FDD22D"
+KW_PLAY= "FD8A75"
+KW_STOP= "FD4AB5"
+KW_ENTER= "FD08F7"
+KW_TEN= "FDD02F" #-/--
+KW_SVOL= "FDB04F"
+KW_INPUT = "FDF00F"
 
 CDOWN=0
 
@@ -203,21 +231,22 @@ def startsetsleep():
     global TEN
     global MIN_SLEEP
     global TS_ENABLE
-    load_variable()
-    if TS_ENABLE is True:
+    # load_variable()
+    if sleeptimer.isrunning() is True:
         if stimerStop==0:
             display.frezeeDisplay(3)
             display.display("timer is running\npress again to stop", False)
             stimerStop+=1
         elif stimerStop==1:
-            jdata={"enable":False,
-                "startrun":False,
-                "svalue":0,
-                "seconds":0
-            }
+            # jdata={"enable":False,
+            #     "startrun":False,
+            #     "svalue":0,
+            #     "seconds":0
+            # }
             display.frezeeDisplay(3)
-            with open("/home/timer.json", "w") as f:
-                json.dump(jdata, f)
+            # with open("/home/timer.json", "w") as f:
+            #     json.dump(jdata, f)
+            sleeptimer.stopcdown()
             display.display("timer is stopped", False)
             stimerStop=0
     else:
@@ -247,6 +276,7 @@ def setSTATION(next):
         status = cmd("mpc next") if next else cmd("mpc prev")
 
     print("status = "+status)
+    broadcast_message("resettimer")
     # displaytooled(status)
 
 
@@ -287,6 +317,7 @@ def reboot():
     if TO_REBOOT is False:
         TO_REBOOT = True
         # display.display("goto reboot", True)
+
         display.frezeeDisplay(8)
         myoled.displayfs("press again\nto reboot", 16)
     else:
@@ -340,6 +371,7 @@ def clickNum(pos):
             display.frezeeDisplay(3)
             myoled.displayfs("play pos "+ str(pos),15)
             os.system("mpc play " + str(pos))
+        broadcast_message("resettimer")
 
     else:
         # display.display("volume to "+ str(pos + 10 if TEN else pos), True)
@@ -348,6 +380,7 @@ def clickNum(pos):
             display.frezeeDisplay(3)
             myoled.displayfs("play pos "+ str(pos),15)
             os.system("mpc play " + str(pos))
+            broadcast_message("resettimer")
             return
         if NUM_VOL == 1:
             VOLTO=pos * 10
@@ -356,6 +389,7 @@ def clickNum(pos):
             myoled.displayfs("volume to\n"+ str(pos)+"x",15)
             print("start vol========== "+ str(VOLTO))
             NUM_VOL =2
+            broadcast_message("resettimer")
         elif NUM_VOL == 2:
             VOLTO+= pos
             NUM_VOL=0
@@ -363,6 +397,7 @@ def clickNum(pos):
             display.frezeeDisplay(5)
             myoled.displayfs("set volume to\n"+ str(VOLTO),15)
             os.system("mpc volume " + str(VOLTO))
+            broadcast_message("resettimer")
 
         if MIN_SLEEP==1:
             # MIN_SLEEPV+=pos**MIN_SLEEP
@@ -388,6 +423,8 @@ def clickNum(pos):
 
 def switchPLAYLIST():
     global SWITCH_PLAYLIST
+    global PLAY_CURL
+    PLAY_CURL=False
     # global PLAYlists
     # SWITCH_PLAYLIST = not SWITCH_PLAYLIST
     getstationlen()
@@ -513,6 +550,20 @@ def displaytooled(status):
 getPlayState()
 getstationlen()
 
+
+TORESTART=False
+def restart():
+    global TORESTART
+    if TORESTART is False:
+        TORESTART=True
+        display.frezeeDisplay(8)
+        myoled.displayfs("press again\nto reload\nprogram", 16)
+    else:
+        display.frezeeDisplay(3)
+        myoled.displayfs("reload...", 16)
+        sleep(1)
+        os.execv(sys.executable, ['python'] + sys.argv)
+
 def msleep(minutes):
     stimer.startcdown(minutes)
 
@@ -521,12 +572,14 @@ def ok():
     global MIN_SLEEPV
     if MIN_SLEEP>0:
         # stimer.startcdown(MIN_SLEEPV)
-        os.system("/usr/bin/python startsleeper.py "+ str(MIN_SLEEPV))
+        # os.system("/usr/bin/python startsleeper.py "+ str(MIN_SLEEPV))
         # display.display("starting sleep timer\n", True)
         display.frezeeDisplay(3)
         myoled.displayfs("starting sleep timer\nin "+ str(MIN_SLEEPV)+" minutes",15)
-        MIN_SLEEP=0
         broadcast_message("info=starting sleep timer\nin "+ str(MIN_SLEEPV)+" minutes")
+        MIN_SLEEP=0
+        sleeptimer.startcdown(MIN_SLEEPV)
+
 
 def millis():
     return round(time.time() * 1000)
@@ -656,6 +709,55 @@ def processIRc(irval):
 
 
 
+def processIRw(irval):
+    for i in range(len(KR_wNUM)):
+        if irval == KR_wNUM[i][1]:
+            clickNum(KR_wNUM[i][0])
+            break
+    if irval == KW_VOLUP:
+        print("volume up")
+        setVOL(True)
+    elif irval == KW_VOLDOWN:
+        setVOL(False)
+    elif irval == KW_STUP:
+        setSTATION(True)
+    elif irval == KW_STDOWN:
+        setSTATION(False)
+    elif irval == KW_ENTER:
+        global MIN_SLEEP
+        if MIN_SLEEP>0:
+            ok()
+        else:
+            print("enter")
+            os.system("mpc toggle")
+    elif irval == KW_PLAY:
+        # global MIN_SLEEP
+        if MIN_SLEEP>0:
+            ok()
+        else:
+            print("play")
+            os.system("mpc play")
+    elif irval == KW_STOP:
+        print("mute > stop")
+        os.system("mpc stop")
+    elif irval == KW_INPUT:
+        print("mode > switch playlist")  # switch playlist
+        switchPLAYLIST()
+    elif irval == KW_SVOL:
+        print("call > vol jump")  # start vol
+        startVol()
+    elif irval == KW_TEN:  # 10+
+        print("ccall > ten+")
+        startTenPos()
+    elif irval == KW_POWER:  # 10+
+        print("reboot")
+        reboot()
+    elif irval == KW_POWER:  # 10+
+        print("get net data")
+    elif irval == KW_SLEEP:
+        startsetsleep()
+    elif irval == KW_MUTE:
+        restart()
 
 
 
@@ -667,6 +769,10 @@ def processIRc(irval):
 #         bytesize=serial.EIGHTBITS,
 #         timeout=0.1
 # )
+
+
+# print("start listening serial")
+
 
 #Tornado Folder Paths
 settings = dict(
@@ -681,10 +787,70 @@ def broadcast_message(message):
         # client.write_message("info="+message)
 
 
+#
+# SCOUNT=0
+# prev_status=""
+# def infinity():
+#     # global SCOUNT
+#     # SCOUNT +=1
+#     # if SCOUNT == 10:
+#     #     if display.getmenu() is True:
+#     #         display.onmenu(False)
+#     #     SCOUNT=0
+#     global prev_status
+#     status = subprocess.check_output("mpc current", shell=True).decode("utf-8").replace("\n","")
+#     if status!=prev_status:
+#         broadcast_message("info="+status)
+#     prev_status=status
+#     print(status)
+#     threading.Timer(1, infinity).start()
+#
+# infinity()
+
 
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
         print ("[HTTP](MainHandler) User Connected.")
+        self.render("index.html")
+
+    def post(self):
+        value=""
+        curlval=""
+        try:
+            value = self.get_argument('sleep')
+            print("set sleep "+ value)
+        except:
+            print("skiping cause argument not contain " + value)
+        try:
+            curlval=self.get_argument('curl')
+            print("play c url "+ curval)
+        except:
+            print("skiping cause argument not contain " + curlval)
+        if value !="":
+            global MIN_SLEEPV
+            MIN_SLEEPV = int(value)
+            sleeptimer.startcdown(MIN_SLEEPV)
+            # os.system("/usr/bin/python startsleeper.py "+ str(MIN_SLEEPV))
+            # display.display("starting sleep timer\n", True)
+            display.frezeeDisplay(3)
+            myoled.displayfs("starting sleep timer\nin "+ str(MIN_SLEEPV)+" minutes",15)
+        if curlval!="":
+            stimer.resetas()
+            global PLAY_CURL
+            if PLAY_CURL is False:
+                status = cmd("mpc clear")
+            sleep(0.1)
+            status = cmd("mpc add " + curlval)
+            display.frezeeDisplay(2)
+            myoled.displayfs(status, 16)
+            sleep(1)
+            status = cmd("mpc play")
+            displaytooled(status)
+            broadcast_message("info="+status)
+            display.frezeeDisplay(3)
+            PLAY_CURL=True
+            # pass
+        # ok()
         self.render("index.html")
 
 class shellCmd(tornado.web.RequestHandler):#scmd
@@ -702,7 +868,7 @@ class shellCmd(tornado.web.RequestHandler):#scmd
                 if "://" in pl[i]:
                     pl[i]=pl[i][pl[i].index("//")+2:]
                 if i+1==idd:
-                    rp+= "<button class=\"button1 bplay\" onclick=\"sendcmd('mpc play " + str(i+1) +"')\"><a>"+str(i+1)+". "+pl[i]+"</a></button>"
+                    rp+= "<button id=\"playing\" class=\"button1 bplay\" onclick=\"sendcmd('mpc play " + str(i+1) +"')\"><a>"+str(i+1)+". "+pl[i]+"</a></button>"
                 else:
                     rp+= "<button class=\"button1\" onclick=\"sendcmd('mpc play " + str(i+1) +"')\"><a>"+str(i+1)+". "+pl[i]+"</a></button>"
             self.write(rp)
@@ -719,8 +885,14 @@ class shellCmd(tornado.web.RequestHandler):#scmd
         elif input== "hostname":
             sr=subprocess.check_output("hostname", shell=True).decode("utf-8")
             self.write(sr)
+        elif input== "getsleep":
+            sst=sleeptimer.update()
+            self.write(sst)
+        elif input== "stopsleep":
+            sst=sleeptimer.stopcdown()
+            self.write("timer stopped")
         else:
-            self.write("hai")
+            self.write("command not recognized")
     def post(self):
         value = self.get_argument('cmd')
         sr=subprocess.check_output("mpc volume "+ value, shell=True).decode("utf-8")
@@ -744,13 +916,20 @@ class WSHandler(tornado.websocket.WebSocketHandler):
 
         if message.startswith("0>"):
             sbmsg=message[2:]
+            if sbmsg.startswith("mpc"):
+                stimer.resetas()
             if sbmsg.startswith("mpc load"):
                 subprocess.check_output("mpc clear", shell=True)
                 subprocess.check_output(sbmsg, shell=True).decode("utf-8")
                 subprocess.check_output("mpc play   ", shell=True).decode("utf-8")
+                global PLAY_CURL
+                PLAY_CURL=False
             else:
                 sr=subprocess.check_output(sbmsg, shell=True).decode("utf-8")
-
+        elif message.startswith("1>"):
+            sbmsg=message[2:]
+            if sbmsg.startswith("stopsleep"):
+                sleeptimer.stopcdown()
     @classmethod
     async def send_message(cls, message):
         for client in cls.clients:
@@ -772,8 +951,13 @@ class SerialReader(asyncio.Protocol):
         ss=message[:2]
         if ss == "FF":
             processIRc(message)
+            stimer.resetas()
         elif ss == "41":
             processIR(message)
+            stimer.resetas()
+        elif ss == "FD":
+            processIRw(message)
+            stimer.resetas()
             # print (s)
         # asyncio.create_task(WSHandler.send_message(message))#echoing
 
@@ -795,6 +979,51 @@ def make_app():
     ],
         **settings)
 
+def sleepCountDown():
+    global RADIOSLEEPTIMERENABLED
+    global RADIOSECONDSLEEPTIMER
+    global USERSLEEPTIMERENABLED
+    global USERSECONDSLEEPTIMER
+
+    if RADIOSLEEPTIMERENABLED is True:
+        RADIOSECONDSLEEPTIMER-=1
+        if RADIOSECONDSLEEPTIMER==0:
+            RADIOSLEEPTIMERENABLED=False
+            status=int(subprocess.check_output("mpc stop",shell=True).decode("utf-8"))
+            broadcast_message("player stop cause inactive control over than 1 hour")
+
+    if USERSLEEPTIMERENABLED is True:
+        USERSECONDSLEEPTIMER-=1
+        if USERSECONDSLEEPTIMER==0:
+            USERSLEEPTIMERENABLED=False
+            status=int(subprocess.check_output("mpc stop",shell=True).decode("utf-8"))
+            broadcast_message("player stop cause set by user")
+
+
+
+SCOUNT=0
+prev_status=""
+def infinity():
+    # global SCOUNT
+    # SCOUNT +=1
+    # if SCOUNT == 10:
+    #     if display.getmenu() is True:
+    #         display.onmenu(False)
+    #     SCOUNT=0
+    sleepCountDown()
+    global prev_status
+    status = subprocess.check_output("mpc current", shell=True).decode("utf-8").replace("\n","")
+    if status!=prev_status:
+        try:
+            broadcast_message("info="+status+">__ws")
+        except:
+            print("error")
+    prev_status=status
+    # print(status)
+    threading.Timer(1, infinity).start()
+
+infinity()
+
 if __name__ == "__main__":
     port = '/dev/ttyS5'  # Change this to your serial port
     baudrate = 9600  # Change this to your desired baudrate
@@ -809,8 +1038,6 @@ if __name__ == "__main__":
     tornado.ioloop.IOLoop.current().start()
 
 
-
-print("start listening serial")
 
 #
 # while True:

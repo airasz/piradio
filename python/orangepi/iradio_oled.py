@@ -19,6 +19,7 @@ cputemp=""
 NETSTAT = "0MB"
 systemReady=0
 
+CDOWN = False
 T_ENABLE= False
 SEC_CD = 0
 
@@ -89,9 +90,13 @@ def displaytooled(status):
 
         # crop playing info
         indvol=status.index("volume")
-        indel=status.index("/0")
+        indel=status.index("(")-1
         state=status[inbrace:indel]
         state=state.replace("#", " ")
+        if "0:00" in state:
+            state=state.replace("[", "")
+            state=state.replace("]", "")
+            state=state.replace("/0:00", "")
         # split limited length char to list
         msglist=textwrap.wrap(state, mlpl)
 
@@ -107,7 +112,7 @@ def displaytooled(status):
         msglist.append(stvol)
 
 
-    load_variable()
+    # load_variable()
     if T_ENABLE is True:
     # if stimer.isrunning() is True:
         mins, secs = divmod(SEC_CD, 60)
@@ -200,7 +205,7 @@ def displaytooled2():
         msglist.append(stvol)
 
 
-    load_variable()
+    # load_variable()
     if T_ENABLE is True:
     # if stimer.isrunning() is True:
         mins, secs = divmod(SEC_CD, 60)
@@ -362,6 +367,62 @@ def dbtopercent(value):
     else:
         return " sig: 0%"
 
+
+class sleeptimer:
+    def startcdown(self, minutes):
+        global T_ENABLE
+        global SEC_CD
+        T_ENABLE=True
+        SEC_CD=minutes*60
+        return
+
+    def stopcdown(self):
+        global T_ENABLE
+        global SEC_CD
+        T_ENABLE=False
+        SEC_CD=0
+        print("sleep timer stopped by user")
+        return
+
+    def countdown(self):
+        global T_ENABLE
+        global SEC_CD
+        #print("sec cd = "+str(SEC_CD))
+        if T_ENABLE is True:
+            mins, secs = divmod(SEC_CD, 60)
+            timer = f'{mins:02d}:{secs:02d}'
+            #print(f'Time left: {timer}', end='\r')
+            SEC_CD -= 1
+            # print(SEC_CD)
+            if SEC_CD==0:
+                print("\nTime's up!")
+                os.system("mpc stop")
+                T_ENABLE =False
+                #quit()
+
+    def loopy(self):
+        # self.cekStart()
+        # self.cekStop()
+        self.countdown()
+        # threading.Timer(1, loopy).start()  # Schedule the function to run again in 1 second
+
+    def isrunning(self):
+        global T_ENABLE
+        return T_ENABLE
+
+
+    def update(self):
+        global T_ENABLE
+        global SEC_CD
+        #print("sec cd = "+str(SEC_CD))
+        if T_ENABLE is True:
+            mins, secs = divmod(SEC_CD, 60)
+            hours, mins = divmod(mins, 60)
+            timer = f'{hours:02d}:{mins:02d}:{secs:02d}'
+            return "sleep in > "+str(timer)
+        else:
+            return "off"
+
 # def getUsage():
 #     global NETSTAT
 #     while True:
@@ -431,8 +492,12 @@ def loop():
         U_COUNT = 20
 
     old_status=status
+
+    msleeptimer.loopy()
+
     threading.Timer(1, loop).start()  # Schedule the function to run again in 1 second
 
+msleeptimer=sleeptimer()
 
 loop()
 
@@ -482,3 +547,5 @@ class display:
         xpos =  random.randint(0,mx)if rndom else 0
         myoled.display(msg, (xpos,ypos))
         return
+
+

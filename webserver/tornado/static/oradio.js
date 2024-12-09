@@ -156,7 +156,7 @@ function getsleep() {
 
   ajax_request.send();
 }
-
+var scrollcount = 0;
 function load_status() {
   // document.getElementById("loadingtbl").style.display = "block";
   // alert("hai");
@@ -181,7 +181,11 @@ function load_status() {
       updatevolslider(ajax_request.responseText);
       polpulatesl();
       getsleep();
-      scroll_to();
+      scrollcount++;
+      if (scrollcount > 2) {
+        scroll_to();
+        scrollcount = 0;
+      }
       count = 0;
       // setTimeout(load_status, 5000); //repeat call this function
     } else {
@@ -192,21 +196,24 @@ function load_status() {
   ajax_request.send();
 }
 
-function scroll_to(){
+function scroll_to() {
   var el = document.getElementById("stations");
-  var bplaying= document.getElementById("playing");
-  if (bplaying!==null)
-  bplaying.focus();
+  var bplaying = document.getElementById("playing");
+  if (bplaying !== null) bplaying.focus();
 }
-
 
 function updatevolslider(txt) {
   // var vol = txt.substring(txt.length - 3, txt.length - 1);
 
-  var vol = txt.substring(txt.indexOf("volume") + 7, txt.length - 1);
+  var vol = txt.substring(
+    txt.indexOf("volume") + 7,
+    txt.indexOf("volume") + 10,
+  );
   var tbl = document.getElementById("svol");
   // console.log("vol=" + vol);
   tbl.value = parseInt(vol);
+  var ivol = document.querySelector("#isvol");
+  ivol.innerHTML = "volume : " + vol;
 }
 function playbutton(txt) {
   var ps = txt.substring(txt.indexOf("[") + 1, txt.indexOf("]"));
@@ -329,3 +336,12 @@ function setsleep() {
     ajax_request.send();
   }
 }
+// var vol = document.querySelector("#isvol");
+// var _range = document.querySelector("#svol");
+// _range.addEventListener(
+//   "input",
+//   function () {
+//     vol.innerHTML = "volume : " + this.value;
+//   },
+//   false,
+// );

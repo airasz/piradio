@@ -70,9 +70,11 @@ design by airasz
           <a>Mute</a>
         </button>
         <br />
-        <div class="card-body text-center" style="margin-bottom: 10px">
+        <div
+          class="card-body text-center"
+          style="margin-bottom: 1px;"
+        >
           <div class="contr" style="display: grid">
-            <p3>volume</p3>
             <input
               id="svol"
               type="range"
@@ -85,6 +87,7 @@ design by airasz
               style="min-width: 280px"
             />
           </div>
+          <p3 id="isvol">volume</p3>
         </div>
 
         <p></p>
@@ -92,6 +95,28 @@ design by airasz
         <div class="groupbox">
           <p4>Playlist Group</p4>
           <div class="buttonstation" id="playlists"></div>
+        </div>
+        <div class="groupbox">
+          <form id="curlform" method="post">
+            <div class="ceditbox" id="cedit1">
+              <p4>play custom url : </p4>
+              <input
+                class="form_data"
+                type="text"
+                id="curl"
+                name="curl"
+                onfocus="this.value=''"
+                style="
+                  color: darkslategray;
+                  min-width: 3cm;
+                  align-content: flex-start;
+                "
+              /><br />
+              <button type="submit" name="submit"  class="button1">
+                play
+              </button>
+            </div>
+          </form>
         </div>
         <div class="groupbox">
           <div id="sleepinfo">

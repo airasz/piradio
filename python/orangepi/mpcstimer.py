@@ -7,7 +7,8 @@ import time
 CDOWN = False
 SEC_CD = 0
 T_RUNNING = False
-
+ASCDOWN=True
+ASSECCD=0
 # def countingDown():
 #     global CDOWN
 #     global SEC_CD
@@ -84,11 +85,30 @@ class mpctimer:
                 os.system("mpc stop")
                 CDOWN =False
                 #quit()
+    def resetas(self):
+        global ASSECCD
+        print("auto stop timer resetted")
+        ASSECCD =0
+
+
+    def autostop(self):
+        global ASSECCD
+        global ASCDOWN
+        if ASCDOWN is True:
+            ASSECCD+=1
+            # print("ASSECCD "+str(ASSECCD))
+            if ASSECCD ==3600:
+                print("\nauto stop due a 1 hour no user activity!")
+                os.system("mpc stop")
+            elif ASSECCD > 3600:
+                ASSECCD=3601
+
 
     def loopy(self):
         # self.cekStart()
         # self.cekStop()
         self.countdown()
+        self.autostop()
         # threading.Timer(1, loopy).start()  # Schedule the function to run again in 1 second
 
     def isrunning(self):

@@ -19,11 +19,11 @@ h1 {
   color: rgb(255, 255, 255);
   border-radius: 20px;
   /*   background: linear-gradient(145deg, #5a971e, #76c85b); */
-  background: linear-gradient(145deg, #177d02, #0ebb08);
+  background: linear-gradient(145deg, #125502, #0e8606);
   /*     box-shadow: 5px 5px 8px #8a8a8a, -2px -2px 8px #ffe765 !important; */
-  box-shadow:
+  /*box-shadow:
     5px 5px 8px #f8ea7d,
-    -2px -2px 8px #ffe765 !important;
+    -2px -2px 8px #ffe765 !important;*/
 }
 
 .bplay{
@@ -33,6 +33,9 @@ h1 {
 }
 .groupbox {
   /* box-shadow: 6px 6px 12px #b3b0b0, -2px -2px 12px #fff !important; */
+/*   background: #ee6d0f; */
+
+  background: linear-gradient(145deg, #b35808, #f08d0e);
   box-shadow:
     inset 2px 2px 4px #6f3c10, inset -2px -2px 4px rgb(240, 117, 57);
 }
