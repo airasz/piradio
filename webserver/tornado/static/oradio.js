@@ -257,7 +257,7 @@ function gethostname() {
         document.getElementById("title").innerHTML =
           this.responseText + " radio &#x1F34C";
       } else if (this.responseText.includes("orange")) {
-        colorscheme.setAttribute("href", "orange.css");
+        colorscheme.setAttribute("href", "blurry.css");
         document.getElementById("title").innerHTML =
           this.responseText + " radio &#x1F34A";
       }

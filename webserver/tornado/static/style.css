@@ -107,9 +107,6 @@ input[type="submit"]:hover {
   margin: 4px 2px;
   /* border-radius: 10px; */
   /*     background: linear-gradient(145deg, #d3d3d3, #ffffff); */
-  box-shadow:
-    5px 5px 8px #8a8a8a,
-    -2px -2px 8px #fff;
   cursor: pointer;
 }
 
@@ -135,7 +132,6 @@ input[type="submit"]:hover {
   margin: 4px 2px;
   cursor: pointer;
   border-radius: 50px;
-  background: linear-gradient(145deg, #d4d4d4, #f3f3f3);
   box-shadow:
     6px 6px 12px #b3b0b0,
     -2px -2px 12px #fff;
@@ -155,27 +151,13 @@ input[type="submit"]:hover {
     inset -2px -2px 4px rgb(255, 255, 255);
 }
 
-.units {
-  font-size: 1.2rem;
-}
-
-.sensor-labels {
-  font-size: 1.5rem;
-  vertical-align: middle;
-  padding-bottom: 15px;
-}
-
 .card_switch {
   /* Add shadows to create the "card" effect */
-  box-shadow:
-    6px 6px 12px #b3b0b0,
-    -2px -2px 12px #fff;
   /* flex-wrap: inherit; */
   transition: 0.3s;
   color: rgb(95, 95, 95);
   margin-top: 0mm;
   display: block;
-  background-color: #dbdbdb;
   border-radius: 10px;
   /*   margin-right: 5mm; */
   /* padding-bottom: 5mm; */
