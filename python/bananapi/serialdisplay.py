@@ -9,28 +9,94 @@ import threading
 import json
 import os
 import math
+import psutil
+import mpcstimer
+stimer=mpcstimer.mpctimer()
 local_ip = ""
 NETSTAT = ""
 
 cputemp=""
 
+CDOWN = False
 T_ENABLE= False
 SEC_CD = 0
 ON_MENU=False
 #setup connection
 # con= serial.Serial()
 # sport='/dev/ttyUSB0'
+
+
+
+class sleeptimer:
+    def startcdown(self, minutes):
+        global T_ENABLE
+        global SEC_CD
+        T_ENABLE=True
+        SEC_CD=minutes*60
+        return
+
+    def stopcdown(self):
+        global T_ENABLE
+        global SEC_CD
+        T_ENABLE=False
+        SEC_CD=0
+        print("sleep timer stopped by user")
+        return
+
+    def countdown(self):
+        global T_ENABLE
+        global SEC_CD
+        #print("sec cd = "+str(SEC_CD))
+        if T_ENABLE is True:
+            mins, secs = divmod(SEC_CD, 60)
+            timer = f'{mins:02d}:{secs:02d}'
+            #print(f'Time left: {timer}', end='\r')
+            SEC_CD -= 1
+            # print(SEC_CD)
+            if SEC_CD==0:
+                print("\nTime's up!")
+                os.system("mpc stop")
+                T_ENABLE =False
+                #quit()
+
+    def loopy(self):
+        # self.cekStart()
+        # self.cekStop()
+        self.countdown()
+        # threading.Timer(1, loopy).start()  # Schedule the function to run again in 1 second
+
+    def isrunning(self):
+        global T_ENABLE
+        return T_ENABLE
+
+
+    def update(self):
+        global T_ENABLE
+        global SEC_CD
+        #print("sec cd = "+str(SEC_CD))
+        if T_ENABLE is True:
+            mins, secs = divmod(SEC_CD, 60)
+            hours, mins = divmod(mins, 60)
+            timer = f'{hours:02d}:{mins:02d}:{secs:02d}'
+            return "sleep in > "+str(timer)
+        else:
+            return "off"
+
+
+msleeptimer=sleeptimer()
+
 sport=''
 def cekport():
     global sport
-    output = result= subprocess.check_output("dmesg | grep tty", shell=True)
-    tty =  output.decode("utf-8")
+    # output = result= subprocess.check_output("dmesg | grep tty", shell=True)
+    tty =  subprocess.check_output("dmesg | grep tty", shell=True).decode("utf-8")
     if "ttyUSB" in tty:
        itty=tty.index("ttyUSB")
        sport = '/dev/'+tty[itty:(itty+7)]
        # sport = '/dev/ttyUSB0'
     else:
        sport = '/dev/ttyS1'
+    print("usage serial port "+ sport[5:])
 
 cekport()
 con = serial.Serial(
@@ -58,18 +124,18 @@ def serialdisplay(msg):
 
 def getlocal_ip():
     global local_ip
-    cmd= "hostname -I"
+    cmd= "hostname -I | awk '{print$1}'"
     result= subprocess.check_output(cmd, shell=True)
     local_ip =  result.decode("utf-8")
     if ":" in local_ip:
         local_ip=local_ip[:(local_ip.index(":")-5)]
-        print("ipv6 exist")
-        print("length ip"+str(len(local_ip)))
+        # print("ipv6 exist")
+        # print("length ip"+str(len(local_ip)))
         # local_ip=local_ip.rstrip
         # local_ip=local_ip.replace("\n", "")
     else:
         local_ip=local_ip[:len(local_ip)-1]
-        print("length ip"+str(len(local_ip)))
+        # print("length ip"+str(len(local_ip)))
     local_ip = "IP: " + local_ip
     print(local_ip)
 
@@ -82,6 +148,13 @@ def updateCPUtemp():
     result= subprocess.check_output(cmd, shell=True)
     cputemp =  "cpu temp: "+result.decode("utf-8")[:2] + "c"
     # print(cputemp)
+def sysinfo():
+    sinfo=""
+    cpu_percent = psutil.cpu_percent(interval=1)
+    sinfo=(f"CPU: {cpu_percent}% ")
+    memory_usage = psutil.virtual_memory()
+    sinfo+=(f"Mem: {memory_usage.percent}%")
+    return sinfo
 
 P_COUNT=0
 def displaytooled_old(status):
@@ -182,7 +255,7 @@ def displaytooled(status):
     if len(local_ip) < 8:
         getlocal_ip()
 
-    mlpl = 22# maximum length per line
+    mlpl = 23# maximum length per line
     mlpp = 5 # maximum line per page
     #srink status
     inrep = status.index("repeat")
@@ -197,9 +270,13 @@ def displaytooled(status):
 
     # crop playing info
     indvol=status.index("volume")
-    indel=status.index("/0")
+    indel=status.index("(")-1
     state=status[inbrace:indel]
     state=state.replace("#", " ")
+    if "0:00" in state:
+        state=state.replace("[", "")
+        state=state.replace("]", "")
+        state=state.replace("/0:00", "")
     # split limited length char to list
     msglist=textwrap.wrap(state, mlpl)
 
@@ -221,7 +298,7 @@ def displaytooled(status):
     status= status.replace("(0%)", "")
     status= status.replace("(volume", "\nvolume")
 
-    load_variable()
+    # load_variable()
     if T_ENABLE is True:
     # if stimer.isrunning() is True:
         mins, secs = divmod(SEC_CD, 60)
@@ -233,7 +310,7 @@ def displaytooled(status):
     # myoled.display(status, (0,0))
 
     #myoled.showmsg(status)
-
+    msglist.append(sysinfo())
     totline=len(msglist)
     # print(totline)
     sm=""
@@ -408,6 +485,8 @@ def loop():
             U_COUNT = 20
 
         old_status=status
+
+    msleeptimer.loopy()
     # else:
     #     # status= "on menu"
     #     serialdisplay("on menu, press exit to reset")
@@ -421,13 +500,13 @@ class display:
     def resettimer(self, msg):
         global U_COUNT
         U_COUNT = 10;
-        print("reset timer")
+        # print("reset timer")
         return
 
     def frezeeDisplay(self, delay):
         global U_COUNT
         U_COUNT = 20-delay;
-        print("reset timer for " + str(delay))
+        # print("reset timer for " + str(delay))
         return
 
     def display(self, msg, pos):
