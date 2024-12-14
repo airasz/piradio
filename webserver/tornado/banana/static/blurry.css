@@ -72,7 +72,7 @@ h1 {
   margin-bottom: 1px;
 }
 .bplay {
-/*   background: #c7ff10 !important; */
+  /*   background: #c7ff10 !important; */
   background: linear-gradient(
     90deg,
     rgba(0, 152, 0, 1) 0%,
@@ -98,11 +98,7 @@ h1 {
 }
 .slider {
   background: rgb(6, 121, 4) !important;
-  background: linear-gradient(
-    90deg,
-    rgba(223, 255, 0, 0.975210066936931) 0%,
-    rgba(255, 42, 0, 1) 100%
-  ) !important;
+  background: linear-gradient( 90deg, rgba(56, 179, 12, 0.98) 0%, rgb(21, 225, 168) 100% ) !important;
   box-shadow:
     inset 0px 0px 0px #8a8a8a,
     inset 0px 0px 0px rgb(255, 255, 255) !important;
@@ -133,7 +129,7 @@ h1 {
   cursor: pointer;
   border: 0px;
   border-radius: 14px;
-  background: repeating-radial-gradient(#1de1ff, #1660d8) !important;
+  background: repeating-radial-gradient(#ff1da7, #5f00ea) !important;
   box-shadow:
     2px 2px 8px #56e7ee,
     -2px -2px 8px #61eaf7 !important;
