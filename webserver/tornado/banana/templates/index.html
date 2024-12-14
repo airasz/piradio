@@ -10,9 +10,9 @@ design by airasz
     <meta http-equiv="cache-control" content="no-cache" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Cache-Control" content="no-store" />
-    <link rel="stylesheet" type="text/css" href="radio.css  " />
+    <link rel="stylesheet" type="text/css" href="radio.css " />
     <link rel="stylesheet" type="text/css" href="style.css" />
-    <!--     <link rel="stylesheet" type="text/css" id="colorscheme"> -->
+    <!-- <link rel="stylesheet" type="text/css" id="colorscheme"> -->
     <link rel="stylesheet" type="text/css" id="colorscheme" href="orange.css" />
     <script src="oradio.js"></script>
     <!-- <link rel="script" type="text/js" href="app.js"> -->
@@ -42,38 +42,39 @@ design by airasz
     </div>
     <div class="main">
       <div class="card_switch">
-        <h1 id="title">oradio</h1>
         <!-- <div id="info" style="min-height: 1cm;"></div> -->
         <div class="card-body" id="card-body">
+          <h1 id="title">oradio</h1>
           <div id="radiostatus" style="color: black"></div>
         </div>
         <!-- and class card-body-->
-        <button class="button1" onclick="sendcmd('mpc volume +5')">
+        <button class="button1 media" onclick="sendcmd('mpc volume +5')">
           <a>vol UP</a>
         </button>
-        <button class="button1" onclick="sendcmd('mpc volume -5')">
+        <button class="button1 media" onclick="sendcmd('mpc volume -5')">
           <a>Vol down</a>
         </button>
-        <button class="button1" onclick="sendcmd('mpc prev')">
+        <button class="button1 media" onclick="sendcmd('mpc prev')">
           <a>prev</a>
         </button>
-        <button class="button1" onclick="sendcmd('mpc next')">
+        <button class="button1 media" onclick="sendcmd('mpc next')">
           <a>Next</a>
         </button>
-        <button class="button1" id="bplay" onclick="sendcmd('mpc toggle')">
+        <button
+          class="button1 media"
+          id="bplay"
+          onclick="sendcmd('mpc toggle')"
+        >
           <a>play/pause</a>
         </button>
-        <button class="button1" id="bstop" onclick="sendcmd('mpc stop')">
+        <button class="button1 media" id="bstop" onclick="sendcmd('mpc stop')">
           <a>Stop</a>
         </button>
-        <button class="button1" onclick="sendcmd('mpc volume 0')">
+        <button class="button1 media" onclick="sendcmd('mpc volume 0')">
           <a>Mute</a>
         </button>
         <br />
-        <div
-          class="card-body text-center"
-          style="margin-bottom: 1px;"
-        >
+        <div class="text-center" style="margin-bottom: 1px">
           <div class="contr" style="display: grid">
             <input
               id="svol"
@@ -89,7 +90,6 @@ design by airasz
           </div>
           <p3 id="isvol">volume</p3>
         </div>
-
         <p></p>
         <div class="buttonstation" id="stations"></div>
         <div class="groupbox">
@@ -105,14 +105,16 @@ design by airasz
                 type="text"
                 id="curl"
                 name="curl"
+                placeholder="http://.."
                 onfocus="this.value=''"
                 style="
                   color: darkslategray;
                   min-width: 3cm;
                   align-content: flex-start;
                 "
-              /><br />
-              <button type="submit" name="submit"  class="button1">
+              />
+              <br />
+              <button type="submit" name="submit" class="button1 button2">
                 play
               </button>
             </div>
@@ -121,7 +123,11 @@ design by airasz
         <div class="groupbox">
           <div id="sleepinfo">
             <div id="timerinfo" style="color: black"></div>
-            <button class="button1" id="bstop" onclick="sendwsm('stopsleep')">
+            <button
+              class="button1 button2"
+              id="bstop"
+              onclick="sendwsm('stopsleep')"
+            >
               <a>Abort</a>
             </button>
           </div>
@@ -132,6 +138,7 @@ design by airasz
                 class="form_data"
                 type="text"
                 id="tval"
+                placeholder="30"
                 name="sleep"
                 onfocus="this.value=''"
                 style="
@@ -139,16 +146,21 @@ design by airasz
                   min-width: 3cm;
                   align-content: flex-start;
                 "
-              /><br />
-              <button type="submit" name="submit" id="submit" class="button1">
+              />
+              <br />
+              <button
+                type="submit"
+                name="submit"
+                id="submit"
+                class="button1 button2"
+              >
                 submit
               </button>
             </div>
           </form>
         </div>
         <!-- <div><p>play url</p><div style="display: flex;"><input id="purl" type="text" class="slider" name="playurl" onclick="playurl()"
-                        style="min-width: 280px;"><button class="button1" onclick="playurl()"><a>play</a></button></div></div> -->
-
+style="min-width: 280px;"><button class="button1" onclick="playurl()"><a>play</a></button></div></div> -->
         <h2 id="cname">write by airasz</h2>
       </div>
       <!-- and class card_switch-->
