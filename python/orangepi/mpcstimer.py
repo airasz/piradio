@@ -9,6 +9,7 @@ SEC_CD = 0
 T_RUNNING = False
 ASCDOWN=True
 ASSECCD=0
+PLAYING= True
 # def countingDown():
 #     global CDOWN
 #     global SEC_CD
@@ -62,6 +63,11 @@ class mpctimer:
         CDOWN=True
         SEC_CD=minutes*60
         return
+        
+    def updateplayer(self, playing):
+        global PLAYING
+        PLAYING= playing
+        return
 
     def stopcdown(self):
         global CDOWN
@@ -92,18 +98,22 @@ class mpctimer:
 
 
     def autostop(self):
+        global PLAYING
         global ASSECCD
         global ASCDOWN
-        if ASCDOWN is True:
+        if ASCDOWN is True and PLAYING is True:
             ASSECCD+=1
-            # print("ASSECCD "+str(ASSECCD))
+            #print("ASSECCD "+str(ASSECCD))
             if ASSECCD ==3600:
                 print("\nauto stop due a 1 hour no user activity!")
                 os.system("mpc stop")
-            elif ASSECCD > 3600:
+            elif ASSECCD > 3601:
                 ASSECCD=3601
 
-
+    def getsecac(self):
+        global ASSECCD
+        return str(ASSECCD)
+    
     def loopy(self):
         # self.cekStart()
         # self.cekStop()

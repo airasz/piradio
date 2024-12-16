@@ -18,7 +18,7 @@ import serial_asyncio
 
 import oledis
 import iradio_oled
-import mpcstimer
+# import mpcstimer
 
 import tornado
 import os.path
@@ -32,7 +32,7 @@ import tornado.web
 display=iradio_oled.display()
 myoled= oledis.oled()
 sleeptimer= iradio_oled.sleeptimer()
-stimer=mpcstimer.mpctimer()
+# stimer=mpcstimer.mpctimer()
 # ws=wsradio.WSHandler()
 # ws=wsradio
 VOLUME_UP = 115
@@ -78,26 +78,6 @@ USERSECONDSLEEPTIMER=3600
 
 
 #EVERCROSS
-KRE_POWER		="FD9A65"
-KRE_MUTE		="FD9867"
-KRE_VOLUP		="FDD827"
-KRE_VOLDOWN	    ="FD5AA5"
-KRE_STUP		="FD609F"
-KRE_STDOWN		="FD6897"
-KRE_TV			="FDA857"
-KRE_RECALL		="FDC837"
-KRE_INFO		="FDE817"
-KRE_PLAY		="FD629D"
-KRE_PAUSE		="FD22DD"
-KRE_STOP		="FD20DF"
-KRE_RED		    ="FD42BD"
-KRE_GREEN		="FD02FD"
-KRE_LIME		="FD00FF"
-KRE_TIMER		="FDC03F"
-KRE_OK			="FD58A7"
-
-
-
 
 # PLAYlists
 
@@ -589,7 +569,7 @@ def restart():
         os.execv(sys.executable, ['python'] + sys.argv)
 
 def msleep(minutes):
-    stimer.startcdown(minutes)
+    sleeptimer.startcdown(minutes)
 
 def ok():
     global MIN_SLEEP
@@ -660,6 +640,8 @@ def processIR(irval):
             os.system("mpc play")
         elif irval == KR_STOP:
             print("stop")
+            display.frezeeDisplay(3)
+            display.display("player stopped", False)
             os.system("mpc stop")
         elif irval == 2099204:
             print("mute")
@@ -714,6 +696,8 @@ def processIRc(irval):
     elif irval == KRC_MUTE:
         print("mute > stop")
         os.system("mpc stop")
+        display.frezeeDisplay(3)
+        display.display("player stopped", False)
     elif irval == KRC_MODE:
         print("mode > switch playlist")  # switch playlist
         switchPLAYLIST()
@@ -764,6 +748,8 @@ def processIRw(irval):
     elif irval == KW_STOP:
         print("mute > stop")
         os.system("mpc stop")
+        display.frezeeDisplay(3)
+        display.display("player stopped", False)
     elif irval == KW_INPUT:
         print("mode > switch playlist")  # switch playlist
         switchPLAYLIST()
@@ -859,7 +845,7 @@ class MainHandler(tornado.web.RequestHandler):
             display.frezeeDisplay(3)
             myoled.displayfs("starting sleep timer\nin "+ str(MIN_SLEEPV)+" minutes",15)
         if curlval!="":
-            stimer.resetas()
+            sleeptimer.resetas()
             global PLAY_CURL
             if PLAY_CURL is False:
                 status = cmd("mpc clear")
@@ -941,7 +927,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
         if message.startswith("0>"):
             sbmsg=message[2:]
             if sbmsg.startswith("mpc"):
-                stimer.resetas()
+                sleeptimer.resetas()
             if sbmsg.startswith("mpc load"):
                 subprocess.check_output("mpc clear", shell=True)
                 subprocess.check_output(sbmsg, shell=True).decode("utf-8")
@@ -975,13 +961,13 @@ class SerialReader(asyncio.Protocol):
         ss=message[:2]
         if ss == "FF":
             processIRc(message)
-            stimer.resetas()
+            sleeptimer.resetas()
         elif ss == "41":
             processIR(message)
-            stimer.resetas()
+            sleeptimer.resetas()
         elif ss == "FD":
             processIRw(message)
-            stimer.resetas()
+            sleeptimer.resetas()
             # print (s)
         # asyncio.create_task(WSHandler.send_message(message))#echoing
 

@@ -7,13 +7,13 @@ import subprocess
 import random
 import threading
 from time import sleep
-import mpcstimer
+# import mpcstimer
 import math
 import json
 import psutil
 
 myoled= oledis.oled()
-stimer=mpcstimer.mpctimer()
+# stimer=mpcstimer.mpctimer()
 local_ip = "192.168.1.123"
 cputemp=""
 NETSTAT = "0MB"
@@ -22,6 +22,10 @@ systemReady=0
 CDOWN = False
 T_ENABLE= False
 SEC_CD = 0
+ASCDOWN=True
+ASSECCD=0
+PLAYING= True
+ASSECMX=3600
 
 
 
@@ -367,6 +371,14 @@ def dbtopercent(value):
     else:
         return " sig: 0%"
 
+def send_wall_message(message: str):
+    try:
+        # Send the message using the 'wall' command
+        subprocess.run(["wall"], input=message.encode(), check=True)
+        print("Message sent to all logged-in users.")
+    except subprocess.CalledProcessError as e:
+        print(f"Failed to send message: {e}")
+
 
 class sleeptimer:
     def startcdown(self, minutes):
@@ -375,7 +387,7 @@ class sleeptimer:
         T_ENABLE=True
         SEC_CD=minutes*60
         return
-
+    # cancel sleep timer
     def stopcdown(self):
         global T_ENABLE
         global SEC_CD
@@ -393,17 +405,44 @@ class sleeptimer:
             timer = f'{mins:02d}:{secs:02d}'
             #print(f'Time left: {timer}', end='\r')
             SEC_CD -= 1
-            # print(SEC_CD)
+            # print("iradio_oled" +str(SEC_CD))
             if SEC_CD==0:
                 print("\nTime's up!")
                 os.system("mpc stop")
+                send_wall_message("mpc stopped due sleep timer defined by user")
                 T_ENABLE =False
                 #quit()
+    # auto stop reset counting
+    def resetas(self):
+        global ASSECCD
+        print("auto stop timer resetted")
+        ASSECCD =0
+    #get auto stop second running
+    def getsecac(self):
+        global ASSECCD
+        return str(ASSECCD)
+
+    def autostop(self):
+        global PLAYING
+        global ASSECCD
+        global ASCDOWN
+        global ASSECMX
+        if ASCDOWN is True and PLAYING is True:
+            ASSECCD+=1
+            # print("iradio_oled auto stop  "+str(ASSECCD))
+            if ASSECCD ==ASSECMX:
+                print("\nauto stop due a 1 hour no user activity!")
+                send_wall_message("mpc stopped due 1 hour without user control")
+                os.system("mpc stop")
+            elif ASSECCD > (ASSECMX+1):
+                ASSECCD=ASSECMX+1
+
 
     def loopy(self):
         # self.cekStart()
         # self.cekStop()
         self.countdown()
+        self.autostop()
         # threading.Timer(1, loopy).start()  # Schedule the function to run again in 1 second
 
     def isrunning(self):
@@ -421,7 +460,7 @@ class sleeptimer:
             timer = f'{hours:02d}:{mins:02d}:{secs:02d}'
             return "sleep in > "+str(timer)
         else:
-            return "off"
+            return "off" # do not change
 
 # def getUsage():
 #     global NETSTAT
@@ -440,10 +479,13 @@ def loop():
     global P_COUNT
     global SCREEN_SLEEP
     global systemReady
+    global PLAYING
     old_status=""
     status = ""
     # os.system("mpc > tmp")
     status = subprocess.check_output("mpc", shell=True).decode("utf-8")
+    if "playing" in status or "paused" in status:
+        PLAYING = True
     # print(status)
     # if status != old_status:
     # if anychange(status) is True:
@@ -453,13 +495,14 @@ def loop():
     #         myoled.show()
     #     P_COUNT = 0
     #     U_COUNT= 0
-    stimer.loopy()
+    # stimer.loopy()
     # print(stimer.update())
     # print("U_COUNT" + str(U_COUNT))
     if U_COUNT == 20:
         if "playing" in status or "paused" in status:
             # displaytooled2()
             displaytooled(status)
+            # stimer.updateplayer(True)
             MAXUCOUNT=25
             STOP_COUNT=0
         else:
@@ -475,9 +518,14 @@ def loop():
                     SCREEN_SLEEP = True
                     # myoled.clear(1)
             else:
-                ypos = random.randint(0,54)
-                xpos = random.randint(0,50)
-                myoled.display("player stopped", (xpos,ypos))
+                secac=msleeptimer.getsecac()
+                if secac==str(ASSECMX+1):
+                    myoled.display("player stopped due\n1 hour no user\nactivity", (0,0))
+                    os.system()
+                else:
+                    ypos = random.randint(0,54)
+                    xpos = random.randint(0,50)
+                    myoled.display("player stopped", (xpos,ypos))
             #sleep(0.4)
     U_COUNT +=1
     if U_COUNT == 25:
@@ -502,11 +550,6 @@ msleeptimer=sleeptimer()
 loop()
 
 class display:
-    # def resettimer(self, msg):
-    #     U_COUNT = 1;
-    #     print("reset timer")
-    #     return
-
     def resettimer(self):
         global U_COUNT
         U_COUNT = 15;
