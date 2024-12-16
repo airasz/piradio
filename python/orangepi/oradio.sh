@@ -4,7 +4,7 @@ while [ "$(hostname -I)" = "" ]; do
   echo -e "\e[1A\e[KNo network: $(date)"
   sleep 1
 done
-
+su -s /bin/sh -c "alsamixer -D equal" mpd
 echo "I have network"
 mpc play
 #/usr/bin/python3   /home/root/iradio.py

@@ -21,9 +21,22 @@ CDOWN = False
 T_ENABLE= False
 SEC_CD = 0
 ON_MENU=False
+ASCDOWN=True
+ASSECCD=0
+PLAYING= True
+ASSECMX=3600
 #setup connection
 # con= serial.Serial()
 # sport='/dev/ttyUSB0'
+
+
+def send_wall_message(message: str):
+    try:
+        # Send the message using the 'wall' command
+        subprocess.run(["wall"], input=message.encode(), check=True)
+        print("Message sent to all logged-in users.")
+    except subprocess.CalledProcessError as e:
+        print(f"Failed to send message: {e}")
 
 
 
@@ -47,7 +60,7 @@ class sleeptimer:
         global T_ENABLE
         global SEC_CD
         #print("sec cd = "+str(SEC_CD))
-        if T_ENABLE is True:
+        if T_ENABLE is True and PLAYING is True:
             mins, secs = divmod(SEC_CD, 60)
             timer = f'{mins:02d}:{secs:02d}'
             #print(f'Time left: {timer}', end='\r')
@@ -58,11 +71,37 @@ class sleeptimer:
                 os.system("mpc stop")
                 T_ENABLE =False
                 #quit()
+    # auto stop reset counting
+    def resetas(self):
+        global ASSECCD
+        print("auto stop timer resetted")
+        ASSECCD =0
+    #get auto stop second running
+    def getsecac(self):
+        global ASSECCD
+        return str(ASSECCD)
+
+    def autostop(self):
+        global PLAYING
+        global ASSECCD
+        global ASCDOWN
+        global ASSECMX
+        if ASCDOWN is True and PLAYING is True:
+            ASSECCD+=1
+            # print("serial display auto stop  "+str(ASSECCD))
+            if ASSECCD ==ASSECMX:
+                print("\nauto stop due a 1 hour no user activity!")
+                send_wall_message("mpc stopped due 1 hour without user control")
+                os.system("mpc stop")
+            elif ASSECCD > (ASSECMX+1):
+                ASSECCD=ASSECMX+1
+
 
     def loopy(self):
         # self.cekStart()
         # self.cekStop()
         self.countdown()
+        self.autostop()
         # threading.Timer(1, loopy).start()  # Schedule the function to run again in 1 second
 
     def isrunning(self):
@@ -435,6 +474,7 @@ def loop():
     global P_COUNT
     global SCREEN_SLEEP
     global ON_MENU
+    global PLAYING
     old_status=""
     status = ""
     # os.system("mpc > tmp")
@@ -453,6 +493,10 @@ def loop():
     if ON_MENU is False:
         status = subprocess.check_output("mpc", shell=True)
         status =  status.decode("utf-8")
+        if "playing" in status or "paused" in status:
+            PLAYING = True
+        else:
+            PLAYING = False
         if U_COUNT == 20:
             if "playing" in status or "paused" in status:
                 # data= str.encode(status)

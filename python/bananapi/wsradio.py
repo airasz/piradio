@@ -5,7 +5,6 @@ import evdev
 from evdev import InputDevice, categorize, ecodes
 import os
 from time import sleep
-import serialdisplay
 import socket
 import json
 import subprocess
@@ -14,7 +13,7 @@ import threading
 from evdev import InputDevice
 
 import mpcstimer
-
+import serialdisplay
 
 import tornado
 import os.path
@@ -24,7 +23,7 @@ import tornado.ioloop
 import tornado.web
 
 
-stimer=mpcstimer.mpctimer()
+#stimer=mpcstimer.mpctimer()
 sleeptimer= serialdisplay.sleeptimer()#used as sleep timer
 
 SWITCH_PLAYLIST = False
@@ -521,6 +520,7 @@ NUMKEYS=[[1 , 79],[2 , 80],[3 , 81],[4 ,75],[5 , 76],[6 , 77],[7 ,71],[8 , 72],[
 
 
 def processKboard(ecode):
+    sleeptimer.resetas()
     if ecode == VOLUME_UP:
         setVOL(True)
     if ecode == VOLUME_DOWN:
@@ -637,6 +637,8 @@ async def print_events(device):
             if DBG_EVENT is True:
                 print("processIR")
         processIR(event.value)
+        if event.value > 2000000:
+            sleeptimer.resetas()
         if DBG_EVENT is True:
             print("===============end debug==========")
         #print(event.code)
@@ -785,6 +787,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
         self.clients.remove(self)
 
     def on_message(self, message):
+        sleeptimer.resetas()
         print (f'[WS] Incoming message:{message}'), message
 
         if message.startswith("0>"):

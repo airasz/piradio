@@ -400,7 +400,7 @@ class sleeptimer:
         global T_ENABLE
         global SEC_CD
         #print("sec cd = "+str(SEC_CD))
-        if T_ENABLE is True:
+        if T_ENABLE is True and PLAYING is True:
             mins, secs = divmod(SEC_CD, 60)
             timer = f'{mins:02d}:{secs:02d}'
             #print(f'Time left: {timer}', end='\r')
@@ -486,6 +486,8 @@ def loop():
     status = subprocess.check_output("mpc", shell=True).decode("utf-8")
     if "playing" in status or "paused" in status:
         PLAYING = True
+    else:
+        PLAYING = False
     # print(status)
     # if status != old_status:
     # if anychange(status) is True:
