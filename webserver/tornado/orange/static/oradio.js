@@ -58,21 +58,22 @@ function onMessage(event) {
     var sdata = event.data.substring(5);
     var el = document.getElementById("radiostatus");
     el.innerHTML = sdata;
-    console.log("vol");
+    console.log("got info");
   } else if (event.data.startsWith("vol")) {
-    var sdata = event.data.substring(4);
+    var sdata = event.data.substring(4)   ;
     document.getElementById("svol").value = parseInt(sdata);
-
-    // console.log("vol");
+    console.log("updating volume slide");
   } else if (event.data.startsWith("pls")) {
-    // var sdata = event.data.substring(2);
-    // document.getElementById("light").innerHTML = sdata;// timer clock
-    console.log("pls");
+    var sdata = event.data.substring(4);
+    var stations = document.getElementById("stations");
+    stations.innerHTML = sdata;
+
+    console.log("got pls");
   } else if (event.data.startsWith("resettimer")) {
     count = 4;
     // var sdata = event.data.substring(2);
     // document.getElementById("light").innerHTML = sdata;// timer clock
-    console.log("pls");
+    console.log("reset timer");
   }
   // else {
   //

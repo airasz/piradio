@@ -6,12 +6,12 @@
 }
 .button1 {
 /*   color: rgb(255, 255, 255); */
-  color:#222222;
+  color:#99f50f;
 /*   background:transparent !important; */
 /*   background:rgba(60, 185, 10, 0.5)!important; */
   border-radius: 20px;
-  background:#00aa00 !important;
-
+  background:#006a00 !important;
+/*   background: linear-gradient(360deg, rgba(18,244,109,1) 0%, rgba(49,189,84,1) 42%, rgba(21,227,110,1) 43%, rgba(42,250,122,1) 100%)!important; */
   backdrop-filter: blur(8px);
 }
 .button1:active {
@@ -72,6 +72,7 @@ h1 {
 margin-bottom:1px;}
 .bplay{
   background: #ffae21!important;
+/*   background: linear-gradient(360deg, rgba(164,207,1,1) 0%, rgba(137,146,17,1) 42%, rgba(208,224,1,1) 43%, rgba(255,231,0,0.9668067055923932) 100%)!important; */
   color:#872e0b !important;
   cursor: pointer;
 }
