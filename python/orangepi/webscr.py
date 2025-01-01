@@ -3,6 +3,7 @@ import tornado.web
 from bs4 import BeautifulSoup
 import requests
 import asyncio
+import json
 # import serialdisplay
 import oledisplay
 import random
@@ -14,6 +15,7 @@ myesp=serial_esp.serialesp()
 urll="https://www.goal.com/en/match/juventus-vs-bologna/I7nhslu6_ZM8SCwkDXBXw"
 count=0
 
+DATAFILE_='/home/wbsscr.json'
 # display=serialdisplay.display()
 classname="match-data_score__xQ29z"
 lscore="0-0"
@@ -55,7 +57,10 @@ class MainHandler(tornado.web.RequestHandler):
             # result = await fetch_and_scrape(url)
             scraper = Scraper(url)
             # self.write("url saved")
-
+            jdata={"url":urll
+                }
+            with open(DATAFILE_, "w") as f:
+                json.dump(jdata, f)
             # pass
         # ok()
         self.render("webscr.html", wsurl=urll)
@@ -230,7 +235,15 @@ def make_app():
     ],
         **settings)
 
-
+def loaddata():
+    global urll
+    try:
+        with open(DATAFILE_, "r") as f:
+            data = json.load(f)
+            urll = data.get("url", urll)
+    except FileNotFoundError:
+        pass
+loaddata()
 if __name__ == "__main__":
     # global urll
     url_to_scrape = urll  # Replace with the target website

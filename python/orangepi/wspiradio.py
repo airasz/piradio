@@ -132,7 +132,29 @@ KW_TEN= "FDD02F" #-/--
 KW_SVOL= "FDB04F"
 KW_INPUT = "FDF00F"
 
+#EVERCROSS
+KRE_POWER  ="FD9A65"
+KRE_MUTE  ="FD9867"
+KRE_VOLUP  ="FDD827"
+KRE_VOLDOWN     ="FD5AA5"
+KRE_STUP  ="FD609F"
+KRE_STDOWN  ="FD6897"
+KRE_TV   ="FDA857"
+KRE_RECALL  ="FDC837"
+KRE_INFO  ="FDE817"
+KRE_PLAY  ="FD629D"
+KRE_PAUSE  ="FD22DD"
+KRE_STOP  ="FD20DF"
+KRE_RED      ="FD42BD"
+KRE_GREEN  ="FD02FD"
+KRE_LIME  ="FD00FF"
+KRE_TIMER  ="FDC03F"
+KRE_OK   ="FD58A7"
+
 CDOWN=0
+
+
+file_path = "radioconfig.json"
 
 # os.system("/usr/bin/python mpcsleeper.py && exit 0")
 # try:
@@ -156,6 +178,28 @@ def load_variable():
     except FileNotFoundError:
         pass
 
+def load_config():
+    global REMOTES
+    global CONFIGDATA
+    global RNEXMEDIA
+    global RPUTIH
+    global RCAR
+    global REVERCROSS
+    try:
+        with open(file_path, "r") as f:
+            CONFIGDATA = json.load(f)
+            REMOTES=CONFIGDATA.get("remote","")
+            # print("remote array: "+ str(REMOTES))
+            # for item in CONFIGDATA.get("remote",""):
+            #     print("item: "+ str(item))
+            #     print("name:"+ str(item.get("name","noname")))
+            #
+            # for itm in REMOTES:
+            #     print("remotename:"+ str(itm["name"]))
+    except FileNotFoundError:
+        pass
+
+load_config()
 
 def cmd(cmd):
     rtr=""
@@ -718,57 +762,122 @@ def processIRc(irval):
 
 
 def processIRw(irval):
-    for i in range(len(KR_wNUM)):
-        if irval == KR_wNUM[i][1]:
-            clickNum(KR_wNUM[i][0])
-            break
-    if irval == KW_VOLUP:
-        print("volume up")
-        setVOL(True)
-    elif irval == KW_VOLDOWN:
-        setVOL(False)
-    elif irval == KW_STUP:
-        setSTATION(True)
-    elif irval == KW_STDOWN:
-        setSTATION(False)
-    elif irval == KW_ENTER:
-        global MIN_SLEEP
-        if MIN_SLEEP>0:
-            ok()
-        else:
-            print("enter")
-            os.system("mpc toggle")
-    elif irval == KW_PLAY:
-        # global MIN_SLEEP
-        if MIN_SLEEP>0:
-            ok()
-        else:
-            print("play")
-            os.system("mpc play")
-    elif irval == KW_STOP:
-        print("mute > stop")
-        os.system("mpc stop")
-        display.frezeeDisplay(3)
-        display.display("player stopped", False)
-    elif irval == KW_INPUT:
-        print("mode > switch playlist")  # switch playlist
-        switchPLAYLIST()
-    elif irval == KW_SVOL:
-        print("call > vol jump")  # start vol
-        startVol()
-    elif irval == KW_TEN:  # 10+
-        print("ccall > ten+")
-        startTenPos()
-    elif irval == KW_POWER:  # 10+
-        print("reboot")
-        reboot()
-    elif irval == KW_POWER:  # 10+
-        print("get net data")
-    elif irval == KW_SLEEP:
-        startsetsleep()
-    elif irval == KW_MUTE:
-        restart()
+    global REMOTES
+    if REMOTES[1]["enable"] is False:
+        # display.frezeeDisplay(2)
+        # myoled.displayfs("remote locked", 16)
+        processIRe(irval)
+        return
+    else:
+        for i in range(len(KR_wNUM)):
+            if irval == KR_wNUM[i][1]:
+                clickNum(KR_wNUM[i][0])
+                break
+        if irval == KW_VOLUP:
+            print("volume up")
+            setVOL(True)
+        elif irval == KW_VOLDOWN:
+            setVOL(False)
+        elif irval == KW_STUP:
+            setSTATION(True)
+        elif irval == KW_STDOWN:
+            setSTATION(False)
+        elif irval == KW_ENTER:
+            global MIN_SLEEP
+            if MIN_SLEEP>0:
+                ok()
+            else:
+                print("enter")
+                os.system("mpc toggle")
+        elif irval == KW_PLAY:
+            # global MIN_SLEEP
+            if MIN_SLEEP>0:
+                ok()
+            else:
+                print("play")
+                os.system("mpc play")
+        elif irval == KW_STOP:
+            print("mute > stop")
+            os.system("mpc stop")
+            display.frezeeDisplay(3)
+            display.display("player stopped", False)
+        elif irval == KW_INPUT:
+            print("mode > switch playlist")  # switch playlist
+            switchPLAYLIST()
+        elif irval == KW_SVOL:
+            print("call > vol jump")  # start vol
+            startVol()
+        elif irval == KW_TEN:  # 10+
+            print("ccall > ten+")
+            startTenPos()
+        elif irval == KW_POWER:  # 10+
+            print("reboot")
+            reboot()
+        elif irval == KW_POWER:  # 10+
+            print("get net data")
+        elif irval == KW_SLEEP:
+            startsetsleep()
+        elif irval == KW_MUTE:
+            restart()
 
+
+def processIRe(irval):
+    global REMOTES
+    if REMOTES[3]["enable"] is False:
+        display.frezeeDisplay(2)
+        myoled.displayfs("remote locked", 16)
+        return
+    else:
+        for i in range(len(KR_eNUM)):
+            if irval == KR_eNUM[i][1]:
+                clickNum(KR_eNUM[i][0])
+                break
+        if irval == KRE_VOLUP:
+            print("volume up")
+            setVOL(True)
+        elif irval == KRE_VOLDOWN:
+            setVOL(False)
+        elif irval == KRE_STUP:
+            setSTATION(True)
+        elif irval == KRE_STDOWN:
+            setSTATION(False)
+        elif irval == KRE_OK:
+            global MIN_SLEEP
+            if MIN_SLEEP>0:
+                ok()
+            else:
+                print("enter")
+                os.system("mpc toggle")
+        elif irval == KRE_PLAY:
+            # global MIN_SLEEP
+            if MIN_SLEEP>0:
+                ok()
+            else:
+                print("play")
+                os.system("mpc play")
+        elif irval == KRE_STOP:
+            print("mute > stop")
+            os.system("mpc stop")
+            display.frezeeDisplay(3)
+            display.display("player stopped", False)
+        elif irval == KRE_TV:
+            print("mode > switch playlist")  # switch playlist
+            switchPLAYLIST()
+        elif irval == KRE_RECALL:
+            print("call > vol jump")  # start vol
+            startVol()
+        elif irval == KRE_INFO:  # 10+
+            print("ccall > ten+")
+            startTenPos()
+        elif irval == KRE_POWER:  # 10+
+            print("reboot")
+            reboot()
+        elif irval == KRE_POWER:  # 10+
+            print("get net data")
+        elif irval == KRE_TIMER:
+            startsetsleep()
+        elif irval == KRE_MUTE:
+            restart()
 
 
 # ser = serial.Serial(
@@ -791,9 +900,15 @@ settings = dict(
 
 
 def broadcast_message(message):
-    print("broadcast_message "+ message)
+    # print("broadcast_message "+ message)
+    # wsclient=w
     for client in WSHandler.clients:
-        client.write_message(message)
+        # client.write_message(message)
+        # print ("bc ws")
+        try:
+            client.write_message(message)
+        except Exception as e:
+            print(f"error sending ws msg : {e}")
         # client.write_message("info="+message)
 
 
@@ -861,7 +976,28 @@ class MainHandler(tornado.web.RequestHandler):
             PLAY_CURL=True
             # pass
         # ok()
-        self.render("index.html")
+        # self.render("index.html")
+class SettingHandler(tornado.web.RequestHandler):
+    def get(self):
+        self.render("settings.html")
+    def post(self):
+        global REMOTES
+        global CONFIGDATA
+        try:
+            data = json.loads(self.request.body)
+        except json.JSONDecodeError:
+            self.set_status(400)  # Bad Request
+            self.write({"error": "Invalid JSON"})
+            return
+
+
+        # value=self.get_argument('jremote')
+        print("got post jremote")
+        REMOTES=data
+        CONFIGDATA['remote']=REMOTES
+        with open(file_path, "w") as f:
+            json.dump(CONFIGDATA, f)
+
 
 class shellCmd(tornado.web.RequestHandler):#scmd
     def get(self,input):
@@ -892,6 +1028,18 @@ class shellCmd(tornado.web.RequestHandler):#scmd
         elif input== "status":
             sr=subprocess.check_output("mpc", shell=True).decode("utf-8")
             self.write(sr)
+        elif input== "remotes":
+            global REMOTES
+            rp=""
+            for i in range(len(REMOTES)):
+                #rp+= "<button class=\"button1\" onclick=\"sendcmd('mpc play " + str(i+1) +"')\"><a>"+str(i+1)+". "+str(REMOTES[i]["name"])+"</a></button>"
+                benable= "" if REMOTES[i]["enable"] is False else "checked=\"true\""
+                # rp+="<div id=\"state1\" class=\"switch_led\" style=\"margin: auto; padding: 8px\" ><p4 id=\"swp1\" style=\"font-size: 12px\">"+ str(i+1) + ". "+str(REMOTES[i]["name"]) +"</p4><label class=\"switchled\"> <input type=\"checkbox\" checked=\""+str(REMOTES[i]["enable"]) +"\" id=\"remote"+str(i+1)+"\" onchange=\"rchange("+ str(i+1)+")\"/> <span class=\"slider\"></span></label> </div>"
+                rp+="<div id=\"state1\" class=\"switch_led\" style=\"margin: auto; padding: 8px\" ><p4 id=\"swp1\" style=\"font-size: 12px\">"+ str(i+1) + ". "+str(REMOTES[i]["name"]) +"</p4><label class=\"switchled\"> <input type=\"checkbox\" "+ benable +" id=\"remote"+str(i+1)+"\" value=\""+str(REMOTES[i]["name"]) +"\" onchange=\"rchange("+ str(i+1)+")\"/> <span class=\"slider\"></span></label> </div>"
+                # rp+="<div id=\"state1\" class=\"switch_led\" style=\"margin: auto; padding: 8px\" ><p4 id=\"swp1\" style=\"font-size: 12px\">"+ str(i+1) + ". "+str(REMOTES[i]["name"]) +"</p4><label class=\"switchled\"> <input type=\"checkbox\" checked=false id=\"remote"+str(i+1)+"\" onchange=\"rchange("+ str(i+1)+")\"/> <span class=\"slider\"></span></label> </div>"
+
+            self.set_header("Content-Type", "application/json")
+            self.write(json.dumps(REMOTES))
         elif input== "hostname":
             sr=subprocess.check_output("hostname", shell=True).decode("utf-8")
             self.write(sr)
@@ -928,14 +1076,23 @@ class WSHandler(tornado.websocket.WebSocketHandler):
             sbmsg=message[2:]
             if sbmsg.startswith("mpc"):
                 sleeptimer.resetas()
+                print("start with mpc")
             if sbmsg.startswith("mpc load"):
                 subprocess.check_output("mpc clear", shell=True)
                 subprocess.check_output(sbmsg, shell=True).decode("utf-8")
-                subprocess.check_output("mpc play   ", shell=True).decode("utf-8")
+                subprocess.check_output("mpc play ", shell=True).decode("utf-8")
                 global PLAY_CURL
                 PLAY_CURL=False
+                interuptDisplay(3, 16, "switcing PLAYlists")
+            elif sbmsg.startswith("mpc volume"):
+                out= subprocess.check_output(sbmsg + " | grep volume | awk '{print$2}'", shell=True).decode("utf-8")
+                display.frezeeDisplay(3)
+                display.displayfs("v "+out, 25)
+
             else:
                 sr=subprocess.check_output(sbmsg, shell=True).decode("utf-8")
+                print("incoming ws msg: " + sr)
+                interuptDisplay(3, 16, sr)
         elif message.startswith("1>"):
             sbmsg=message[2:]
             if sbmsg.startswith("stopsleep"):
@@ -944,7 +1101,10 @@ class WSHandler(tornado.websocket.WebSocketHandler):
     async def send_message(cls, message):
         for client in cls.clients:
             if client.ws_connection:  # Check if the client is still connected
-                await client.write_message(message)
+                try:
+                    await client.write_message(message)
+                except Exception as e:
+                    print(f"error sending ws msg : {e}")
 
 # Serial reader
 class SerialReader(asyncio.Protocol):
@@ -985,6 +1145,7 @@ def make_app():
         (r'/', MainHandler),
         (r'/scmd/(\w+)', shellCmd),
         (r"/websocket", WSHandler),
+        (r"/settings", SettingHandler),
         (r"/(.*)", tornado.web.StaticFileHandler, {"path": "/root/static"})
     ],
         **settings)
@@ -1011,28 +1172,58 @@ def sleepCountDown():
 
 
 
+
 SCOUNT=0
 prev_status=""
+prev_plist=""
+
+def broadcast_rplist():
+    global prev_plist
+    idd=0
+    if (getPlayState()) is True:
+        idd=int(subprocess.check_output("mpc -f [%position%] | awk 'NR==1 {print}'",shell=True).decode("utf-8"))
+    sr=subprocess.check_output("mpc playlist", shell=True).decode("utf-8")
+    pl=sr.splitlines(keepends=False)
+    rp=""
+    for i in range(len(pl)):
+        if "://" in pl[i]:
+            pl[i]=pl[i][pl[i].index("//")+2:]
+        if i+1==idd:
+            rp+= "<button id=\"playing\" class=\"button1 bplay\" onclick=\"sendcmd('mpc play " + str(i+1) +"')\"><a>"+str(i+1)+". "+pl[i]+"</a></button>"
+        else:
+            rp+= "<button class=\"button1\" onclick=\"sendcmd('mpc play " + str(i+1) +"')\"><a>"+str(i+1)+". "+pl[i]+"</a></button>"
+    if rp!=prev_plist:
+        prev_plist=rp
+        broadcast_message("pls="+rp)
+#
+#         try:
+#             print("broadcast playlist")
+#             broadcast_message("pls="+rp)
+#         except:
+#             print("error")
+
+
+
 def infinity():
-    # global SCOUNT
-    # SCOUNT +=1
-    # if SCOUNT == 10:
-    #     if display.getmenu() is True:
-    #         display.onmenu(False)
-    #     SCOUNT=0
+    global SCOUNT
+    SCOUNT +=1
+    if SCOUNT % 2==0:
+        broadcast_rplist()
+    if SCOUNT == 10:
+        SCOUNT=0
     sleepCountDown()
     global prev_status
     status = subprocess.check_output("mpc current", shell=True).decode("utf-8").replace("\n","")
     if status!=prev_status:
         try:
             broadcast_message("info="+status+">__ws")
-        except:
-            print("error")
+        except Exception as e:
+            print(f"error sending ws msg : {e}")
     prev_status=status
     # print(status)
     threading.Timer(1, infinity).start()
 
-infinity()
+#infinity()
 
 if __name__ == "__main__":
     port = '/dev/ttyS5'  # Change this to your serial port

@@ -1,5 +1,6 @@
 var bstop = false;
 var count = 0;
+var old_sl = "";
 function loop() {
   count++;
   if (count > 5) {
@@ -60,7 +61,7 @@ function onMessage(event) {
     el.innerHTML = sdata;
     console.log("got info");
   } else if (event.data.startsWith("vol")) {
-    var sdata = event.data.substring(4)   ;
+    var sdata = event.data.substring(4);
     document.getElementById("svol").value = parseInt(sdata);
     console.log("updating volume slide");
   } else if (event.data.startsWith("pls")) {
@@ -88,8 +89,8 @@ function loadvol() {
   var tbl = document.getElementById("svol");
   ajax_request.open("GET", "scmd/volume", true);
   ajax_request.onreadystatechange = function () {
-    if (ajax_request.readyState == 4 && ajax_request.status == 200) {
-      tbl.value = ajax_request.responseText;
+    if (ajax_request.status == 200) {
+      if (ajax_request.readyState == 4) tbl.value = ajax_request.responseText;
     } else {
       // document.getElementById("loadingtbl").style.display = "block";
     }
@@ -122,14 +123,15 @@ function getsleep() {
   var sinfo = document.getElementById("timerinfo");
   ajax_request.open("GET", "scmd/getsleep", true);
   ajax_request.onreadystatechange = function () {
-    if (ajax_request.readyState == 4 && ajax_request.status == 200) {
-      if (this.responseText === "off") {
-        document.getElementById("sleepinfo").style.display = "none";
-        document.getElementById("sleepform").style.display = "block";
-      } else {
-        document.getElementById("sleepinfo").style.display = "block";
-        document.getElementById("sleepform").style.display = "none";
-      }
+    if (ajax_request.status == 200) {
+      if (ajax_request.readyState == 4)
+        if (this.responseText === "off") {
+          document.getElementById("sleepinfo").style.display = "none";
+          document.getElementById("sleepform").style.display = "block";
+        } else {
+          document.getElementById("sleepinfo").style.display = "block";
+          document.getElementById("sleepform").style.display = "none";
+        }
       sinfo.innerHTML = this.responseText;
       // var toHHMMSS = (secs) => {
       //   var sec_num = parseInt(secs, 10);
@@ -173,21 +175,23 @@ function load_status() {
 
   // new Response(form_data).text().then(console.log)
   ajax_request.onreadystatechange = function () {
-    if (ajax_request.readyState == 4 && ajax_request.status == 200) {
-      tbl.innerHTML = ajax_request.responseText.substring(
-        0,
-        ajax_request.responseText.indexOf("repeat"),
-      );
-      playbutton(ajax_request.responseText);
-      updatevolslider(ajax_request.responseText);
-      polpulatesl();
-      getsleep();
-      scrollcount++;
-      if (scrollcount > 2) {
-        scroll_to();
-        scrollcount = 0;
+    if (ajax_request.status == 200) {
+      if (ajax_request.readyState == 4) {
+        tbl.innerHTML = ajax_request.responseText.substring(
+          0,
+          ajax_request.responseText.indexOf("repeat"),
+        );
+        playbutton(ajax_request.responseText);
+        updatevolslider(ajax_request.responseText);
+        polpulatesl();
+        getsleep();
+        scrollcount++;
+        if (scrollcount > 2) {
+          scroll_to();
+          scrollcount = 0;
+        }
+        count = 0;
       }
-      count = 0;
       // setTimeout(load_status, 5000); //repeat call this function
     } else {
       // document.getElementById("loadingtbl").style.display = "block";
@@ -249,9 +253,10 @@ function gethostname() {
 
   // new Response(form_data).text().then(console.log)
   ajax_request.onreadystatechange = function () {
-    if (ajax_request.readyState == 4 && ajax_request.status == 200) {
-      // alert("hn=" + this.responseText);
-      document.title = this.responseText + " radio";
+    if (ajax_request.status == 200) {
+      if (ajax_request.readyState == 4)
+        // alert("hn=" + this.responseText);
+        document.title = this.responseText + " radio";
       if (this.responseText.includes("banana")) {
         colorscheme.setAttribute("href", "cscheme.css");
         // spn.style.cssText = 'display:inline-flex !important';
@@ -276,12 +281,23 @@ function polpulatesl() {
   var stations = document.getElementById("stations");
   ajax_request.open("GET", "scmd/playlist", true);
   ajax_request.onreadystatechange = function () {
-    if (ajax_request.readyState == 4 && ajax_request.status == 200) {
-      stations.innerHTML = this.responseText;
+    // console.log("xhr code: " + ajax_request.status);
+    // console.log("ajax_request.readyState: " + ajax_request.readyState);
+    if (ajax_request.status == 200) {
+      if (ajax_request.readyState == 4) {
+        // console.log("got playlist");
+        if (this.responseText != old_sl) {
+          // console.log("got playlist");
+          stations.innerHTML = this.responseText;
+          old_sl = this.responseText;
+        }
+        stations.innerHTML = this.responseText;
+      }
       // setTimeout(polpulatesl, 15000); //repeat call this function
     } else {
+      console.log("failed get playist");
       stations.innerHTML =
-        '<button class="button1" onclick="sendcmd(\'mpc status\')"><a>reload page</a></button>';
+        '<button class="button1" onclick="windows.location.reload()"><a>reload page</a></button>';
     }
   };
   ajax_request.send();
@@ -292,8 +308,8 @@ function polpulatesl2() {
   var stations = document.getElementById("stations");
   ajax_request.open("GET", "scmd/playlist", true);
   ajax_request.onreadystatechange = function () {
-    if (ajax_request.readyState == 4 && ajax_request.status == 200) {
-      stations.innerHTML = this.responseText;
+    if (ajax_request.status == 200) {
+      if (ajax_request.readyState == 4) stations.innerHTML = this.responseText;
     } else {
       stations.innerHTML =
         '<button class="button1" onclick="sendcmd(\'mpc status\')"><a>reload page</a></button>';
@@ -307,8 +323,8 @@ function polpulatepl() {
   var stations = document.getElementById("playlists");
   ajax_request.open("GET", "scmd/iplaylist", true);
   ajax_request.onreadystatechange = function () {
-    if (ajax_request.readyState == 4 && ajax_request.status == 200) {
-      stations.innerHTML = this.responseText;
+    if (ajax_request.status == 200) {
+      if (ajax_request.readyState == 4) stations.innerHTML = this.responseText;
     } else {
       stations.innerHTML = "station list failed to loaded";
     }
@@ -327,9 +343,11 @@ function setsleep() {
     // console.log("set sleeep" + tval);
     ajax_request.open("GET", "scmd/sleep=" + tval, true);
     ajax_request.onreadystatechange = function () {
-      if (ajax_request.readyState == 4 && ajax_request.status == 200) {
-        stations.innerHTML = this.responseText;
-        it.value = "";
+      if (ajax_request.status == 200) {
+        if (ajax_request.readyState == 4) {
+          stations.innerHTML = this.responseText;
+          it.value = "";
+        }
       } else {
         stations.innerHTML = "set sleep timer failed";
       }
