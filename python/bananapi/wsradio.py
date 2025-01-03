@@ -461,6 +461,7 @@ def processIR(irval):
             os.system("mpc play")
         elif irval == 2099277:
             print("stop")
+            interuptDisplay(3, "player stopped")
             os.system("mpc stop")
         elif irval == 2099204:
             print("mute")
@@ -534,6 +535,7 @@ def processKboard(ecode):
         # status = cmd("mpc play")
         getPlayState()
     if ecode == STOP:
+        interuptDisplay(3, "player stopped")
         os.system("mpc stop")
         # status = cmd("mpc stop")
         # myoled.display("player stopped", (0,0))
