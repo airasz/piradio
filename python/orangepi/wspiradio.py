@@ -53,6 +53,7 @@ T_LINES = 0
 TEN = False
 TOQ=0
 PLAY_CURL=False
+PLAYLIST_X=0;
 
 NUMKEYS=[[1 , 79],[2 , 80],[3 , 81],[4 ,75],[5 , 76],[6 , 77],[7 ,71],[8 , 72],[9 , 73],[10 , 82]]
 
@@ -189,6 +190,12 @@ def load_config():
         with open(file_path, "r") as f:
             CONFIGDATA = json.load(f)
             REMOTES=CONFIGDATA.get("remote","")
+            if CONFIGDATA.get("autoload","true") is True:
+                os.system("mpc play")
+                print("auto play by config")
+            # else:
+            #     os.system("mpc stop")
+            #     print("auto stop by config")
             # print("remote array: "+ str(REMOTES))
             # for item in CONFIGDATA.get("remote",""):
             #     print("item: "+ str(item))
@@ -472,6 +479,7 @@ def clickNum(pos):
 def switchPLAYLIST():
     global SWITCH_PLAYLIST
     global PLAY_CURL
+    global PLAYLIST_X
     PLAY_CURL=False
     # global PLAYlists
     # SWITCH_PLAYLIST = not SWITCH_PLAYLIST
@@ -488,6 +496,10 @@ def switchPLAYLIST():
     status = cmd("ls /var/lib/mpd/playlists/")
     status = status.replace(".m3u", "")
     PLAYlists = status.split()
+
+    PLAYLIST_X+=1
+    if PLAYLIST_X == len(PLAYlists):
+        PLAYLIST_X=0
     # print(PLAYlists[0])
     # length = len(starr)
     # for i in PLAYlists:
@@ -500,15 +512,16 @@ def switchPLAYLIST():
 
     status = cmd("mpc clear")
     sleep(0.1)
-    print(("mpc load " + PLAYlists[1]) if SWITCH_PLAYLIST else ("mpc load " + PLAYlists[0]))
-    status = cmd("mpc load " + PLAYlists[1]) if SWITCH_PLAYLIST else cmd("mpc load " + PLAYlists[0])
+    # print(("mpc load " + PLAYlists[1]) if SWITCH_PLAYLIST else ("mpc load " + PLAYlists[0]))
+    # status = cmd("mpc load " + PLAYlists[1]) if SWITCH_PLAYLIST else cmd("mpc load " + PLAYlists[0])
+    status= cmd("mpc load " + PLAYlists[PLAYLIST_X])
     getstationlen()
     status= status.replace(" ", "\n")
     display.frezeeDisplay(2)
     myoled.displayfs(status, 16)
     sleep(1)
     status = cmd("mpc play")
-    displaytooled(status)
+    # displaytooled(status)
     broadcast_message("info="+status)
     display.frezeeDisplay(3)
 
@@ -684,8 +697,8 @@ def processIR(irval):
             os.system("mpc play")
         elif irval == KR_STOP:
             print("stop")
-            display.frezeeDisplay(3)
             display.display("player stopped", False)
+            display.frezeeDisplay(3)
             os.system("mpc stop")
         elif irval == 2099204:
             print("mute")
@@ -739,9 +752,9 @@ def processIRc(irval):
             os.system("mpc play")
     elif irval == KRC_MUTE:
         print("mute > stop")
-        os.system("mpc stop")
-        display.frezeeDisplay(3)
         display.display("player stopped", False)
+        display.frezeeDisplay(3)
+        os.system("mpc stop")
     elif irval == KRC_MODE:
         print("mode > switch playlist")  # switch playlist
         switchPLAYLIST()
@@ -798,9 +811,9 @@ def processIRw(irval):
                 os.system("mpc play")
         elif irval == KW_STOP:
             print("mute > stop")
-            os.system("mpc stop")
-            display.frezeeDisplay(3)
             display.display("player stopped", False)
+            display.frezeeDisplay(3)
+            os.system("mpc stop")
         elif irval == KW_INPUT:
             print("mode > switch playlist")  # switch playlist
             switchPLAYLIST()
@@ -857,9 +870,9 @@ def processIRe(irval):
                 os.system("mpc play")
         elif irval == KRE_STOP:
             print("mute > stop")
-            os.system("mpc stop")
-            display.frezeeDisplay(3)
             display.display("player stopped", False)
+            display.frezeeDisplay(3)
+            os.system("mpc stop")
         elif irval == KRE_TV:
             print("mode > switch playlist")  # switch playlist
             switchPLAYLIST()
@@ -974,6 +987,7 @@ class MainHandler(tornado.web.RequestHandler):
             broadcast_message("info="+status)
             display.frezeeDisplay(3)
             PLAY_CURL=True
+            self.render("index.html")
             # pass
         # ok()
         # self.render("index.html")
@@ -1028,6 +1042,10 @@ class shellCmd(tornado.web.RequestHandler):#scmd
         elif input== "status":
             sr=subprocess.check_output("mpc", shell=True).decode("utf-8")
             self.write(sr)
+        elif input== "config":
+            global CONFIGDATA
+            self.set_header("Content-Type", "application/json")
+            self.write(json.dumps(CONFIGDATA))
         elif input== "remotes":
             global REMOTES
             rp=""

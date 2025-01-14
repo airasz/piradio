@@ -6,7 +6,7 @@ while [ "$(hostname -I)" = "" ]; do
 done
 su -s /bin/sh -c "alsamixer -D equal" mpd
 echo "I have network"
-mpc play
+#mpc play
 #/usr/bin/python3   /home/root/iradio.py
 #  GNU nano 5.4                                       /root/oradio.sh     
 sleep 3
