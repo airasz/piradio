@@ -14,7 +14,8 @@ import threading
 import json
 import asyncio
 import serial_asyncio
-
+import socket
+import signal
 
 import oledis
 import iradio_oled
@@ -1007,8 +1008,13 @@ class SettingHandler(tornado.web.RequestHandler):
 
         # value=self.get_argument('jremote')
         print("got post jremote")
-        REMOTES=data
-        CONFIGDATA['remote']=REMOTES
+        # REMOTES=data
+        # CONFIGDATA['remote']=REMOTES
+        REMOTES=CONFIGDATA.get("remote","")
+        print("remote array: "+ str(REMOTES))
+        CONFIGDATA=data
+        j=json.dumps(data)
+        print(j)
         with open(file_path, "w") as f:
             json.dump(CONFIGDATA, f)
 
@@ -1080,7 +1086,13 @@ class WSHandler(tornado.websocket.WebSocketHandler):
     clients = set()
     def open(self):
         # print("WebSocket opened by ")
-        print(f"Client connected: {self.request.remote_ip}")
+        # print(f"Client connected: {self.request.remote_ip}")
+        remote_ip = self.request.remote_ip
+        try:
+            hostname, _, _ = socket.gethostbyaddr(remote_ip)
+            print(f"WebSocket opened from {hostname} ({remote_ip})")
+        except socket.herror:
+            print(f"WebSocket opened from {remote_ip} (hostname not resolved)")
         self.clients.add(self)
 
     def on_close(self):
@@ -1240,8 +1252,19 @@ def infinity():
     prev_status=status
     # print(status)
     threading.Timer(1, infinity).start()
+def signal_handler(sig, frame):
+    print("Signal received, cancelling tasks...")
+    for task in asyncio.all_tasks():
+        task.cancel()
 
 #infinity()
+async def iorun():
+    # Start the serial reader
+    asyncio.ensure_future(start_serial_reader(port, baudrate))
+
+    # Start the Tornado I/O loop
+    tornado.ioloop.IOLoop.current().start()
+    loop.add_signal_handler(signal.SIGINT, signal_handler)
 
 if __name__ == "__main__":
     port = '/dev/ttyS5'  # Change this to your serial port
@@ -1249,13 +1272,16 @@ if __name__ == "__main__":
 
     app = make_app()
     app.listen(8888)
+    try:
+        # Start the serial reader
+        asyncio.ensure_future(start_serial_reader(port, baudrate))
 
-    # Start the serial reader
-    asyncio.ensure_future(start_serial_reader(port, baudrate))
-
-    # Start the Tornado I/O loop
-    tornado.ioloop.IOLoop.current().start()
-
+        # Start the Tornado I/O loop
+        tornado.ioloop.IOLoop.current().start()
+        asyncio.run(iorun())
+    except KeyboardInterrupt:
+        print("Keyboard interrupt received, exiting...")
+    
 
 
 #
