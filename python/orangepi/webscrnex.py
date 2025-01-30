@@ -5,6 +5,8 @@ import requests
 import asyncio
 import serialdisplay
 import tornado.httpclient
+import Nextiondisplay
+MyNextion=Nextiondisplay.display()
 
 import json
 import os.path
@@ -90,7 +92,9 @@ class Scraper:
         global mteam
         count+=1
         if count %5==0:
-            interuptDisplay(lscore)
+            # interuptDisplay(lscore)
+            # MyNextion.send_command(f't1.txt="{lscore}"')
+            pass
         if count>25:
             count =0
             sblink=0
@@ -114,6 +118,13 @@ class Scraper:
                     tm+=team.get_text()
                     # tm=tm.replace("vs ","\nvs\n")
                     # tm=team.select_one("."+"team_team-name__0U_gn")
+                hteam=tm[:tm.index("vs")].strip()
+                ateam=tm[tm.index("vs")+2:].strip()
+
+                MyNextion.send_command(f't1.txt="{hteam}"')
+                MyNextion.send_command(f't5.txt="{ateam}"')
+                print(f"home: {hteam} away: {ateam}")
+                # print(f"team : {tm} ")
                 minutes= soup.find_all('span', "match-period_period___hImu")
                 mnt="X"
                 # if minutes:
@@ -135,12 +146,20 @@ class Scraper:
                         # mnt=mnt.replace("'", "")
                         # mnt=mnt.replace("+", "")
 
+                MyNextion.send_command(f't3.txt="{mnt}"')
                 # else:
                 scores= soup.find_all('span',classname)
                 for score in scores:
                 # print(score)
                     scr=score.select_one("."+classname)
                 # serialdisplay(score.get_text())
+                hscore=score.get_text()[:2]
+                hscore=hscore.replace(" ", "")
+                ascore=score.get_text()[3:]
+                ascore=ascore.replace(" ", "")
+                MyNextion.send_command(f't2.txt="{hscore}"')
+                MyNextion.send_command(f't4.txt="{ascore}"')
+                print(f"home: {hscore} away: {ascore}")
                 print(tm+ "\n " + mnt+" > "+score.get_text())
                 lscore=tm+ "\n " + mnt+" > "+score.get_text()
                 if score.get_text()!= mscore:
@@ -153,7 +172,8 @@ class Scraper:
                         sblink=0
                 mteam=tm
 
-                interuptDisplay(lscore)
+                # interuptDisplay(lscore)
+                # MyNextion.send_command(f't1.txt="{lscore}"')
             except Exception as e:
                 print(f"Error during scraping: {e}")
 
@@ -205,8 +225,19 @@ def loaddata():
         pass
 
 loaddata()
+
 if __name__ == "__main__":
     # global urll
+
+    MyNextion.set_port('/dev/ttyUSB0')
+    MyNextion.send_command("page page1")
+    MyNextion.send_command("page 3")
+    MyNextion.send_command('dim=10')#sukses
+    MyNextion.send_command('t0.xcen=0')#0left, 1=center, 2=right
+    MyNextion.send_command("t1.isbr=True")
+    MyNextion.send_command('t0.txt="live score"')
+    MyNextion.send_command('t2.xcen=1')
+    MyNextion.send_command('t4.xcen=1')
     url_to_scrape = urll  # Replace with the target website
     scraper = Scraper(url_to_scrape)
 

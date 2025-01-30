@@ -24,6 +24,36 @@ ASSECCD=0
 PLAYING= True
 ASSECMX=3600
 #setup connection
+# con= serial.Serial()
+# sport='/dev/ttyUSB0'
+
+#
+# sport=''
+# def cekport():
+#     global sport
+#     # output = result= subprocess.check_output("dmesg | grep tty", shell=True)
+#     tty =  subprocess.check_output("dmesg | grep tty", shell=True).decode("utf-8")
+#     if "ttyUSB" in tty:
+#        itty=tty.index("ttyUSB")
+#        sport = '/dev/'+tty[itty:(itty+7)]
+#        # sport = '/dev/ttyUSB0'
+#     else:
+#        sport = '/dev/ttyS1'
+#     print("usage serial port "+ sport[5:])
+#
+# cekport()
+# con = serial.Serial(
+#     port=sport,
+#     baudrate=115200,
+#     parity=serial.PARITY_NONE,
+#     stopbits=serial.STOPBITS_ONE,
+#     bytesize=serial.EIGHTBITS,
+# )
+#
+# def serialdisplay(msg):
+#     data= str.encode(msg)
+#     con.write(data)
+
 def getlocal_ip():
     global local_ip
     cmd= "hostname -I | awk '{print$1}'"
