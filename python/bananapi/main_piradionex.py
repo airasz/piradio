@@ -13,8 +13,10 @@ import threading
 from evdev import InputDevice
 
 import mpcstimer
-import serialdisplay
+# import serialdisplay
 
+import module_piradionex
+sdisplay=module_piradionex.display()
 import tornado
 import os.path
 import tornado.httpserver
@@ -24,7 +26,7 @@ import tornado.web
 
 
 #stimer=mpcstimer.mpctimer()
-sleeptimer= serialdisplay.sleeptimer()#used as sleep timer
+sleeptimer= module_piradionex.sleeptimer()#used as sleep timer
 
 SWITCH_PLAYLIST = False
 MUTE = 113
@@ -36,7 +38,7 @@ DBG_EVENT=False
 EN_NEXMEDIA_R=False
 
 PLAY_CURL=False
-
+PLAYLIST_X=0;
 #remot key nexmedia
 KR_POWER =  2099200
 KR_OPT =    2099287
@@ -50,6 +52,7 @@ KR_GREEN=   2099225
 KR_OK=      2099221
 KR_SLEEP=   2099231
 KR_EXIT=    2099216
+KR_MEDIA=   2099290
 KR_NUMKEYS=[[1 , 2099228],[2 , 2099229],[3 , 2099230],[4 , 2099264],[5 , 2099265],[6 , 2099266],[7 , 2099268],[8 , 2099269],[9 , 2099270],[10 , 2099271]]
 KB_NUMKEYS=[[1 , 458841],[2 , 458842],[3 , 458843],[4 , 458844],[5 , 458845],[6 , 458846],[7 , 458847],[8 , 458848],[9 , 458849],[10 , 458850]]
 
@@ -68,14 +71,12 @@ TOQ=0
 TS_ENABLE=False
 STOP_SLEEP=0
 
+PLAYlists=[]
+splp=False
 
 def interuptDisplay(delay, msg):
     display.frezeeDisplay(delay)
     display.display(msg, False)
-
-# def interuptDisplay(msg, delay):
-#     display.display(msg, False)
-#     display.frezeeDisplay(delay)
 
 def load_variable():
     global CDOWN
@@ -99,6 +100,17 @@ def cmd(cmd):
     rtr= rtr.decode("utf-8")
     return rtr
 
+def loadPLAYlists():
+    global PLAYlists
+    # status = cmd("ls /var/lib/mpd/playlists/")
+    # status = status.replace(".m3u", "")
+    # PLAYlists = status.split()
+    sr=subprocess.check_output("mpc lsplaylists", shell=True).decode("utf-8")
+    PLAYlists=sr.splitlines(keepends=False)
+    # print(f'playlist no 2:{PLAYlists[1]}')
+
+loadPLAYlists()
+
 def hasInsternet():
     print("check Internet Connection")
     global HASINTERNET_
@@ -117,7 +129,7 @@ def hasInsternet():
 
 while HASINTERNET_ is False:
     hasInsternet()
-display=serialdisplay.display()
+display=module_piradionex.display()
 
 def getTotalQ():
     status = "radio volume: 50%"
@@ -170,36 +182,13 @@ def getPlayState():
 
 def playToggle():
     os.system("mpc "+ ("stop" if getPlayState() else "play"))
-    # if (getPlayState()) is True:
-    #     os.system("mpc stop")
-    # else:
-    #     os.system("mpc play")
 
 def setVOL(up):
     status = ""
     vol=""
     status = subprocess.check_output(("mpc volume +5 | grep volume | awk '{print$2}'") if up else ("mpc volume -5 | grep volume | awk '{print$2}'"), shell=True).decode("utf-8")
     print("vol "+status)
-    interuptDisplay(3, "set volume\n"+ status)
-#     if (getPlayState()) is True:
-#         status = subprocess.check_output("mpc volume | awk '{print$2}'", shell=True)
-#         vol=str(status.decode("utf-8"))
-#         vol=vol[:len(vol)-2]
-#         intvol = int(vol)
-#         os.system("mpc "+ ("volume +5" if up else "volume -5"))
-#
-#         interuptDisplay(3, "set volume\n"+ vol)
-
-        # if up is True:
-        #     os.system("mpc volume +5")
-        #     intvol+=5
-        #     display.display("v "+ vol)
-        #
-        # else:
-        #     os.system("mpc volume -5")
-        #     intvol-=5
-        #     display.display("v "+ vol)
-        #
+    interuptDisplay(3, "set volume "+ status)
 
 def setSTATION(next):
     if (getPlayState()) is True:
@@ -209,11 +198,12 @@ def setSTATION(next):
 def reboot():
     global TO_REBOOT
     if TO_REBOOT is False:
+
         TO_REBOOT = True
-        interuptDisplay(8, "press again to reboot")
+        interuptDisplay(1, "press again to reboot")
 
     else:
-        interuptDisplay(5, "rebooting...")
+        interuptDisplay(1, "rebooting...")
         sleep(1)
         os.system("reboot")
 
@@ -224,6 +214,7 @@ def playPos(pos):
     global NUM_VOL
     global MIN_SLEEP
     global MIN_SLEEPV
+    global splp
     status = ""
     if TEN is True:
         # display.display("playing pos "+ str(pos + 10 if TEN else pos))
@@ -239,10 +230,10 @@ def playPos(pos):
 
     else:
         # display.display("volume to "+ str(pos + 10 if TEN else pos))
-        if NUM_VOL==0 and MIN_SLEEP==0:
+        if NUM_VOL==0 and MIN_SLEEP==0 and splp is False:
             interuptDisplay(3, "play pos "+ str(pos))
             os.system("mpc play " + str(pos))
-            exitset()
+            exitset(False)
             return
         if NUM_VOL == 1:
             VOLTO=pos * 10
@@ -254,7 +245,7 @@ def playPos(pos):
             NUM_VOL=0
             interuptDisplay(5, "volume to "+ str(VOLTO))
             os.system("mpc volume " + str(VOLTO))
-            exitset()
+            exitset(False)
 
         if MIN_SLEEP==1:
             # MIN_SLEEPV+=pos**MIN_SLEEP
@@ -266,27 +257,39 @@ def playPos(pos):
         elif MIN_SLEEP==2:
             MIN_SLEEPV+=pos
             interuptDisplay(5, "sleep in "+ str(MIN_SLEEPV)+" minutes\nClick OK to confirm")
+        if splp is True:
+            status = cmd("mpc clear")
+            sleep(0.1)
+            if pos < len(PLAYlists)+1:
+                status= cmd("mpc load " + PLAYlists[pos-1])
+                getstationlen()
+                status= status.replace(" ", "\n")
+                interuptDisplay(1, status)
+                sleep(0.6)
+                status = cmd("mpc play")
+                sleep(0.4)
+                status = cmd("mpc current")
+                interuptDisplay(1, status)
 
+            splp=False
 
 
 def startVol():
     global NUM_VOL
-    global TEN
-    if TEN is True:
-        TEN =False
+    exitset(False)
     NUM_VOL=1
-    interuptDisplay(8, "jump volume to...")
-    display.onmenu(True)
+    interuptDisplay(1, "jump volume to...")
+    # display.onmenu(True)
 
 
 def startTenPos():
     global TEN
     global NUM_VOL
+    exitset(False)
     TEN = True
-    if NUM_VOL !=0:
-        NUM_VOL=0
-    interuptDisplay(8, "set play pos 1...")
-    display.onmenu(True)
+
+    interuptDisplay(2, "set play pos 1...")
+    # display.onmenu(True)
 
 def startsetsleep():
     global stimerStop
@@ -295,7 +298,7 @@ def startsetsleep():
     global MIN_SLEEP
     global STOP_SLEEP
     load_variable()
-    display.onmenu(True)
+    # display.onmenu(True)
     if TS_ENABLE is True:
         if STOP_SLEEP==0:
             STOP_SLEEP+=1
@@ -313,21 +316,24 @@ def startsetsleep():
             STOP_SLEEP=0
     else:
         interuptDisplay(8, "set sleep...")
+        exitset(False)
         MIN_SLEEP=1
 
-    # if stimer.isrunning() is True:
-    #     if stimerStop==0:
-    #         interuptDisplay(5, "timer is running\npress again to stop")
-    #         display.resettimer()
-    #         stimerStop+=1
-    #     elif stimerStop==1:
-    #         interuptDisplay(5, "timer is stopped")
-    #         stimerStop=0
-    #         display.resettimer()
-    # else:
-    #     interuptDisplay(5, "set sleep...")
-    #     MIN_SLEEP=1
-    #     display.resettimer()
+
+def startPlistTo():
+    global splp
+    global PLAYlists
+    exitset(False)
+    splp=True
+    pls=""
+    ids=0
+    for item in PLAYlists:
+        # print(f'{str(ids+1)}. {str(item)}\n')
+        pls+=(f'{str(ids+1)}. {str(item)}\n')
+        ids+=1
+    # display.frezeeDisplay(8)
+    # display.display(f'select.\n{pls}', False)
+    interuptDisplay(2, (f'select.\n{pls}'))
 
 def ok():
     global MIN_SLEEP
@@ -338,20 +344,25 @@ def ok():
         interuptDisplay(5, "sleep timer starting for "+str(MIN_SLEEPV) +" minutes")
         MIN_SLEEP=0
         sleeptimer.startcdown(MIN_SLEEPV)
-        exitset()
+        exitset(False)
 
-def exitset():
+def exitset(info):
     global NUM_VOL
     global TEN
     global MIN_SLEEP
     global STOP_SLEEP
     global MIN_SLEEPV
     global TO_REBOOT
+    global splp
+    TO_REBOOT= False
+    splp = False
     TEN = False
     NUM_VOL = 0
     STOP_SLEEP = False
     MIN_SLEEP = 0
-    display.onmenu(False)
+    # display.onmenu(False)
+    if info:
+        interuptDisplay(2, "start set resetted")
 
 
 def getstationlen(): #get total playlist
@@ -369,6 +380,8 @@ def getstationlen(): #get total playlist
 
 def switchPLAYLIST():
     global SWITCH_PLAYLIST
+    global PLAYLIST_X
+    global PLAYlists
     # global PLAYlists
     # SWITCH_PLAYLIST = not SWITCH_PLAYLIST
     getstationlen()
@@ -381,29 +394,22 @@ def switchPLAYLIST():
     # import os
 
     # status = os.popen("ls /var/lib/mpd/playlists/").read()
-    status = cmd("ls /var/lib/mpd/playlists/")
-    status = status.replace(".m3u", "")
-    PLAYlists = status.split()
-    # print(PLAYlists[0])
-    # length = len(starr)
-    # for i in PLAYlists:
-    #     print(str(PLAYlists[i]))
+    # status = cmd("ls /var/lib/mpd/playlists/")
+    # status = status.replace(".m3u", "")
+    # PLAYlists = status.split()
 
-
-    # length = len(PLAYlists)
-    # for i in range(length):
-    #     print(PLAYlists[i])
+    PLAYLIST_X+=1
+    if PLAYLIST_X == len(PLAYlists):
+        PLAYLIST_X=0
 
     status = cmd("mpc clear")
     sleep(0.1)
-    print(("mpc load " + PLAYlists[1]) if SWITCH_PLAYLIST else ("mpc load " + PLAYlists[0]))
-    status = cmd("mpc load " + PLAYlists[1]) if SWITCH_PLAYLIST else cmd("mpc load " + PLAYlists[0])
+    status= cmd("mpc load " + PLAYlists[PLAYLIST_X])
     getstationlen()
 
     interuptDisplay(2, status)
     sleep(1)
     status = cmd("mpc play")
-    display.frezeeDisplay(1)
 
 def processIR(irval):
     global EN_NEXMEDIA_R
@@ -417,7 +423,7 @@ def processIR(irval):
     # interuptDisplay(sval)
     if irval== KR_GREEN:
         EN_NEXMEDIA_R= not EN_NEXMEDIA_R
-        interuptDisplay(3, "REMOTE control\n"+("unlocked" if EN_NEXMEDIA_R else "locked"))
+        interuptDisplay(3, "REMOTE control "+("unlocked" if EN_NEXMEDIA_R else "locked"))
         # if EN_NEXMEDIA_R if False:
         #     interuptDisplay(5, "REMOTE control unlocked")
         # else:
@@ -461,7 +467,7 @@ def processIR(irval):
             os.system("mpc play")
         elif irval == 2099277:
             print("stop")
-            interuptDisplay(3, "player stopped")
+            interuptDisplay(3, "stop player")
             os.system("mpc stop")
         elif irval == 2099204:
             print("mute")
@@ -484,7 +490,9 @@ def processIR(irval):
         elif irval==KR_OK:
             ok()
         elif irval==KR_EXIT:
-            exitset()
+            exitset(True)
+        elif irval==KR_MEDIA:
+            startPlistTo()
     else:
         if irval >2000000:
             interuptDisplay(5, "unregistered key remote\nor this remote locked")
@@ -535,7 +543,7 @@ def processKboard(ecode):
         # status = cmd("mpc play")
         getPlayState()
     if ecode == STOP:
-        interuptDisplay(3, "player stopped")
+        interuptDisplay(3, "stop player")
         os.system("mpc stop")
         # status = cmd("mpc stop")
         # myoled.display("player stopped", (0,0))
@@ -593,8 +601,8 @@ def infinity():
     global SCOUNT
     SCOUNT +=1
     if SCOUNT == 10:
-        if display.getmenu() is True:
-            display.onmenu(False)
+        # if display.getmenu() is True:
+        #     display.onmenu(False)
         SCOUNT=0
 
     threading.Timer(1, infinity).start()
@@ -604,7 +612,7 @@ infinity()
 async def print_events(device):
     async for event in device.async_read_loop():
         #print(device.path, evdev.categorize(event), sep=': ')
-        #print(device.path, event.value, sep=': ')
+        # print(device.path, event.value, sep=': ')
         global saved_eval
 
 
@@ -660,29 +668,6 @@ def broadcast_message(message):
     print("broadcast_message "+ message)
     for client in WSHandler.clients:
         client.write_message(message)
-        # client.write_message("info="+message)
-
-
-#
-# SCOUNT=0
-# prev_status=""
-# def infinity():
-#     # global SCOUNT
-#     # SCOUNT +=1
-#     # if SCOUNT == 10:
-#     #     if display.getmenu() is True:
-#     #         display.onmenu(False)
-#     #     SCOUNT=0
-#     global prev_status
-#     status = subprocess.check_output("mpc current", shell=True).decode("utf-8").replace("\n","")
-#     if status!=prev_status:
-#         broadcast_message("info="+status)
-#     prev_status=status
-#     print(status)
-#     threading.Timer(1, infinity).start()
-#
-# infinity()
-
 
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
@@ -731,6 +716,8 @@ class MainHandler(tornado.web.RequestHandler):
 
 class shellCmd(tornado.web.RequestHandler):#scmd
     def get(self,input):
+
+        global PLAYlists
         # print("input="+str(input))
         # cmd=self.get_argument('hostname')
         if input=="playlist":
@@ -739,6 +726,7 @@ class shellCmd(tornado.web.RequestHandler):#scmd
                 idd=int(subprocess.check_output("mpc -f [%position%] | awk 'NR==1 {print}'",shell=True).decode("utf-8"))
             sr=subprocess.check_output("mpc playlist", shell=True).decode("utf-8")
             pl=sr.splitlines(keepends=False)
+
             rp=""
             for i in range(len(pl)):
                 if "://" in pl[i]:
@@ -751,6 +739,7 @@ class shellCmd(tornado.web.RequestHandler):#scmd
         elif input== "iplaylist":
             sr=subprocess.check_output("mpc lsplaylists", shell=True).decode("utf-8")
             pl=sr.splitlines(keepends=False)
+            PLAYlists=pl
             rp=""
             for i in range(len(pl)):
                 rp+= "<button class=\"button1\" onclick=\"sendcmd('mpc load " + pl[i] +"')\"><a>"+str(i+1)+". "+pl[i]+"</a></button>"
@@ -781,7 +770,14 @@ class WSHandler(tornado.websocket.WebSocketHandler):
     clients = set()
     def open(self):
         # print("WebSocket opened by ")
-        print(f"Client connected: {self.request.remote_ip}")
+        remote_ip = self.request.remote_ip
+        try:
+            hostname, _, _ = socket.gethostbyaddr(remote_ip)
+            print(f"WebSocket opened from {hostname} ({remote_ip})")
+            interuptDisplay(1, (f"WebSocket opened from {hostname} [{remote_ip}]"))
+        except socket.herror:
+            print(f"WebSocket opened from {remote_ip} (hostname not resolved)")
+            interuptDisplay(1, (f"WebSocket opened from {remote_ip} (hostname not resolved)"))
         self.clients.add(self)
 
     def on_close(self):
@@ -791,6 +787,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
     def on_message(self, message):
         sleeptimer.resetas()
         print (f'[WS] Incoming message:{message}'), message
+        interuptDisplay(1, (f'[WS] Incoming message:\n{message}'))
 
         if message.startswith("0>"):
             sbmsg=message[2:]
@@ -802,6 +799,10 @@ class WSHandler(tornado.websocket.WebSocketHandler):
                 subprocess.check_output("mpc play   ", shell=True).decode("utf-8")
                 global PLAY_CURL
                 PLAY_CURL=False
+                interuptDisplay(1, "switcing PLAYlists")
+            elif sbmsg.startswith("mpc volume"):
+                out= subprocess.check_output(sbmsg + " | grep volume | awk '{print$2}'", shell=True).decode("utf-8")
+                interuptDisplay(1, "set volume "+out)
             else:
                 sr=subprocess.check_output(sbmsg, shell=True).decode("utf-8")
         elif message.startswith("1>"):
@@ -835,17 +836,19 @@ for device in devices:
         print("Using device", device.path, "\n")
         #return device
     # print("No device found!")
-    asyncio.ensure_future(print_events(device))
-
 
     app = make_app()
     app.listen(8888)
+    try:
+        asyncio.ensure_future(print_events(device))
+        # Start the Tornado I/O loop
+        tornado.ioloop.IOLoop.current().start()
 
-    # Start the Tornado I/O loop
-    tornado.ioloop.IOLoop.current().start()
-
-loop = asyncio.get_event_loop()
-loop.run_forever()
+        asyncio.run(iorun())
+    except KeyboardInterrupt:
+        print("Keyboard interrupt received, exiting...")
+# loop = asyncio.get_event_loop()
+# loop.run_forever()
 
 
 
