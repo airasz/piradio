@@ -480,6 +480,7 @@ def loop():
     global SCREEN_SLEEP
     global systemReady
     global PLAYING
+    global local_ip
     old_status=""
     status = ""
     # os.system("mpc > tmp")
@@ -520,14 +521,16 @@ def loop():
                     SCREEN_SLEEP = True
                     # myoled.clear(1)
             else:
+                if STOP_COUNT == 2:
+                    local_ip=local_ip.replace("IP: ","")
                 secac=msleeptimer.getsecac()
                 if secac==str(ASSECMX+1):
                     myoled.display("player stopped due\n1 hour no user\nactivity", (0,0))
                     os.system()
                 else:
-                    ypos = random.randint(0,54)
+                    ypos = random.randint(0,30)
                     xpos = random.randint(0,50)
-                    myoled.display("player stopped", (xpos,ypos))
+                    myoled.display("player stopped\n" +  local_ip, (xpos,ypos))
             #sleep(0.4)
     U_COUNT +=1
     if U_COUNT == 25:
@@ -580,7 +583,9 @@ class display:
 
 
     def displayfs(self, msg, fs):
+        global P_COUNT
         myoled.displayfs(msg, fs)
+        P_COUNT=0
         return
 
     def display(self, msg, rndom):

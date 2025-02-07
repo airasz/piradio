@@ -55,6 +55,7 @@ TEN = False
 TOQ=0
 PLAY_CURL=False
 PLAYLIST_X=0;
+splp=False
 
 NUMKEYS=[[1 , 79],[2 , 80],[3 , 81],[4 ,75],[5 , 76],[6 , 77],[7 ,71],[8 , 72],[9 , 73],[10 , 82]]
 
@@ -77,6 +78,7 @@ RADIOSLEEPTIMERENABLED=True
 RADIOSECONDSLEEPTIMER=3600
 USERSLEEPTIMERENABLED=True
 USERSECONDSLEEPTIMER=3600
+PLAYlists=[]
 
 
 #EVERCROSS
@@ -152,6 +154,8 @@ KRE_GREEN  ="FD02FD"
 KRE_LIME  ="FD00FF"
 KRE_TIMER  ="FDC03F"
 KRE_OK   ="FD58A7"
+KRE_FAV="FDAA55"
+KRE_EXIT="FDA05F"
 
 CDOWN=0
 
@@ -208,7 +212,6 @@ def load_config():
         pass
 
 load_config()
-
 def cmd(cmd):
     rtr=""
     try:
@@ -219,6 +222,15 @@ def cmd(cmd):
 
     rtr= rtr.decode("utf-8")
     return rtr
+
+def loadPLAYlists():
+    global PLAYlists
+    # status = cmd("ls /var/lib/mpd/playlists/")
+    # status = status.replace(".m3u", "")
+    # PLAYlists = status.split()
+    sr=subprocess.check_output("mpc lsplaylists", shell=True).decode("utf-8")
+    PLAYlists=sr.splitlines(keepends=False)
+loadPLAYlists()
 
 def getVol():
     status = "radio volume: 50%"
@@ -271,22 +283,19 @@ def getPlayState():
 def startVol():
     display.frezeeDisplay(8)
     display.displayfs("jump volume...", 15)
+    exitset(False)
     global NUM_VOL
-    global TEN
-    global MIN_SLEEP
-    if TEN is True:
-        TEN =False
     NUM_VOL=1
-    MIN_SLEEP=0
+
 
 
 stimerStop=0
 def startsetsleep():
+    exitset(False)
     global stimerStop
-    global NUM_VOL
-    global TEN
     global MIN_SLEEP
     global TS_ENABLE
+
     # load_variable()
     if sleeptimer.isrunning() is True:
         if stimerStop==0:
@@ -313,13 +322,21 @@ def startsetsleep():
 def startTenPos():
     display.frezeeDisplay(8)
     display.display("jump station to...", True)
+    exitset(False)
     global TEN
-    global NUM_VOL
-    global MIN_SLEEP
     TEN = True
-    if NUM_VOL !=0:
-        NUM_VOL=0
-    MIN_SLEEP=0
+
+def startPlistTo():
+    exitset(False)
+    global splp
+    splp=True
+    pls=""
+    ids=0
+    for item in PLAYlists:
+        pls+=(f'{str(ids+1)}. {str(item)}\n')
+        ids+=1
+    display.frezeeDisplay(8)
+    display.display(f'select.\n{pls}', False)
 
 def setSTATION(next):
     status = ""
@@ -328,6 +345,7 @@ def setSTATION(next):
     display.frezeeDisplay(3)
     if (getPlayState()) is True:
         # display.display("playing next" if next else "playing previous", True)
+        display.frezeeDisplay(2)
         display.displayfs("playing\nnext" if next else "playing\nprevious", 18)
         status = cmd("mpc next") if next else cmd("mpc prev")
 
@@ -335,27 +353,6 @@ def setSTATION(next):
     broadcast_message("resettimer")
     # displaytooled(status)
 
-
-def setVOL_old(up):
-    status = ""
-    vol=""
-    if (getPlayState()) is True:
-        status = subprocess.check_output("mpc volume | awk '{print$2}'", shell=True)
-        vol=str(status.decode("utf-8"))
-        vol=vol[:len(vol)-2]
-        intvol = int(vol)
-        # status = cmd("mpc volume " + "+5" if up else "-5")# if next else cmd("mpc prev")
-        status = cmd("mpc volume +5") if up else cmd("mpc volume -5")
-
-        # if up is True:
-        #     status = cmd("mpc volume +5")
-        # else:
-        #     status = cmd("mpc volume -5")
-    print("vol"+vol)
-    # display.displaybig("v"+vol)
-    display.frezeeDisplay(3)
-    display.displayfs("v"+str(invol), 25)
-    broadcast_message("vol="+vol)
 
 def setVOL(up):
     status = ""
@@ -373,7 +370,6 @@ def reboot():
     if TO_REBOOT is False:
         TO_REBOOT = True
         # display.display("goto reboot", True)
-
         display.frezeeDisplay(8)
         myoled.displayfs("press again\nto reboot", 16)
     else:
@@ -383,19 +379,22 @@ def reboot():
         os.system("reboot")
 
 
-def exitset():
+def exitset(info):
     global NUM_VOL
     global TEN
     global MIN_SLEEP
     global STOP_SLEEP
     global MIN_SLEEPV
     global TO_REBOOT
+    global splp
+    splp=False
     TEN = False
     NUM_VOL = 0
     STOP_SLEEP = False
     MIN_SLEEP = 0
-    display.frezeeDisplay(2)
-    myoled.displayfs("operation\ncanceled", 16)
+    if info:
+        display.frezeeDisplay(2)
+        myoled.displayfs("operation\ncanceled", 16)
     # display.onmenu(False)
 
 
@@ -406,6 +405,7 @@ def clickNum(pos):
     global NUM_VOL
     global MIN_SLEEP
     global MIN_SLEEPV
+    global splp
     ypos = random.randint(0,54)
     xpos = random.randint(0,50)
     # display.display("playing pos "+ str(pos), (xpos,ypos))
@@ -431,7 +431,7 @@ def clickNum(pos):
 
     else:
         # display.display("volume to "+ str(pos + 10 if TEN else pos), True)
-        if NUM_VOL==0 and MIN_SLEEP==0:
+        if NUM_VOL==0 and MIN_SLEEP==0 and splp is False:
             # display.display("play pos "+ str(pos), True)
             display.frezeeDisplay(3)
             myoled.displayfs("play pos "+ str(pos),15)
@@ -468,9 +468,28 @@ def clickNum(pos):
             # display.display("sleep in "+ str(MIN_SLEEPV)+" minutes\nClick OK to confirm", False)
             display.frezeeDisplay(8)
             myoled.displayfs("sleep in\n"+ str(MIN_SLEEPV)+" minutes\nClick OK to\nconfirm",13)
+        if splp is True:
+            # status = cmd("ls /var/lib/mpd/playlists/")
+            # status = status.replace(".m3u", "")
+            # PLAYlists = status.split()
 
 
-
+            status = cmd("mpc clear")
+            sleep(0.1)
+            # print(("mpc load " + PLAYlists[1]) if SWITCH_PLAYLIST else ("mpc load " + PLAYlists[0]))
+            # status = cmd("mpc load " + PLAYlists[1]) if SWITCH_PLAYLIST else cmd("mpc load " + PLAYlists[0])
+            if pos < len(PLAYlists)+1:
+                status= cmd("mpc load " + PLAYlists[pos-1])
+                getstationlen()
+                status= status.replace(" ", "\n")
+                display.frezeeDisplay(2)
+                myoled.displayfs(status, 16)
+                sleep(1)
+                status = cmd("mpc play")
+                # displaytooled(status)
+                broadcast_message("info="+status)
+                display.frezeeDisplay(3)
+            splp=False
 
 
     # display.frezeeDisplay(3)
@@ -481,6 +500,7 @@ def switchPLAYLIST():
     global SWITCH_PLAYLIST
     global PLAY_CURL
     global PLAYLIST_X
+    global PLAYlists
     PLAY_CURL=False
     # global PLAYlists
     # SWITCH_PLAYLIST = not SWITCH_PLAYLIST
@@ -722,7 +742,7 @@ def processIR(irval):
         elif irval==KR_OK:
             ok()
         elif irval==KR_EXIT:
-            exitset()
+            exitset(True)
     else:
         if irval[:2]=="41":
             # interuptDisplay(3,  unregistered key remote\nor this remote locked")
@@ -892,6 +912,10 @@ def processIRe(irval):
             startsetsleep()
         elif irval == KRE_MUTE:
             restart()
+        elif irval == KRE_FAV:
+            startPlistTo()
+        elif irval == KRE_EXIT:
+            exitset(True)
 
 
 # ser = serial.Serial(
