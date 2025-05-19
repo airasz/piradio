@@ -35,6 +35,7 @@ function initWebSocket() {
 function onOpen(event) {
   console.log("Connection opened");
 }
+
 function onClose(event) {
   console.log("Connection closed");
   setTimeout(initWebSocket, 2000);
@@ -207,6 +208,17 @@ function scroll_to() {
   if (bplaying !== null) bplaying.focus();
 }
 
+function restart() {
+  var ajax_request = new XMLHttpRequest();
+  ajax_request.open("GET", "scmd/restart", true);
+  ajax_request.onreadystatechange = function () {
+    if (ajax_request.status == 200) {
+      alert(this.responseText);
+      // if (ajax_request.readyState == 4) { alert(this.responseText); }
+    }
+  };
+  ajax_request.send();
+}
 function updatevolslider(txt) {
   // var vol = txt.substring(txt.length - 3, txt.length - 1);
 
