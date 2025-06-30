@@ -4,19 +4,21 @@ import time
 import evdev
 from evdev import InputDevice, categorize, ecodes
 import os
+import sys
 from time import sleep
 import socket
 import json
 import subprocess
 import asyncio
 import threading
-from evdev import InputDevice
+# from evdev import InputDevice
 
-import mpcstimer
+# import mpcstimer
 # import serialdisplay
 
 import module_piradionex
 sdisplay=module_piradionex.display()
+mtimer=module_piradionex.tasktimer()
 import tornado
 import os.path
 import tornado.httpserver
@@ -39,20 +41,24 @@ EN_NEXMEDIA_R=False
 
 PLAY_CURL=False
 PLAYLIST_X=0;
+
+GOTOSTATION=False
 #remot key nexmedia
-KR_POWER =  2099200
-KR_OPT =    2099287
-KR_D_UP =   2099218
-KR_D_DOWN = 2099219
-KR_VOLUP =  2099202
-KR_VOLDOWN = 2099203
-KR_STUP =   2099206
-KR_STDOWN = 2099207
-KR_GREEN=   2099225
-KR_OK=      2099221
-KR_SLEEP=   2099231
-KR_EXIT=    2099216
-KR_MEDIA=   2099290
+KR_POWER =      2099200
+KR_OPT =        2099287
+KR_D_UP =       2099218
+KR_D_DOWN =     2099219
+KR_VOLUP =      2099202
+KR_VOLDOWN =    2099203
+KR_STUP =       2099206
+KR_STDOWN =     2099207
+KR_GREEN=       2099225
+KR_OK=          2099221
+KR_SLEEP=       2099231
+KR_EXIT=        2099216
+KR_MEDIA=       2099290
+KR_FORWARD=     2099275
+KR_REVERSE=     2099272
 KR_NUMKEYS=[[1 , 2099228],[2 , 2099229],[3 , 2099230],[4 , 2099264],[5 , 2099265],[6 , 2099266],[7 , 2099268],[8 , 2099269],[9 , 2099270],[10 , 2099271]]
 KB_NUMKEYS=[[1 , 458841],[2 , 458842],[3 , 458843],[4 , 458844],[5 , 458845],[6 , 458846],[7 , 458847],[8 , 458848],[9 , 458849],[10 , 458850]]
 
@@ -139,11 +145,11 @@ def getTotalQ():
     global SWITCH_PLAYLIST
 
     if "muslim" in status:
-        print("playlist muslim detected")
+        # print("playlist muslim detected")
         SWITCH_PLAYLIST = False
     # if tq < 10:
     #     SWITCH_PLAYLIST = True
-    print("total queue = " + str(tq))
+    # print("total queue = " + str(tq))
     return tq
 
 # os.system("mpc volume 50")
@@ -194,6 +200,38 @@ def setSTATION(next):
     if (getPlayState()) is True:
         interuptDisplay(3, "playing next" if next else "playing previous")
         os.system("mpc "+ ("next" if next else "prev"))
+
+def getCurrentStation():
+
+    status = "radio volume: 50%"
+    status = subprocess.check_output("mpc", shell=True)
+    status =  status.decode("utf-8")
+    ps = status.index(']')
+    pps=status.index('%')
+    pss=status[ps:pps]
+    ht=pss.index("#")
+    fs=pss.index('/')
+    cs=pss[ht+1:fs]
+    return int(cs)
+
+def stationPage(next):
+    global TOQ
+    status = ""
+    cs= getCurrentStation()
+    if next :
+        cs= cs+10
+        if cs> TOQ:
+            cs=TOQ
+        interuptDisplay(2, "play pos "+ str(cs))
+        status = subprocess.check_output(f"mpc play {cs}", shell=True)
+        status =  status.decode("utf-8")
+    else:
+        cs= cs-10
+        if cs< 1:
+            cs=1
+        interuptDisplay(2, "play pos "+ str(cs))
+        status = subprocess.check_output(f"mpc play {cs}", shell=True)
+        status =  status.decode("utf-8")
 
 def reboot():
     global TO_REBOOT
@@ -327,9 +365,14 @@ def startPlistTo():
     splp=True
     pls=""
     ids=0
+    dbl=0
     for item in PLAYlists:
+        dbl+=1
         # print(f'{str(ids+1)}. {str(item)}\n')
-        pls+=(f'{str(ids+1)}. {str(item)}\n')
+        if dbl%2==0:
+            pls+=(f'{str(ids+1)}. {str(item)}\n')
+        else:
+            pls+=(f'{str(ids+1)}. {str(item)}  ')
         ids+=1
     # display.frezeeDisplay(8)
     # display.display(f'select.\n{pls}', False)
@@ -354,6 +397,8 @@ def exitset(info):
     global MIN_SLEEPV
     global TO_REBOOT
     global splp
+    global GOTOSTATION
+    GOTOSTATION=False
     TO_REBOOT= False
     splp = False
     TEN = False
@@ -413,6 +458,7 @@ def switchPLAYLIST():
 
 def processIR(irval):
     global EN_NEXMEDIA_R
+    global GOTOSTATION
     # print(irval)
     # display.resettimer()
     #hexval = hex(irval)
@@ -493,6 +539,11 @@ def processIR(irval):
             exitset(True)
         elif irval==KR_MEDIA:
             startPlistTo()
+        elif irval==KR_FORWARD:
+            stationPage(True)
+        elif irval== KR_REVERSE:
+            stationPage(False)
+
     else:
         if irval >2000000:
             interuptDisplay(5, "unregistered key remote\nor this remote locked")
@@ -605,13 +656,13 @@ def infinity():
         #     display.onmenu(False)
         SCOUNT=0
 
-    threading.Timer(1, infinity).start()
+    # threading.Timer(1, infinity).start()
 
-infinity()
+# infinity()
 
 async def print_events(device):
     async for event in device.async_read_loop():
-        #print(device.path, evdev.categorize(event), sep=': ')
+        # print(device.path, evdev.categorize(event), sep=': ')
         # print(device.path, event.value, sep=': ')
         global saved_eval
 
@@ -757,6 +808,18 @@ class shellCmd(tornado.web.RequestHandler):#scmd
         elif input== "stopsleep":
             sst=sleeptimer.stopcdown()
             self.write("timer stopped")
+        elif input == "restart":
+            print("This program will restart itself in 2 seconds...")
+            interuptDisplay(1, "Restarting app")
+                # interuptDisplay(1, "switcing PLAYlists")
+            time.sleep(0.5)  # Wait for 5 seconds before restarting
+            # Restart the program
+            print("Restarting...")
+            # self.render("webscr.html", wsurl=urll, tms=_TS)
+            rp = 'app restarting'
+            self.write(rp)
+            time.sleep(1.5)
+            os.execv(sys.executable, ["python"] + sys.argv)
         else:
             self.write("command not recognized")
     def post(self):
@@ -829,24 +892,30 @@ def make_app():
 
 
 
-devices = [evdev.InputDevice(path) for path in evdev.list_devices()]
-for device in devices:
-    print(device.name)
-    if device.name == "sunxi-ir":
-        print("Using device", device.path, "\n")
-        #return device
-    # print("No device found!")
+if __name__ == "__main__":
+    devices = [evdev.InputDevice(path) for path in evdev.list_devices()]
+    for device in devices:
+        print(device.name)
+        if device.name == "sunxi-ir":
+            print("Using device", device.path, "\n")
+                #return device
+            # print("No device found!")
 
-    app = make_app()
-    app.listen(8888)
-    try:
-        asyncio.ensure_future(print_events(device))
-        # Start the Tornado I/O loop
-        tornado.ioloop.IOLoop.current().start()
+            app = make_app()
+            app.listen(8888)
+            mtimer.start()
+            try:
+                asyncio.ensure_future(print_events(device))
+                # Start the Tornado I/O loop
+                print("start tornado")
+                tornado.ioloop.IOLoop.current().start()
 
-        asyncio.run(iorun())
-    except KeyboardInterrupt:
-        print("Keyboard interrupt received, exiting...")
+                asyncio.run(iorun())
+            except KeyboardInterrupt:
+                print("try stop")
+                mtimer.stop()
+                sleep(1)
+                print("Keyboard interrupt received, exiting...")
 # loop = asyncio.get_event_loop()
 # loop.run_forever()
 
