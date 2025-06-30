@@ -31,6 +31,8 @@ import tornado.web
 
 # from sshkeyboard import listen_keyboard
 display=module_radio.display()
+mtimer=module_radio.tasktimer()
+
 # myoled= oledis.oled()
 sleeptimer= module_radio.sleeptimer()
 # stimer=mpcstimer.mpctimer()
@@ -56,6 +58,7 @@ TOQ=0
 PLAY_CURL=False
 PLAYLIST_X=0;
 splp=False
+GOTOSTATION=False
 
 NUMKEYS=[[1 , 79],[2 , 80],[3 , 81],[4 ,75],[5 , 76],[6 , 77],[7 ,71],[8 , 72],[9 , 73],[10 , 82]]
 
@@ -156,6 +159,9 @@ KRE_TIMER  ="FDC03F"
 KRE_OK   ="FD58A7"
 KRE_FAV="FDAA55"
 KRE_EXIT="FDA05F"
+KRE_PAGEUP       ="FDB04F"
+KRE_PAGEDOWN="FD8877"
+KRE_GOTO="FD708F"
 
 CDOWN=0
 
@@ -331,7 +337,7 @@ def startsetsleep():
 def startTenPos():
     # display.frezeeDisplay(8)
     # display.display("jump station to...", True)
-    interuptDisplay(8, 0, "jump station to...")
+    interuptDisplay(8, 0, "jump station to\n10 + ...")
     exitset(False)
     global TEN
     TEN = True
@@ -364,6 +370,38 @@ def setSTATION(next):
     print("status = "+status)
     broadcast_message("resettimer")
     # displaytooled(status)
+
+def getCurrentStation():
+
+    status = "radio volume: 50%"
+    status = subprocess.check_output("mpc", shell=True)
+    status =  status.decode("utf-8")
+    ps = status.index(']')
+    pps=status.index('%')
+    pss=status[ps:pps]
+    ht=pss.index("#")
+    fs=pss.index('/')
+    cs=pss[ht+1:fs]
+    return int(cs)
+
+def stationPage(next):
+    global TOQ
+    status = ""
+    cs= getCurrentStation()
+    if next :
+        cs= cs+10
+        if cs> TOQ:
+            cs=TOQ
+        interuptDisplay(3, 15, "play pos "+ str(cs))
+        status = subprocess.check_output(f"mpc play {cs}", shell=True)
+        status =  status.decode("utf-8")
+    else:
+        cs= cs-10
+        if cs< 1:
+            cs=1
+        interuptDisplay(3, 15, "play pos "+ str(cs))
+        status = subprocess.check_output(f"mpc play {cs}", shell=True)
+        status =  status.decode("utf-8")
 
 
 def setVOL(up):
@@ -402,6 +440,8 @@ def exitset(info):
     global MIN_SLEEPV
     global TO_REBOOT
     global splp
+    global GOTOSTATION
+    GOTOSTATION=False
     splp=False
     TEN = False
     NUM_VOL = 0
@@ -430,7 +470,7 @@ def clickNum(pos):
     status = ""
     if TEN is True:
         display.display("playing pos "+ str(pos + 10 if TEN else pos), True)
-        global TOQ
+        global TOQ # total queue
         if TOQ > 10:
             pos = pos + 10
             # display.display("play pos "+ str(pos), True)
@@ -651,7 +691,8 @@ def displaytooled(status):
 
 
         # print(text)
-    myoled.display(text, (0,0))
+    # myoled.display(text, (0,0))
+    display.display(text, (0,0))
     print("to display="+text)
 
 getPlayState()
@@ -749,7 +790,7 @@ def processIR(irval):
             print("stop")
             # display.display("player stopped", False)
             # display.frezeeDisplay(3)
-            interuptDisplay(3, 0, "player stopped")
+            interuptDisplay(3, 0, "STOP")
             os.system("mpc stop")
         elif irval == 2099204:
             print("mute")
@@ -806,7 +847,7 @@ def processIRc(irval):
         print("mute > stop")
         # display.display("player stopped", False)
         # display.frezeeDisplay(3)
-        interuptDisplay(3, 0, "player stopped")
+        interuptDisplay(3, 0, "STOP")
         os.system("mpc stop")
     elif irval == KRC_MODE:
         print("mode > switch playlist")  # switch playlist
@@ -866,7 +907,7 @@ def processIRw(irval):
             print("mute > stop")
             # display.display("player stopped", False)
             # display.frezeeDisplay(3)
-            interuptDisplay(3, 0, "player stopped")
+            interuptDisplay(3, 0, "STOP")
             os.system("mpc stop")
         elif irval == KW_INPUT:
             print("mode > switch playlist")  # switch playlist
@@ -890,9 +931,11 @@ def processIRw(irval):
 
 def processIRe(irval):
     global REMOTES
+    global GOTOSTATION
     if REMOTES[3]["enable"] is False:
-        display.frezeeDisplay(2)
-        myoled.displayfs("remote locked", 16)
+        # display.frezeeDisplay(2)
+        # myoled.displayfs("remote locked", 16)
+        interuptDisplay(2, 10,"remote locked")
         return
     else:
         for i in range(len(KR_eNUM)):
@@ -914,6 +957,7 @@ def processIRe(irval):
                 ok()
             else:
                 print("enter")
+                interuptDisplay(3, 16, "PLAY/\nPAUSE")
                 os.system("mpc toggle")
         elif irval == KRE_PLAY:
             # global MIN_SLEEP
@@ -921,12 +965,13 @@ def processIRe(irval):
                 ok()
             else:
                 print("play")
+                interuptDisplay(3, 16, "PLAY")
                 os.system("mpc play")
         elif irval == KRE_STOP:
             print("mute > stop")
             # display.display("player stopped", False)
             # display.frezeeDisplay(3)
-            interuptDisplay(3, 0, "player stopped")
+            interuptDisplay(3, 0, "STOP")
             os.system("mpc stop")
         elif irval == KRE_TV:
             print("mode > switch playlist")  # switch playlist
@@ -950,6 +995,15 @@ def processIRe(irval):
             startPlistTo()
         elif irval == KRE_EXIT:
             exitset(True)
+        elif irval==KRE_PAGEUP:
+            # display.setPage(True)
+            stationPage(True)
+        elif irval==KRE_PAGEDOWN:
+            stationPage(False)
+            # display.setPage(False)
+        elif irval==KRE_GOTO:
+            GOTOSTATION=True
+
 
 
 # ser = serial.Serial(
@@ -1029,8 +1083,9 @@ class MainHandler(tornado.web.RequestHandler):
             sleeptimer.startcdown(MIN_SLEEPV)
             # os.system("/usr/bin/python startsleeper.py "+ str(MIN_SLEEPV))
             # display.display("starting sleep timer\n", True)
-            display.frezeeDisplay(3)
-            myoled.displayfs("starting sleep timer\nin "+ str(MIN_SLEEPV)+" minutes",15)
+            # display.frezeeDisplay(3)
+            # myoled.displayfs("starting sleep timer\nin "+ str(MIN_SLEEPV)+" minutes",15)
+            interuptDisplay(3 ,15 ,"starting sleep timer\nin "+ str(MIN_SLEEPV)+" minutes")
         if curlval!="":
             sleeptimer.resetas()
             global PLAY_CURL
@@ -1119,6 +1174,7 @@ class shellCmd(tornado.web.RequestHandler):#scmd
                 benable= "" if REMOTES[i]["enable"] is False else "checked=\"true\""
                 # rp+="<div id=\"state1\" class=\"switch_led\" style=\"margin: auto; padding: 8px\" ><p4 id=\"swp1\" style=\"font-size: 12px\">"+ str(i+1) + ". "+str(REMOTES[i]["name"]) +"</p4><label class=\"switchled\"> <input type=\"checkbox\" checked=\""+str(REMOTES[i]["enable"]) +"\" id=\"remote"+str(i+1)+"\" onchange=\"rchange("+ str(i+1)+")\"/> <span class=\"slider\"></span></label> </div>"
                 rp+="<div id=\"state1\" class=\"switch_led\" style=\"margin: auto; padding: 8px\" ><p4 id=\"swp1\" style=\"font-size: 12px\">"+ str(i+1) + ". "+str(REMOTES[i]["name"]) +"</p4><label class=\"switchled\"> <input type=\"checkbox\" "+ benable +" id=\"remote"+str(i+1)+"\" value=\""+str(REMOTES[i]["name"]) +"\" onchange=\"rchange("+ str(i+1)+")\"/> <span class=\"slider\"></span></label> </div>"
+
                 # rp+="<div id=\"state1\" class=\"switch_led\" style=\"margin: auto; padding: 8px\" ><p4 id=\"swp1\" style=\"font-size: 12px\">"+ str(i+1) + ". "+str(REMOTES[i]["name"]) +"</p4><label class=\"switchled\"> <input type=\"checkbox\" checked=false id=\"remote"+str(i+1)+"\" onchange=\"rchange("+ str(i+1)+")\"/> <span class=\"slider\"></span></label> </div>"
 
             self.set_header("Content-Type", "application/json")
@@ -1134,6 +1190,7 @@ class shellCmd(tornado.web.RequestHandler):#scmd
             self.write("timer stopped")
         elif input == "restart":
             print("This program will restart itself in 2 seconds...")
+            interuptDisplay(8, 0, "Restarting app")
             time.sleep(0.5)  # Wait for 5 seconds before restarting
             # Restart the program
             print("Restarting...")
@@ -1336,21 +1393,24 @@ async def iorun():
     tornado.ioloop.IOLoop.current().start()
     loop.add_signal_handler(signal.SIGINT, signal_handler)
 
-if __name__ == "__main__":
-    port = '/dev/ttyS5'  # Change this to your serial port
-    baudrate = 9600  # Change this to your desired baudrate
+# if __name__ == "__main__":
+port = '/dev/ttyS5'  # Change this to your serial port
+baudrate = 9600  # Change this to your desired baudrate
 
-    app = make_app()
-    app.listen(8888)
-    try:
-        # Start the serial reader
-        asyncio.ensure_future(start_serial_reader(port, baudrate))
+app = make_app()
+app.listen(8888)
+mtimer.start()
+try:
+    # Start the serial reader
+    asyncio.ensure_future(start_serial_reader(port, baudrate))
 
-        # Start the Tornado I/O loop
-        tornado.ioloop.IOLoop.current().start()
-        asyncio.run(iorun())
-    except KeyboardInterrupt:
-        print("Keyboard interrupt received, exiting...")
+    # Start the Tornado I/O loop
+    tornado.ioloop.IOLoop.current().start()
+    asyncio.run(iorun())
+except KeyboardInterrupt:
+    mtimer.stop()
+    sleep(1)
+    print("Keyboard interrupt received, exiting...")
 
 
 
