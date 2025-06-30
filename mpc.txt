@@ -15,6 +15,45 @@ mpc add http://radioislamindonesia.com:80/radiomuadz.mp3
 mpc add http://radioislamindonesia.com:80/rodja.mp3
 mpc add http://radioislamindonesia.com:80/aliman.mp3
 
+
+[
+  "https://live1.indostreamserver.com:8120/",
+  "https://pu.klikhost.com/proxy/dasa/stream",
+  "https://bassfm.radio.yufid.com/;",
+  "http://u.klikhost.net:7204/stream?;",
+  "https://c20.radioboss.fm:18345/stream",
+  "https://radioislamindonesia.com/dcsfm.mp3",
+  "https://live.radiodeifm.com/8118/stream",
+  "https://ars.mitradio.com:8000/radio.mp3",
+  "http://185.47.62.52:8000/listen.mp3",
+  "https://radioislamindonesia.com/radiohidayah.mp3",
+  "https://streaming.hijrahfm.com/hijrah1023fm",
+  "http://whsh4u-panel.com:14007/stream",
+  "https://radioislamindonesia.com/idzaatulkhair.mp3",
+  "https://insanifm.radio.yufid.com/;",
+  "https://radiokita.radio.yufid.com/;",
+  "https://static-s5.xajist.com/sslstream/8522",
+  "https://radioislamindonesia.com/radiomuadz.mp3",
+  "https://whsh4u-panel.com/proxy/bnoajlrd?mp=/stream",
+  "https://streaming.radiomuslim.com/",
+  "https://radioislamindonesia.com/mutiaraquran.mp3",
+  "https://radioislamindonesia.com/rodja.mp3?_=2",
+  "https://live2.radiorodja.com/rodja.mp3?_=4",
+  "https://radioislamindonesia.com/rodjatv.mp3",
+  "https://radioislamindonesia.com/rodja-bandung.mp3",
+  "https://cast5.my-control-panel.com/proxy/dikman/stream",
+  "https://radioislamindonesia.com/rodja-majalengka.mp3",
+  "https://asv.alhastream.com:3190/radio",
+  "http://streaming.radiosalamjambi.com:8000/;stream.mp3",
+  "https://assunnah.radio.yufid.com/;",
+  "https://radioislamindonesia.com/aliman.mp3",
+  "https://radioislamindonesia.com/radiomadinah.mp3",
+  "https://ssg.streamingmurah.com:8260/stream",
+  "https://radioislamindonesia.com/tarbiyah.mp3"
+]
+
+
+
 mpc add http://streaming.merdekafm.com:8020/;stream.nsv
 mpc add https://wz.mari.co.id:1936/web_kisfm/kisfm/playlist.m3u8
 mpc add https://wz.mari.co.id:1936/web_genfm/genfm/playlist.m3u8

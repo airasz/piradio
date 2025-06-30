@@ -1,0 +1,4 @@
+random.shuffle(list_data) #suffling array/listdata order
+random_data = random.choice(list_data) #random pick by index from list data
+
+type(_variable): Returns the type of an object.
