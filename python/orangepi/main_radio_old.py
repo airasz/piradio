@@ -61,7 +61,6 @@ splp=False
 GOTOSTATION=False
 
 pulse_=0
-secondDigit=0
 
 NUMKEYS=[[1 , 79],[2 , 80],[3 , 81],[4 ,75],[5 , 76],[6 , 77],[7 ,71],[8 , 72],[9 , 73],[10 , 82]]
 
@@ -466,100 +465,98 @@ def clickNum(pos):
     global MIN_SLEEP
     global MIN_SLEEPV
     global splp
-    global secondDigit
-    global pulse_
     ypos = random.randint(0,54)
     xpos = random.randint(0,50)
     # display.display("playing pos "+ str(pos), (xpos,ypos))
     # display.display("playing pos "+ str(pos), True)
-    pulse_=0
+
     status = ""
-    if NUM_VOL==0 and MIN_SLEEP==0 and splp is False:
-        # display.display("play pos "+ str(pos), True)
-        # display.frezeeDisplay(3)
-        # myoled.displayfs("play pos "+ str(pos),15)
-        if TOQ < 10:
+    if TEN is True:
+        display.display("playing pos "+ str(pos + 10 if TEN else pos), True)
+        global TOQ # total queue
+        if TOQ > 10:
+            pos = pos + 10
+            # display.display("play pos "+ str(pos), True)
+            # display.frezeeDisplay(3)
+            # myoled.displayfs("play pos "+ str(pos),15)
             interuptDisplay(3, 15, "play pos "+ str(pos))
             os.system("mpc play " + str(pos))
-            return
+            TEN = False
         else:
-            if secondDigit > 0:
-                secondDigit += pos
-                if secondDigit > TOQ:
-                    interuptDisplay(3, 12, "input out range\n"+(f'{secondDigit} in {TOQ}'))
-                    secondDigit=0
-                    return
-                else:
-                    interuptDisplay(3, 15, "play pos "+ str(secondDigit))
-                    os.system("mpc play " + str(secondDigit))
-                    secondDigit=0
-                    broadcast_message("resettimer")
-                return
-            else:
-                interuptDisplay(3, 15, "play pos _"+ str(pos))
-                secondDigit= pos *10
-                return
-
-
-            # os.system("mpc play " + str(pos))
-        return
-    if NUM_VOL == 1:
-        VOLTO=pos * 10
-        # display.display("volume to "+ str(pos)+"x", True)
-        # display.frezeeDisplay(5)
-        # myoled.displayfs("volume to\n"+ str(pos)+"x",15)
-        interuptDisplay(5, 15, "volume to\n"+ str(pos)+"x")
-        print("start vol========== "+ str(VOLTO))
-        NUM_VOL =2
-        broadcast_message("resettimer")
-    elif NUM_VOL == 2:
-        VOLTO+= pos
-        NUM_VOL=0
-        # display.display("volume to "+ str(VOLTO), True)
-        # display.frezeeDisplay(5)
-        # myoled.displayfs("set volume to\n"+ str(VOLTO),15)
-        interuptDisplay(5, 15, "set volume to\n"+ str(VOLTO))
-        os.system("mpc volume " + str(VOLTO))
+            # display.display("play pos "+ str(pos), True)
+            # display.frezeeDisplay(3)
+            # myoled.displayfs("play pos "+ str(pos),15)
+            interuptDisplay(3, 15, "play pos "+ str(pos))
+            os.system("mpc play " + str(pos))
         broadcast_message("resettimer")
 
-    if MIN_SLEEP==1:
-        # MIN_SLEEPV+=pos**MIN_SLEEP
-        MIN_SLEEPV=0
-        MIN_SLEEPV=pos*10
-        # display.display("sleep in "+ str(pos)+"x minutes", False)
-        # display.frezeeDisplay(5)
-        # myoled.displayfs("sleep in\n"+ str(pos)+"x minutes",15)
-        interuptDisplay(5, 15, "sleep in\n"+ str(pos)+"x minutes")
-        MIN_SLEEP=2
-    elif MIN_SLEEP==2:
-        MIN_SLEEPV+=pos
-        # display.display("sleep in "+ str(MIN_SLEEPV)+" minutes\nClick OK to confirm", False)
-        # display.frezeeDisplay(8)
-        # myoled.displayfs("sleep in\n"+ str(MIN_SLEEPV)+" minutes\nClick OK to\nconfirm",13)
-        interuptDisplay(8, 13,"sleep in\n"+ str(MIN_SLEEPV)+" minutes\nClick OK to\nconfirm")
-    if splp is True:
-        # status = cmd("ls /var/lib/mpd/playlists/")
-        # status = status.replace(".m3u", "")
-        # PLAYlists = status.split()
+    else:
+        # display.display("volume to "+ str(pos + 10 if TEN else pos), True)
+        if NUM_VOL==0 and MIN_SLEEP==0 and splp is False:
+            # display.display("play pos "+ str(pos), True)
+            # display.frezeeDisplay(3)
+            # myoled.displayfs("play pos "+ str(pos),15)
+            interuptDisplay(3, 15, "play pos "+ str(pos))
+            os.system("mpc play " + str(pos))
+            broadcast_message("resettimer")
+            return
+        if NUM_VOL == 1:
+            VOLTO=pos * 10
+            # display.display("volume to "+ str(pos)+"x", True)
+            # display.frezeeDisplay(5)
+            # myoled.displayfs("volume to\n"+ str(pos)+"x",15)
+            interuptDisplay(5, 15, "volume to\n"+ str(pos)+"x")
+            print("start vol========== "+ str(VOLTO))
+            NUM_VOL =2
+            broadcast_message("resettimer")
+        elif NUM_VOL == 2:
+            VOLTO+= pos
+            NUM_VOL=0
+            # display.display("volume to "+ str(VOLTO), True)
+            # display.frezeeDisplay(5)
+            # myoled.displayfs("set volume to\n"+ str(VOLTO),15)
+            interuptDisplay(5, 15, "set volume to\n"+ str(VOLTO))
+            os.system("mpc volume " + str(VOLTO))
+            broadcast_message("resettimer")
+
+        if MIN_SLEEP==1:
+            # MIN_SLEEPV+=pos**MIN_SLEEP
+            MIN_SLEEPV=0
+            MIN_SLEEPV=pos*10
+            # display.display("sleep in "+ str(pos)+"x minutes", False)
+            # display.frezeeDisplay(5)
+            # myoled.displayfs("sleep in\n"+ str(pos)+"x minutes",15)
+            interuptDisplay(5, 15, "sleep in\n"+ str(pos)+"x minutes")
+            MIN_SLEEP=2
+        elif MIN_SLEEP==2:
+            MIN_SLEEPV+=pos
+            # display.display("sleep in "+ str(MIN_SLEEPV)+" minutes\nClick OK to confirm", False)
+            # display.frezeeDisplay(8)
+            # myoled.displayfs("sleep in\n"+ str(MIN_SLEEPV)+" minutes\nClick OK to\nconfirm",13)
+            interuptDisplay(8, 13,"sleep in\n"+ str(MIN_SLEEPV)+" minutes\nClick OK to\nconfirm")
+        if splp is True:
+            # status = cmd("ls /var/lib/mpd/playlists/")
+            # status = status.replace(".m3u", "")
+            # PLAYlists = status.split()
 
 
-        status = cmd("mpc clear")
-        sleep(0.1)
-        # print(("mpc load " + PLAYlists[1]) if SWITCH_PLAYLIST else ("mpc load " + PLAYlists[0]))
-        # status = cmd("mpc load " + PLAYlists[1]) if SWITCH_PLAYLIST else cmd("mpc load " + PLAYlists[0])
-        if pos < len(PLAYlists)+1:
-            status= cmd("mpc load " + PLAYlists[pos-1])
-            getstationlen()
-            status= status.replace(" ", "\n")
-            # display.frezeeDisplay(2)
-            # myoled.displayfs(status, 16)
-            interuptDisplay(2, 16,status)
-            sleep(1)
-            status = cmd("mpc play")
-            # displaytooled(status)
-            broadcast_message("info="+status)
-            display.frezeeDisplay(3)
-        splp=False
+            status = cmd("mpc clear")
+            sleep(0.1)
+            # print(("mpc load " + PLAYlists[1]) if SWITCH_PLAYLIST else ("mpc load " + PLAYlists[0]))
+            # status = cmd("mpc load " + PLAYlists[1]) if SWITCH_PLAYLIST else cmd("mpc load " + PLAYlists[0])
+            if pos < len(PLAYlists)+1:
+                status= cmd("mpc load " + PLAYlists[pos-1])
+                getstationlen()
+                status= status.replace(" ", "\n")
+                # display.frezeeDisplay(2)
+                # myoled.displayfs(status, 16)
+                interuptDisplay(2, 16,status)
+                sleep(1)
+                status = cmd("mpc play")
+                # displaytooled(status)
+                broadcast_message("info="+status)
+                display.frezeeDisplay(3)
+            splp=False
 
 
     # display.frezeeDisplay(3)
@@ -1401,16 +1398,11 @@ def signal_handler(sig, frame):
 #infinity()
 async def tick():
     global pulse_
-    global secondDigit
     while True:
         pulse_+=1
-        if pulse_> 15:
+        if pulse_> 10:
             pulse_=0
-            if secondDigit> 0:
-                secondDigit =int(secondDigit/10)
-                os.system("mpc play " + str(secondDigit))
-                secondDigit=0
-            # print("tick")
+            print("tick")
         await asyncio.sleep(0.1)
 
 async def iorun():
