@@ -579,69 +579,10 @@ def loop():
 
     msleeptimer.loopy()
 
-    # threading.Timer(1, loop).start()  # Schedule the function to run again in 1 second
+    threading.Timer(1, loop).start()  # Schedule the function to run again in 1 second
 
 
-# loop()
-
-
-class looptimer:
-    """
-    A timer that repeatedly calls a function in a separate thread.
-    It can be started and stopped gracefully.
-    """
-    def __init__(self, interval, function, *args, **kwargs):
-        self._interval = interval
-        self._function = function
-        self._args = args
-        self._kwargs = kwargs
-        self._stop_event = threading.Event()
-        self._timer = None
-
-    def _run(self):
-        """The core execution loop."""
-        # Schedule the next run as long as the stop event is not set
-        if not self._stop_event.is_set():
-            self._function(*self._args, **self._kwargs)
-            # Create and start the next timer
-            self._timer = threading.Timer(self._interval, self._run)
-            self._timer.start()
-
-    def start(self):
-        """Starts the timer loop."""
-        if self.is_running():
-            print("Timer is already running.")
-            return
-
-        print("Starting timer.")
-        # Create the first timer and start the loop
-        self._timer = threading.Timer(self._interval, self._run)
-        self._timer.start()
-
-    def stop(self):
-        """Stops the timer loop gracefully."""
-        if not self.is_running():
-            print("Timer is not running.")
-            return
-
-        print("Stopping timer.")
-        # Set the event to signal the loop to stop
-        self._stop_event.set()
-        # Cancel the next scheduled run, if any
-        if self._timer:
-            self._timer.cancel()
-        print("Timer stopped.")
-
-    def is_running(self):
-        """Check if the timer is currently active."""
-        return self._timer is not None and self._timer.is_alive()
-class tasktimer:
-    def start(self):
-        self.timer_loop=looptimer(1, loop)
-        self.timer_loop.start()
-    def stop(self):
-        self.timer_loop.stop()
-
+loop()
 # print("after loop")
 #
 class display:
