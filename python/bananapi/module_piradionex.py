@@ -645,9 +645,9 @@ class tasktimer:
 # print("after loop")
 #
 class display:
-    def resettimer(self, msg):
+    def resettimer(self):
         global U_COUNT
-        U_COUNT = 10;
+        U_COUNT = 19;
         # print("reset timer")
         return
 
@@ -656,8 +656,12 @@ class display:
         global P_COUNT
         P_COUNT=0
         U_COUNT = 20-delay;
-        # print("reset timer for " + str(delay))
+        print("reset timer for " + str(delay))
         return
+    def sendCommand(self, msg):
+        MyNextion.send_command(msg)
+        return
+
 
     def display(self, msg, pos):
         # myoled.display(msg, pos)

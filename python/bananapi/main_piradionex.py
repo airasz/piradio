@@ -17,7 +17,7 @@ import threading
 # import serialdisplay
 
 import module_piradionex
-sdisplay=module_piradionex.display()
+display=module_piradionex.display()
 mtimer=module_piradionex.tasktimer()
 import tornado
 import os.path
@@ -59,6 +59,7 @@ KR_EXIT=        2099216
 KR_MEDIA=       2099290
 KR_FORWARD=     2099275
 KR_REVERSE=     2099272
+KR_INFO=        2099280
 KR_NUMKEYS=[[1 , 2099228],[2 , 2099229],[3 , 2099230],[4 , 2099264],[5 , 2099265],[6 , 2099266],[7 , 2099268],[8 , 2099269],[9 , 2099270],[10 , 2099271]]
 KB_NUMKEYS=[[1 , 458841],[2 , 458842],[3 , 458843],[4 , 458844],[5 , 458845],[6 , 458846],[7 , 458847],[8 , 458848],[9 , 458849],[10 , 458850]]
 
@@ -76,9 +77,16 @@ T_LINES=0
 TOQ=0
 TS_ENABLE=False
 STOP_SLEEP=0
+drawPlayListMode=0
 
 PLAYlists=[]
+splited_playlist=[]
+splited_playlist_pointer=0
 splp=False
+
+
+pulse_=0
+secondDigit=0
 
 def interuptDisplay(delay, msg):
     display.frezeeDisplay(delay)
@@ -106,6 +114,19 @@ def cmd(cmd):
     rtr= rtr.decode("utf-8")
     return rtr
 
+def dividePlayList():
+    global splited_playlist
+    # display.frezeeDisplay(50)
+    sr=subprocess.check_output("mpc playlist", shell=True).decode("utf-8")
+    pl= [f"{index}. {line}" for index, line in enumerate(sr.splitlines(), start=1)]
+    chunk_size=5
+    splited_playlist = [pl[i:i + chunk_size] for i in range(0, len(pl), chunk_size)]
+    # print(split_list)
+    # for item in split_list:
+        # print(item)
+
+    # display.sendCommand(f't1.txt="{rp}"')
+
 def loadPLAYlists():
     global PLAYlists
     # status = cmd("ls /var/lib/mpd/playlists/")
@@ -113,6 +134,7 @@ def loadPLAYlists():
     # PLAYlists = status.split()
     sr=subprocess.check_output("mpc lsplaylists", shell=True).decode("utf-8")
     PLAYlists=sr.splitlines(keepends=False)
+    dividePlayList()
     # print(f'playlist no 2:{PLAYlists[1]}')
 
 loadPLAYlists()
@@ -253,63 +275,87 @@ def playPos(pos):
     global MIN_SLEEP
     global MIN_SLEEPV
     global splp
+    global secondDigit
+    global pulse_
     status = ""
-    if TEN is True:
-        # display.display("playing pos "+ str(pos + 10 if TEN else pos))
-        global TOQ
-        if TOQ > 10:
-            pos = pos + 10
-            interuptDisplay(3, "play pos "+ str(pos))
-            os.system("mpc play " + str(pos))
-            TEN = False
-        else:
-            interuptDisplay(3, "play pos "+ str(pos))
-            os.system("mpc play " + str(pos))
 
-    else:
-        # display.display("volume to "+ str(pos + 10 if TEN else pos))
-        if NUM_VOL==0 and MIN_SLEEP==0 and splp is False:
+    pulse_=0
+    # display.display("volume to "+ str(pos + 10 if TEN else pos))
+    if NUM_VOL==0 and MIN_SLEEP==0 and splp is False:
+        # display.display("play pos "+ str(pos), True)
+        # display.frezeeDisplay(3)
+        # myoled.displayfs("play pos "+ str(pos),15)
+        if TOQ < 10:
             interuptDisplay(3, "play pos "+ str(pos))
             os.system("mpc play " + str(pos))
             exitset(False)
+
             return
-        if NUM_VOL == 1:
-            VOLTO=pos * 10
-            interuptDisplay(5, "volume to "+ str(pos)+"x")
-            print("start vol========== "+ str(VOLTO))
-            NUM_VOL =2
-        elif NUM_VOL == 2:
-            VOLTO+= pos
-            NUM_VOL=0
-            interuptDisplay(5, "volume to "+ str(VOLTO))
-            os.system("mpc volume " + str(VOLTO))
-            exitset(False)
+        else:
+            if secondDigit > 0:
+                secondDigit += pos
+                if secondDigit > TOQ:
+                    interuptDisplay(3, "input out range\n"+(f'{secondDigit} in {TOQ}'))
+                    secondDigit=0
+                    exitset(False)
+                    return
+                else:
+                    interuptDisplay(3, "play pos "+ str(secondDigit))
+                    os.system("mpc play " + str(secondDigit))
+                    secondDigit=0
+                    broadcast_message("resettimer")
+                exitset(False)
+                return
+            else:
+                interuptDisplay(3, (f"play pos {str(pos)}_"))
+                secondDigit= pos *10
+                exitset(False)
+                return
 
-        if MIN_SLEEP==1:
-            # MIN_SLEEPV+=pos**MIN_SLEEP
-            MIN_SLEEPV=0
-            MIN_SLEEPV=pos*10
-            interuptDisplay(5, "sleep in "+ str(pos)+"x minutes")
-            #
-            MIN_SLEEP=2
-        elif MIN_SLEEP==2:
-            MIN_SLEEPV+=pos
-            interuptDisplay(5, "sleep in "+ str(MIN_SLEEPV)+" minutes\nClick OK to confirm")
-        if splp is True:
-            status = cmd("mpc clear")
-            sleep(0.1)
-            if pos < len(PLAYlists)+1:
-                status= cmd("mpc load " + PLAYlists[pos-1])
-                getstationlen()
-                status= status.replace(" ", "\n")
-                interuptDisplay(1, status)
-                sleep(0.6)
-                status = cmd("mpc play")
-                sleep(0.4)
-                status = cmd("mpc current")
-                interuptDisplay(1, status)
+            # os.system("mpc play " + str(pos))
+        return
 
-            splp=False
+        # interuptDisplay(3, "play pos "+ str(pos))
+        # os.system("mpc play " + str(pos))
+        # exitset(False)
+        # return
+    if NUM_VOL == 1:
+        VOLTO=pos * 10
+        interuptDisplay(5, "volume to "+ str(pos)+"x")
+        print("start vol========== "+ str(VOLTO))
+        NUM_VOL =2
+    elif NUM_VOL == 2:
+        VOLTO+= pos
+        NUM_VOL=0
+        interuptDisplay(5, "volume to "+ str(VOLTO))
+        os.system("mpc volume " + str(VOLTO))
+        exitset(False)
+
+    if MIN_SLEEP==1:
+        # MIN_SLEEPV+=pos**MIN_SLEEP
+        MIN_SLEEPV=0
+        MIN_SLEEPV=pos*10
+        interuptDisplay(5, "sleep in "+ str(pos)+"x minutes")
+        #
+        MIN_SLEEP=2
+    elif MIN_SLEEP==2:
+        MIN_SLEEPV+=pos
+        interuptDisplay(5, "sleep in "+ str(MIN_SLEEPV)+" minutes\nClick OK to confirm")
+    if splp is True:
+        status = cmd("mpc clear")
+        sleep(0.1)
+        if pos < len(PLAYlists)+1:
+            status= cmd("mpc load " + PLAYlists[pos-1])
+            getstationlen()
+            status= status.replace(" ", "\n")
+            interuptDisplay(1, status)
+            sleep(0.6)
+            status = cmd("mpc play")
+            sleep(0.4)
+            status = cmd("mpc current")
+            interuptDisplay(1, status)
+
+        splp=False
 
 
 def startVol():
@@ -369,7 +415,7 @@ def startPlistTo():
     for item in PLAYlists:
         dbl+=1
         # print(f'{str(ids+1)}. {str(item)}\n')
-        if dbl%2==0:
+        if dbl%3==0:
             pls+=(f'{str(ids+1)}. {str(item)}\n')
         else:
             pls+=(f'{str(ids+1)}. {str(item)}  ')
@@ -398,6 +444,7 @@ def exitset(info):
     global TO_REBOOT
     global splp
     global GOTOSTATION
+    global splited_playlist_pointer
     GOTOSTATION=False
     TO_REBOOT= False
     splp = False
@@ -406,6 +453,11 @@ def exitset(info):
     STOP_SLEEP = False
     MIN_SLEEP = 0
     # display.onmenu(False)
+    if splited_playlist_pointer>0:
+        splited_playlist_pointer=0
+        display.sendCommand('page page4')
+        display.resettimer()
+
     if info:
         interuptDisplay(2, "start set resetted")
 
@@ -456,10 +508,33 @@ def switchPLAYLIST():
     sleep(1)
     status = cmd("mpc play")
 
+def drawPlayList():
+    global splited_playlist
+    global splited_playlist_pointer
+    display.frezeeDisplay(50)
+    rp=""
+    splited_playlist_pointer+=1
+    if splited_playlist_pointer<len(splited_playlist)+1:
+        rp="\n".join(splited_playlist[splited_playlist_pointer-1])
+        print(rp)
+        rp=rp.replace("https://", "").replace("http://", "")
+        display.sendCommand('page page1')
+        display.sendCommand('t0.txt="playlist"')
+        display.sendCommand(f't1.txt="{rp}"')
+        # for item in splited_playlist[splited_playlist_pointer]:
+            # rp
+    else:
+        splited_playlist_pointer=0
+        display.sendCommand('page page4')
+
+# elif drawPlayListMode> 0:
+#         drawPlayListMode=0
+#         display.sendCommand('page page4')
+
 def processIR(irval):
     global EN_NEXMEDIA_R
     global GOTOSTATION
-    # print(irval)
+    print(irval)
     # display.resettimer()
     #hexval = hex(irval)
    # print(hexval)
@@ -543,6 +618,9 @@ def processIR(irval):
             stationPage(True)
         elif irval== KR_REVERSE:
             stationPage(False)
+        elif irval== KR_INFO:
+            drawPlayList()
+
 
     else:
         if irval >2000000:
@@ -891,6 +969,20 @@ def make_app():
 
 
 
+async def tick():
+    global pulse_
+    global secondDigit
+    while True:
+        pulse_+=1
+        if pulse_> 15:
+            pulse_=0
+            if secondDigit> 0:
+                secondDigit =int(secondDigit/10)
+                os.system("mpc play " + str(secondDigit))
+                secondDigit=0
+            # print("tick")
+        await asyncio.sleep(0.1)
+
 
 if __name__ == "__main__":
     devices = [evdev.InputDevice(path) for path in evdev.list_devices()]
@@ -906,6 +998,7 @@ if __name__ == "__main__":
             mtimer.start()
             try:
                 asyncio.ensure_future(print_events(device))
+                asyncio.ensure_future(tick())
                 # Start the Tornado I/O loop
                 print("start tornado")
                 tornado.ioloop.IOLoop.current().start()
