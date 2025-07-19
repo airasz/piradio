@@ -227,6 +227,8 @@ def load_config():
         pass
 
 load_config()
+
+# run subprocess command and return output
 def cmd(cmd):
     rtr=""
     try:
@@ -238,12 +240,23 @@ def cmd(cmd):
     rtr= rtr.decode("utf-8")
     return rtr
 
+def noReturnSubprocess(cmd):
+    try:
+        subprocess.check_output(cmd, shell=True)
+    except subprocess.CalledProcessError as e:
+        print("error in cmd: "+cmd)
+        print(e.output.decode("utf-8"))
+        # rtr="eror"
+    # rtr= rtr.decode("utf-8")
+    # return rtr
+
 def loadPLAYlists():
     global PLAYlists
     # status = cmd("ls /var/lib/mpd/playlists/")
     # status = status.replace(".m3u", "")
     # PLAYlists = status.split()
-    sr=subprocess.check_output("mpc lsplaylists", shell=True).decode("utf-8")
+    # sr=subprocess.check_output("mpc lsplaylists", shell=True).decode("utf-8")
+    sr=cmd("mpc lsplaylists")
     PLAYlists=sr.splitlines(keepends=False)
 loadPLAYlists()
 
@@ -480,7 +493,8 @@ def clickNum(pos):
         # myoled.displayfs("play pos "+ str(pos),15)
         if TOQ < 10:
             interuptDisplay(3, 15, "play pos "+ str(pos))
-            os.system("mpc play " + str(pos))
+            noReturnSubprocess(f'mpc play {pos}')
+            # os.system("mpc play " + str(pos))
             return
         else:
             if secondDigit > 0:
@@ -491,7 +505,8 @@ def clickNum(pos):
                     return
                 else:
                     interuptDisplay(3, 15, "play pos "+ str(secondDigit))
-                    os.system("mpc play " + str(secondDigit))
+                    # os.system("mpc play " + str(secondDigit))
+                    noReturnSubprocess(f'mpc play {secondDigit}')
                     secondDigit=0
                     broadcast_message("resettimer")
                 return
@@ -519,7 +534,8 @@ def clickNum(pos):
         # display.frezeeDisplay(5)
         # myoled.displayfs("set volume to\n"+ str(VOLTO),15)
         interuptDisplay(5, 15, "set volume to\n"+ str(VOLTO))
-        os.system("mpc volume " + str(VOLTO))
+        # os.system("mpc volume " + str(VOLTO))
+        noReturnSubprocess(f'mpc volume {VOLTO}')
         broadcast_message("resettimer")
 
     if MIN_SLEEP==1:
@@ -543,7 +559,8 @@ def clickNum(pos):
         # PLAYlists = status.split()
 
 
-        status = cmd("mpc clear")
+        # status = cmd("mpc clear")
+        noReturnSubprocess("mpc clear")
         sleep(0.1)
         # print(("mpc load " + PLAYlists[1]) if SWITCH_PLAYLIST else ("mpc load " + PLAYlists[0]))
         # status = cmd("mpc load " + PLAYlists[1]) if SWITCH_PLAYLIST else cmd("mpc load " + PLAYlists[0])
@@ -791,7 +808,8 @@ def processIR(irval):
             setSTATION(False)
         elif irval == KR_PLAY:
             print("play")
-            os.system("mpc play")
+            noReturnSubprocess("mpc play")
+            # os.system("mpc play")
         elif irval == KR_STOP:
             print("stop")
             # display.display("player stopped", False)
@@ -848,13 +866,15 @@ def processIRc(irval):
             ok()
         else:
             print("play")
-            os.system("mpc play")
+            noReturnSubprocess("mpc play")
+            # os.system("mpc play")
     elif irval == KRC_MUTE:
         print("mute > stop")
         # display.display("player stopped", False)
         # display.frezeeDisplay(3)
         interuptDisplay(3, 0, "STOP")
-        os.system("mpc stop")
+        noReturnSubprocess("mpc stop")
+        # os.system("mpc stop")
     elif irval == KRC_MODE:
         print("mode > switch playlist")  # switch playlist
         switchPLAYLIST()
@@ -901,20 +921,23 @@ def processIRw(irval):
                 ok()
             else:
                 print("enter")
-                os.system("mpc toggle")
+                noReturnSubprocess("mpc toggle")
+                # os.system("mpc toggle")
         elif irval == KW_PLAY:
             # global MIN_SLEEP
             if MIN_SLEEP>0:
                 ok()
             else:
                 print("play")
-                os.system("mpc play")
+                noReturnSubprocess("mpc play")
+                # os.system("mpc play")
         elif irval == KW_STOP:
             print("mute > stop")
             # display.display("player stopped", False)
             # display.frezeeDisplay(3)
             interuptDisplay(3, 0, "STOP")
-            os.system("mpc stop")
+            noReturnSubprocess("mpc stop")
+            # os.system("mpc stop")
         elif irval == KW_INPUT:
             print("mode > switch playlist")  # switch playlist
             switchPLAYLIST()
@@ -965,7 +988,8 @@ def processIRe(irval):
             else:
                 print("enter")
                 interuptDisplay(3, 16, "PLAY/\nPAUSE")
-                os.system("mpc toggle")
+                # os.system("mpc toggle")
+                noReturnSubprocess("mpc toggle")
         elif irval == KRE_PLAY:
             # global MIN_SLEEP
             if MIN_SLEEP>0:
@@ -973,13 +997,15 @@ def processIRe(irval):
             else:
                 print("play")
                 interuptDisplay(3, 16, "PLAY")
-                os.system("mpc play")
+                noReturnSubprocess("mpc play")
+                # os.system("mpc play")
         elif irval == KRE_STOP:
             print("mute > stop")
             # display.display("player stopped", False)
             # display.frezeeDisplay(3)
             interuptDisplay(3, 0, "STOP")
-            os.system("mpc stop")
+            noReturnSubprocess("mpc stop")
+            # os.system("mpc stop")
         elif irval == KRE_TV:
             print("mode > switch playlist")  # switch playlist
             switchPLAYLIST()
@@ -1048,26 +1074,6 @@ def broadcast_message(message):
             print(f"error sending ws msg : {e}")
         # client.write_message("info="+message)
 
-
-#
-# SCOUNT=0
-# prev_status=""
-# def infinity():
-#     # global SCOUNT
-#     # SCOUNT +=1
-#     # if SCOUNT == 10:
-#     #     if display.getmenu() is True:
-#     #         display.onmenu(False)
-#     #     SCOUNT=0
-#     global prev_status
-#     status = subprocess.check_output("mpc current", shell=True).decode("utf-8").replace("\n","")
-#     if status!=prev_status:
-#         broadcast_message("info="+status)
-#     prev_status=status
-#     print(status)
-#     threading.Timer(1, infinity).start()
-#
-# infinity()
 
 
 class MainHandler(tornado.web.RequestHandler):
@@ -1245,10 +1251,13 @@ class WSHandler(tornado.websocket.WebSocketHandler):
                 sleeptimer.resetas()
                 print("start with mpc")
             if sbmsg.startswith("mpc load"):
-                subprocess.check_output("mpc clear", shell=True)
+                noReturnSubprocess("mpc clear")
+                noreturnSubprocess("mpc load " + sbmsg)
+                noReturnSubprocess("mpc play") 
 
-                subprocess.check_output(sbmsg, shell=True).decode("utf-8")
-                subprocess.check_output("mpc play ", shell=True).decode("utf-8")
+                # subprocess.check_output("mpc clear", shell=True)
+                # subprocess.check_output(sbmsg, shell=True).decode("utf-8")
+                # subprocess.check_output("mpc play ", shell=True).decode("utf-8")
                 global PLAY_CURL
                 PLAY_CURL=False
                 interuptDisplay(3, 16, "switcing PLAYlists")
