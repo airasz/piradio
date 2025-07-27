@@ -173,12 +173,6 @@ CDOWN=0
 
 file_path = "radioconfig.json"
 
-# os.system("/usr/bin/python mpcsleeper.py && exit 0")
-# try:
-#     os.system("/usr/bin/python mpcsleeper.py | exit 0")
-# except:
-    # print("cannot start mpc sleep timer")
-
 def interuptDisplay(delay, fontsize, msg):
     if fontsize==0:
         display.frezeeDisplay(delay)
@@ -256,31 +250,8 @@ loadPLAYlists()
 
 def getVol():
     status = "radio volume: 50%"
-    # os.system("mpc status")
-    # os.system("mpc status > tmp")
-    # status =  open('tmp', 'r').read()
-
-    # status = os.popen("mpc").read()
-    status = subprocess.check_output("mpc", shell=True)
-    status =  status.decode("utf-8")
     status = cmd("mpc")
-    # myoled.display(status, (0,0))
     displaytooled(status)
-    # print("s="+status )
-
-
-    # volpos = status.index('volume')
-    # print(volpos)
-    # volstatus = status[volpos:volpos+13]
-    #
-    # print("volstatus        ="+volstatus )
-    # percenpos = volstatus.index('%')
-    # svol = volstatus[8:percenpos]
-    #
-    # print("svol="+svol )
-    # vol = int(svol)
-    #
-    # print("vol="+   str(vol) )
     # status= mpc("mpc status | grep -o 'volume: [0-9]\+' | sed 's/volume: //'")
     global P_VOL
     P_VOL = int(mpc("mpc status | grep -o 'volume: [0-9]\+' | sed 's/volume: //'"))
@@ -326,32 +297,18 @@ def startsetsleep():
     # load_variable()
     if sleeptimer.isrunning() is True:
         if stimerStop==0:
-            # display.frezeeDisplay(3)
-            # display.display("timer is running\npress again to stop", False)
             interuptDisplay(3, 0, "timer is running\npress again to stop")
             stimerStop+=1
         elif stimerStop==1:
-            # jdata={"enable":False,
-            #     "startrun":False,
-            #     "svalue":0,
-            #     "seconds":0
-            # }
             display.frezeeDisplay(3)
-            # with open("/home/timer.json", "w") as f:
-            #     json.dump(jdata, f)
             sleeptimer.stopcdown()
-            # display.display("timer is stopped", False)
             interuptDisplay(3, 0, "timer is stopped")
             stimerStop=0
     else:
-        # display.frezeeDisplay(8)
-        # display.display("set sleep...", True)
         interuptDisplay(8, 0, "set sleep...")
         MIN_SLEEP=1
 
 def startTenPos():
-    # display.frezeeDisplay(8)
-    # display.display("jump station to...", True)
     interuptDisplay(8, 0, "jump station to\n10 + ...")
     exitset(False)
     global TEN
@@ -364,6 +321,7 @@ def startPlistTo():
     pls=""
     ids=0
     dbl=0
+    PLAYlists.sort()
     for item in PLAYlists:
         dbl+=1
         # print(f'{str(ids+1)}. {str(item)}\n')
@@ -382,9 +340,6 @@ def setSTATION(next):
     xpos = random.randint(0,50)
     display.frezeeDisplay(3)
     if (getPlayState()) is True:
-        # display.display("playing next" if next else "playing previous", True)
-        # display.frezeeDisplay(2)
-        # display.displayfs("playing\nnext" if next else "playing\nprevious", 18)
         interuptDisplay(2, 18, "playing\nnext" if next else "playing\nprevious")
         # status = cmd("mpc next") if next else cmd("mpc prev")
         noReturnSubprocess(f'mpc {("next" if next else "prev")}')
@@ -437,7 +392,8 @@ def setVOL(up):
     vol=""
     # status = subprocess.check_output(("mpc volume +5 | grep volume | awk '{print$2}'") if up else ("mpc volume -5 | grep volume | awk '{print$2}'"), shell=True).decode("utf-8")
     # print("vol "+status)
-    status=cmd(("mpc volume +5 | grep volume | awk '{print$2}'") if up else ("mpc volume -5 | grep volume | awk '{print$2}'"))
+    # status=cmd(("mpc volume +5 | grep volume | awk '{print$2}'") if up else ("mpc volume -5 | grep volume | awk '{print$2}'"))
+    status=cmd("mpc volume " + ("+5" if up else "-5")  + " | grep volume | awk '{print$2}'") 
     # display.displaybig("v"+vol)
     # display.frezeeDisplay(3)
     # display.displayfs("v "+status, 25)
@@ -523,7 +479,8 @@ def clickNum(pos):
                     broadcast_message("resettimer")
                 return
             else:
-                interuptDisplay(3, 15, "play pos _"+ str(pos))
+                # interuptDisplay(3, 15, "play pos _"+ str(pos))
+                interuptDisplay(3, 15, (f"play pos {str(pos)}_") )
                 secondDigit= pos *10
                 return
 
@@ -614,7 +571,7 @@ def switchPLAYLIST():
     # status = cmd("ls /var/lib/mpd/playlists/")
     # status = status.replace(".m3u", "")
     # PLAYlists = status.split()
-
+    PLAYLIST_X.sort()
     PLAYLIST_X+=1
     if PLAYLIST_X == len(PLAYlists):
         PLAYLIST_X=0
@@ -1141,6 +1098,8 @@ class MainHandler(tornado.web.RequestHandler):
             # display.frezeeDisplay(3)
             # myoled.displayfs("starting sleep timer\nin "+ str(MIN_SLEEPV)+" minutes",15)
             interuptDisplay(3 ,15 ,"starting sleep timer\nin "+ str(MIN_SLEEPV)+" minutes")
+            self.render("index.html")
+            return
         if curlval!="":
             sleeptimer.resetas()
             global PLAY_CURL
@@ -1212,6 +1171,7 @@ class shellCmd(tornado.web.RequestHandler):#scmd
         elif input== "iplaylist":
             sr=subprocess.check_output("mpc lsplaylists", shell=True).decode("utf-8")
             pl=sr.splitlines(keepends=False)
+            pl.sort()
             rp=""
             for i in range(len(pl)):
                 rp+= "<button class=\"button1\" onclick=\"sendcmd('mpc load " + pl[i] +"')\"><a>"+str(i+1)+". "+pl[i]+"</a></button>"
@@ -1442,7 +1402,7 @@ def infinity():
             print(f"error sending ws msg : {e}")
     prev_status=status
     # print(status)
-    threading.Timer(1, infinity).start()
+    # threading.Timer(1, infinity).start()
 def signal_handler(sig, frame):
     print("Signal received, cancelling tasks...")
     for task in asyncio.all_tasks():
@@ -1453,6 +1413,7 @@ async def tick():
     global pulse_
     global secondDigit
     while True:
+        infinity()
         pulse_+=1
         if pulse_> 15:
             pulse_=0
