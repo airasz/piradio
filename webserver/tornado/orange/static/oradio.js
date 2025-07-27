@@ -43,7 +43,7 @@ function onClose(event) {
 //0=data, 1=weight, 2=timer, 3=info
 function onMessage(event) {
   // alert(event.data);
-  console.log("incoming ws message : " + event.data);
+  // console.log("incoming ws message : " + event.data);
   if (event.data.startsWith("btn")) {
     // var sdata = event.data.substring(2);
     // if (sdata.startsWith("tab")) {
@@ -101,19 +101,6 @@ function loadvol() {
 }
 
 function setvol() {
-  var ajax_request = new XMLHttpRequest();
-  var tbl = document.getElementById("svol");
-  ajax_request.open("GET", "scmd/mpc volume " + tbl.value, true);
-  // ajax_request.onreadystatechange = function () {
-  //     if (ajax_request.readyState == 4 && ajax_request.status == 200) {
-  //         tbl.value = ajax_request.responseText;
-  //     }
-  //     else {
-  //         // document.getElementById("loadingtbl").style.display = "block";
-  //     }
-  // }
-
-  // ajax_request.send();
   var cmd = "mpc volume " + tbl.value;
   websocket.send("0>" + cmd);
 }
@@ -125,34 +112,13 @@ function getsleep() {
   ajax_request.open("GET", "scmd/getsleep", true);
   ajax_request.onreadystatechange = function () {
     if (ajax_request.status == 200) {
-      if (ajax_request.readyState == 4)
-        if (this.responseText === "off") {
-          document.getElementById("sleepinfo").style.display = "none";
-          document.getElementById("sleepform").style.display = "block";
-        } else {
-          document.getElementById("sleepinfo").style.display = "block";
-          document.getElementById("sleepform").style.display = "none";
-        }
+      if (ajax_request.readyState == 4) {
+        document.getElementById("sleepinfo").style.display =
+          this.responseText === "off" ? "none" : "block";
+        document.getElementById("sleepform").style.display =
+          this.responseText === "off" ? "block" : "none";
+      }
       sinfo.innerHTML = this.responseText;
-      // var toHHMMSS = (secs) => {
-      //   var sec_num = parseInt(secs, 10);
-      //   var hours = Math.floor(sec_num / 3600);
-      //   var minutes = Math.floor(sec_num / 60) % 60;
-      //   var seconds = sec_num % 60;
-      //
-      //   return [hours, minutes, seconds]
-      //     .map((v) => (v < 10 ? "0" + v : v))
-      //     .filter((v, i) => v !== "00" || i > 0)
-      //     .join(":");
-      // };
-      // const obj = JSON.parse(this.responseText);
-      // // console.log(this.responseText)
-      // if (obj.enable === true) {
-      //   var sscond;
-      //   sscond = obj.seconds;
-      //   // console.log(obj.seconds)
-      //   sinfo.innerHTML = "player sleep in > " + toHHMMSS(sscond);
-      // }
     } else {
       // document.getElementById("loadingtbl").style.display = "block";
     }
@@ -162,9 +128,6 @@ function getsleep() {
 }
 var scrollcount = 0;
 function load_status() {
-  // document.getElementById("loadingtbl").style.display = "block";
-  // alert("hai");
-  // console.log("load status")
   var tbl = document.getElementById("radiostatus");
 
   var ajax_request = new XMLHttpRequest();
@@ -220,28 +183,31 @@ function restart() {
   ajax_request.send();
 }
 function updatevolslider(txt) {
-  // var vol = txt.substring(txt.length - 3, txt.length - 1);
-
-  var vol = txt.substring(
-    txt.indexOf("volume") + 7,
-    txt.indexOf("volume") + 10,
-  );
   var tbl = document.getElementById("svol");
-  // console.log("vol=" + vol);
-  tbl.value = parseInt(vol);
-  var ivol = document.querySelector("#isvol");
-  ivol.innerHTML = "volume : " + vol;
+  // Extract the volume using RegExp
+  const match = txt.match(/volume:\s*(\d+)%/);
+
+  if (match) {
+    const volume = parseInt(match[1], 10);
+    tbl.value = volume;
+    var ivol = document.querySelector("#isvol");
+    ivol.innerHTML = "volume : " + volume;
+    // console.log("Volume:", volume); // Output: 39
+  } else {
+    // console.log("Volume not found");
+  }
 }
 function playbutton(txt) {
-  var ps = txt.substring(txt.indexOf("[") + 1, txt.indexOf("]"));
-  var tbl = document.getElementById("bplay");
+  let ps = txt.match(/\[([^\]]+)\]/)?.[1];
 
-  // console.log("ps=" + ps);
-  tbl.innerHTML = ps == "playing" ? "pause" : "play";
-  if (document.getElementById("bstop") !== null)
-    document.getElementById("bstop").style.display = txt.includes("stopped")
-      ? "none"
-      : "initial";
+  if (ps) {
+    document.getElementById("bplay").innerHTML =
+      ps == "playing" ? "pause" : "play";
+    if (document.getElementById("bstop") !== null)
+      document.getElementById("bstop").style.display = txt.includes("stopped")
+        ? "none"
+        : "initial";
+  }
 }
 function sendcmd(cmd) {
   websocket.send("0>" + cmd);
@@ -260,17 +226,13 @@ function gethostname() {
   var tbl = document.getElementById("colorscheme");
   // ajax_request.open('POST', 'oradio.php');
   ajax_request.open("GET", "scmd/hostname", true);
-
-  // ajax_request.send(form_data);
-
-  // new Response(form_data).text().then(console.log)
   ajax_request.onreadystatechange = function () {
     if (ajax_request.status == 200) {
       if (ajax_request.readyState == 4)
         // alert("hn=" + this.responseText);
         document.title = this.responseText + " radio";
       if (this.responseText.includes("banana")) {
-        colorscheme.setAttribute("href", "cscheme.css");
+        colorscheme.setAttribute("href", "blurry.css");
         // spn.style.cssText = 'display:inline-flex !important';
         document.getElementById("title").innerHTML =
           this.responseText + " radio &#x1F34C";
