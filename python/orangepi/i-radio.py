@@ -104,137 +104,151 @@ RADIOSECONDSLEEPTIMER=3600
 USERSLEEPTIMERENABLED=True
 USERSECONDSLEEPTIMER=3600
 PLAYlists=[]
-
-
-# PLAYlists
-#NEXMEDIA
-KR_RIGHT    	="4106897"
-KR_LEFT     	="41028D7"
-KR_UP       	="41048B7"
-KR_DOWN     	="410C837"
-KR_VOLUP 	    ="41040BF"
-KR_VOLDOWN 	    ="410C03F"
-KR_STUP 	    ="410609F"
-KR_STDOWN 	    ="410E01F"
-KR_PLAY     	="410728D"
-KR_STOP     	="410B24D"
-KR_PAUSE    	="410C23D"
-KR_POWER    	="41000FF"
-KR_MUTE     	="41020DF"
-KR_ENTER    	="410A857"
-KR_102ND    	="410708F"
-KR_9        	="410629D"
-KR_TV       	="410A05F"
-KR_OPT       	="410EA15" #preset volume"
-KR_MAIL         ="410708F" #preset station
-KR_YELLOW       ="41058A7"
-KR_SLEEP        ="410F807"
-KR_OK           ="410A857"
-KR_EXIT         ="41008F7"
-KR_MEDIA        ="4105AA5"
-
-KRC_VOLUP 	    ="FFF20D"
-KRC_VOLDOWN 	="FFAA55"
-KRC_STUP 	    ="FF9A65"
-KRC_STDOWN 	    ="FF6A95"
-KRC_PLAY     	="FF24DB"
-KRC_POWER    	="FFC43B"
-KRC_MUTE     	="FF827D" #stop
-KRC_MENU    	="FFCA35"
-KRC_MODE       	="FF2AD5" #swich playlist
-KRC_CALL       	="FF8A75" #preset volume"
-KRC_CCALL       ="FFFA05" #preset station 10+
-
-# REMOTE PUTIH"
-KW_POWER= "FD00FF"
-KW_MUTE= "FD807F"
-KW_SLEEP= "FDC23D"
-KW_VOLUP= "FD12ED"
-KW_VOLDOWN= "FD926D"
-KW_STUP= "FD52AD"
-KW_STDOWN= "FDD22D"
-KW_PLAY= "FD8A75"
-KW_STOP= "FD4AB5"
-KW_ENTER= "FD08F7"
-KW_TEN= "FDD02F" #-/--
-KW_SVOL= "FDB04F"
-KW_INPUT = "FDF00F"
-
-#EVERCROSS
-KRE_POWER  ="FD9A65"
-KRE_MUTE  ="FD9867"
-KRE_VOLUP  ="FDD827"
-KRE_VOLDOWN     ="FD5AA5"
-KRE_STUP  ="FD609F"
-KRE_STDOWN  ="FD6897"
-KRE_TV   ="FDA857"
-KRE_RECALL  ="FDC837"
-KRE_INFO  ="FDE817"
-KRE_PLAY  ="FD629D"
-KRE_PAUSE  ="FD22DD"
-KRE_STOP  ="FD20DF"
-KRE_RED      ="FD42BD"
-KRE_GREEN  ="FD02FD"
-KRE_LIME  ="FD00FF"
-KRE_TIMER  ="FDC03F"
-KRE_OK   ="FD58A7"
-KRE_FAV="FDAA55"
-KRE_EXIT="FDA05F"
-KRE_PAGEUP       ="FDB04F"
-KRE_PAGEDOWN="FD8877"
-KRE_GOTO="FD708F"
-KRE_FORWARD="FDD02F"
-KRE_REVERSE="FD10EF"
-KRE_SUB="FD1AE5"
+# Remote control key codes as JSON data
+REMOTE_CODES 
+# = {
+#     "NEXMEDIA": {
+#         "KR_RIGHT": "4106897",
+#         "KR_LEFT": "41028D7",
+#         "KR_UP": "41048B7",
+#         "KR_DOWN": "410C837",
+#         "KR_VOLUP": "41040BF",
+#         "KR_VOLDOWN": "410C03F",
+#         "KR_STUP": "410609F",
+#         "KR_STDOWN": "410E01F",
+#         "KR_PLAY": "410728D",
+#         "KR_STOP": "410B24D",
+#         "KR_PAUSE": "410C23D",
+#         "KR_POWER": "41000FF",
+#         "KR_MUTE": "41020DF",
+#         "KR_ENTER": "410A857",
+#         "KR_102ND": "410708F",
+#         "KR_9": "410629D",
+#         "KR_TV": "410A05F",
+#         "KR_OPT": "410EA15",
+#         "KR_MAIL": "410708F",
+#         "KR_YELLOW": "41058A7",
+#         "KR_SLEEP": "410F807",
+#         "KR_OK": "410A857",
+#         "KR_EXIT": "41008F7",
+#         "KR_MEDIA": "4105AA5"
+#     },
+#     "KRC": {
+#         "KRC_VOLUP": "FFF20D",
+#         "KRC_VOLDOWN": "FFAA55",
+#         "KRC_STUP": "FF9A65",
+#         "KRC_STDOWN": "FF6A95",
+#         "KRC_PLAY": "FF24DB",
+#         "KRC_POWER": "FFC43B",
+#         "KRC_MUTE": "FF827D",
+#         "KRC_MENU": "FFCA35",
+#         "KRC_MODE": "FF2AD5",
+#         "KRC_CALL": "FF8A75",
+#         "KRC_CCALL": "FFFA05"
+#     },
+#     "PUTIH": {
+#         "KW_POWER": "FD00FF",
+#         "KW_MUTE": "FD807F",
+#         "KW_SLEEP": "FDC23D",
+#         "KW_VOLUP": "FD12ED",
+#         "KW_VOLDOWN": "FD926D",
+#         "KW_STUP": "FD52AD",
+#         "KW_STDOWN": "FDD22D",
+#         "KW_PLAY": "FD8A75",
+#         "KW_STOP": "FD4AB5",
+#         "KW_ENTER": "FD08F7",
+#         "KW_TEN": "FDD02F",
+#         "KW_SVOL": "FDB04F",
+#         "KW_INPUT": "FDF00F"
+#     },
+#     "EVERCROSS": {
+#         "KRE_POWER": "FD9A65",
+#         "KRE_MUTE": "FD9867",
+#         "KRE_VOLUP": "FDD827",
+#         "KRE_VOLDOWN": "FD5AA5",
+#         "KRE_STUP": "FD609F",
+#         "KRE_STDOWN": "FD6897",
+#         "KRE_TV": "FDA857",
+#         "KRE_RECALL": "FDC837",
+#         "KRE_INFO": "FDE817",
+#         "KRE_PLAY": "FD629D",
+#         "KRE_PAUSE": "FD22DD",
+#         "KRE_STOP": "FD20DF",
+#         "KRE_RED": "FD42BD",
+#         "KRE_GREEN": "FD02FD",
+#         "KRE_LIME": "FD00FF",
+#         "KRE_TIMER": "FDC03F",
+#         "KRE_OK": "FD58A7",
+#         "KRE_FAV": "FDAA55",
+#         "KRE_EXIT": "FDA05F",
+#         "KRE_PAGEUP": "FDB04F",
+#         "KRE_PAGEDOWN": "FD8877",
+#         "KRE_GOTO": "FD708F",
+#         "KRE_FORWARD": "FDD02F",
+#         "KRE_REVERSE": "FD10EF",
+#         "KRE_SUB": "FD1AE5"
+#     }
+# }
 
 CDOWN=0
 
 
 file_path = "radioconfig.json"
-
+remote_path="remote_code.json"
 
 class oled:
-	def display(self, msg):
-		with canvas(device) as draw:
-			draw.text((0, 0), msg, fill="white",font=font2)
-		return
+    def display(self, msg):
+        with canvas(device) as draw:
+            draw.text((0, 0), msg, fill="white",font=font2)
+        return
 
-	def display(self, msg, cursor):
-		with canvas(device) as draw:
-			draw.text(cursor, msg, fill="white",font=font2)
-		return
+    def display(self, msg, cursor):
+        with canvas(device) as draw:
+            draw.text(cursor, msg, fill="white",font=font2)
+        return
 
-	def displaybig(self, msg):
-		with canvas(device) as draw:
-			draw.text((0, 0), msg, fill="white",font=font3)
-		return
+    def display_onpos(self, msg, randompos):
+        mx=128-len(msg)*6
+        print("mx="+str(mx))
+        if mx<0:
+            mx =0
+        ypos = random.randint(0,54) if randompos else 0
+        xpos =  random.randint(0,mx)if randompos else 0
+        with canvas(device) as draw:
+            draw.text((xpos,ypos), msg, fill="white",font=font2)
+        return
 
-	def displayfs(self, msg, font_size):
-		cfont = ImageFont.truetype(font_path, font_size)
-		with canvas(device) as draw:
-			draw.text((0, 0), msg, fill="white",font=cfont)
-		return
+    def displaybig(self, msg):
+        with canvas(device) as draw:
+            draw.text((0, 0), msg, fill="white",font=font3)
+        return
 
-	def displayfscs(self, msg, font_size, cursor):
-		cfont = ImageFont.truetype(font_path, font_size)
-		with canvas(device) as draw:
-			draw.text(cursor, msg, fill="white",font=cfont)
-		return
+    def displayfs(self, msg, font_size):
+        cfont = ImageFont.truetype(font_path, font_size)
+        with canvas(device) as draw:
+            draw.text((0, 0), msg, fill="white",font=cfont)
+        return
 
-	def showmsg(self, msg):
-		show_message(device, msg, fill="white", font=font2)
-		return
+    def displayfscs(self, msg, font_size, cursor):
+        cfont = ImageFont.truetype(font_path, font_size)
+        with canvas(device) as draw:
+            draw.text(cursor, msg, fill="white",font=cfont)
+        return
 
-	def clear(self, cmode):
-		if cmode == 0:
-			device.clear() # clears to display immediately
-		elif cmode == 1:
-			device.hide() # put the device into low-power sleep, switching the screen off
-		#device.show() # wake the device from low-power sleep, which restores the previously displayed value
-		return
-	def show(self):
-		device.show() # wake the device from low-power sleep, which restores the previously displayed value
-		return
+    def showmsg(self, msg):
+        show_message(device, msg, fill="white", font=font2)
+        return
+
+    def clear(self, cmode):
+        if cmode == 0:
+            device.clear() # clears to display immediately
+        elif cmode == 1:
+            device.hide() # put the device into low-power sleep, switching the screen off
+        #device.show() # wake the device from low-power sleep, which restores the previously displayed value
+        return
+    def show(self):
+        device.show() # wake the device from low-power sleep, which restores the previously displayed value
+        return
 
 myoled=oled()
 
@@ -317,7 +331,7 @@ def loop():
 
     old_status=status
 
-
+# split and paged all information to display
 def displayto_oled(status):
     global T_ENABLE
     global SEC_CD
@@ -567,6 +581,14 @@ def load_variable():
     except FileNotFoundError:
         pass
 
+def load_remote_codes():
+    global REMOTE_CODES
+    try:
+        with open("/home/remote_codes.json", "r") as f:
+            REMOTE_CODES = json.load(f)
+    except FileNotFoundError:
+        pass
+load_remote_codes()
 def getlocal_ip():
     global local_ip
     cmd= "hostname -I | awk '{print$1}'"
@@ -587,7 +609,6 @@ def updateCPUtemp():
     result= subprocess.check_output(cmd, shell=True)
     cputemp =  "cpu temp: "+result.decode("utf-8")[:2] + "c"
     # print(cputemp)
-
 
 def sysinfo():
     sinfo=""
@@ -633,12 +654,18 @@ def send_wall_message(message: str):
 
 
 def interuptDisplay(delay, fontsize, msg):
+    global U_COUNT
+    U_COUNT=20-delay
     if fontsize==0:
-        display.frezeeDisplay(delay)
-        display.display(msg, False)
+        # display.frezeeDisplay(delay)
+        # display.display(msg, False)
+        myoled.display_onpos(msg,False)
     else:
-        display.frezeeDisplay(delay)
-        display.displayfs(msg, fontsize)
+        # display.frezeeDisplay(delay)
+        # display.displayfs(msg, fontsize)
+        global P_COUNT
+        P_COUNT=0
+        myoled.displayfs(msg, fontsize)
         # display.display(msg, False)
 
 def load_variable():
@@ -1184,7 +1211,7 @@ PREVMILL=0;
 
 def processIR(irval):
     global EN_NEXMEDIA_R
-    if irval== KR_YELLOW:
+    if irval== REMOTE_CODES["NEXMEDIA"]["KR_YELLOW"]:
         EN_NEXMEDIA_R= not EN_NEXMEDIA_R
         interuptDisplay(3, 0,"REMOTE control\n"+("unlocked" if EN_NEXMEDIA_R else "locked"))
         return
@@ -1193,61 +1220,55 @@ def processIR(irval):
             if irval == KR_nNUM[i][1]:
                 clickNum(KR_nNUM[i][0])
                 break
-        if irval == 2099218:
-            print("UP")
-            setVOL(True)
-        elif irval == KR_VOLUP:
+        if irval == REMOTE_CODES["NEXMEDIA"]["KR_VOLUP"]:
             print("volume up")
             setVOL(True)
-        elif irval == KR_VOLDOWN:
+        elif irval == REMOTE_CODES["NEXMEDIA"]["KR_VOLDOWN"]:
             setVOL(False)
-        elif irval == KR_STUP:
+        elif irval == REMOTE_CODES["NEXMEDIA"]["KR_STUP"]:
             setSTATION(True)
-        elif irval == KR_STDOWN:
+        elif irval == REMOTE_CODES["NEXMEDIA"]["KR_STDOWN"]:
             setSTATION(False)
-        # elif irval== KR_D_UP:
+        # elif irval== REMOTE_CODES["NEXMEDIA"]["KR_D_UP"]:
         #     print("dUP")
         #     setVOL(False)
-        elif irval == KR_DOWN:
+        elif irval == REMOTE_CODES["NEXMEDIA"]["KR_DOWN"]:
             print("DOWN")
             setVOL(False)
-        elif irval == KR_RIGHT:
+        elif irval == REMOTE_CODES["NEXMEDIA"]["KR_RIGHT"]:
             print("right")
             setSTATION(True)
-        elif irval == KR_LEFT:
+        elif irval == REMOTE_CODES["NEXMEDIA"]["KR_LEFT"]:
             print("left")
             setSTATION(False)
-        elif irval == KR_PLAY:
+        elif irval == REMOTE_CODES["NEXMEDIA"]["KR_PLAY"]:
             print("play")
             # os.system("mpc play")
             noReturnSubprocess("mpc play")
-        elif irval == KR_STOP:
+        elif irval == REMOTE_CODES["NEXMEDIA"]["KR_STOP"]:
             print("stop")
             interuptDisplay(3, 0, "STOP")
             os.system("mpc stop")
-        elif irval == 2099204:
-            print("mute")
-            mute()
-        elif irval == KR_TV:
+        elif irval == REMOTE_CODES["NEXMEDIA"]["KR_TV"]:
             print("tv")  # switch playlist
             switchPLAYLIST()
-        elif irval == KR_OPT:
+        elif irval == REMOTE_CODES["NEXMEDIA"]["KR_OPT"]:
             print("opt")  # start vol
             startVol()
-        elif irval == KR_MAIL:  # 10+
+        elif irval == REMOTE_CODES["NEXMEDIA"]["KR_MAIL"]:  # 10+
             print("mail")
             startTenPos()
-        elif irval == KR_POWER:  # 10+
+        elif irval == REMOTE_CODES["NEXMEDIA"]["KR_POWER"]:  # 10+
             print("reboot")
             reboot()
-        elif irval==KR_SLEEP:
+        elif irval==REMOTE_CODES["NEXMEDIA"]["KR_SLEEP"]:
             # msleep(20)
             startsetsleep()
-        elif irval==KR_OK:
+        elif irval==REMOTE_CODES["NEXMEDIA"]["KR_OK"]:
             ok()
-        elif irval==KR_EXIT:
+        elif irval==REMOTE_CODES["NEXMEDIA"]["KR_EXIT"]:
             exitset(True)
-        elif irval==KR_MEDIA:
+        elif irval==REMOTE_CODES["NEXMEDIA"]["KR_MEDIA"]:
             startPlistTo()
 
     else:
@@ -1263,43 +1284,43 @@ def processIRc(irval):
         if irval == KR_cNUM[i][1]:
             clickNum(KR_cNUM[i][0])
             break
-    if irval == KRC_VOLUP:
+    if irval == REMOTE_CODES["KRC"]["KRC_VOLUP"]:
         print("volume up")
         setVOL(True)
-    elif irval == KRC_VOLDOWN:
+    elif irval == REMOTE_CODES["KRC"]["KRC_VOLDOWN"]:
         setVOL(False)
-    elif irval == KRC_STUP:
+    elif irval == REMOTE_CODES["KRC"]["KRC_STUP"]:
         setSTATION(True)
-    elif irval == KRC_STDOWN:
+    elif irval == REMOTE_CODES["KRC"]["KRC_STDOWN"]:
         setSTATION(False)
-    elif irval == KRC_PLAY:
+    elif irval == REMOTE_CODES["KRC"]["KRC_PLAY"]:
         global MIN_SLEEP
         if MIN_SLEEP>0:
             ok()
         else:
             print("play")
             os.system("mpc play")
-    elif irval == KRC_MUTE:
+    elif irval == REMOTE_CODES["KRC"]["KRC_MUTE"]:
         print("mute > stop")
         # display.display("player stopped", False)
         # display.frezeeDisplay(3)
         interuptDisplay(3, 0, "STOP")
         os.system("mpc stop")
-    elif irval == KRC_MODE:
+    elif irval == REMOTE_CODES["KRC"]["KRC_MODE"]:
         print("mode > switch playlist")  # switch playlist
         switchPLAYLIST()
-    elif irval == KRC_CALL:
+    elif irval == REMOTE_CODES["KRC"]["KRC_CALL"]:
         print("call > vol jump")  # start vol
         startVol()
-    elif irval == KRC_CCALL:  # 10+
+    elif irval == REMOTE_CODES["KRC"]["KRC_CCALL"]:  # 10+
         print("ccall > ten+")
         startTenPos()
-    elif irval == KRC_POWER:  # 10+
+    elif irval == REMOTE_CODES["KRC"]["KRC_POWER"]:  # 10+
         print("reboot")
         reboot()
-    elif irval == KRC_POWER:  # 10+
+    elif irval == REMOTE_CODES["KRC"]["KRC_POWER"]:  # 10+
         print("get net data")
-    elif irval == KRC_MENU:
+    elif irval == REMOTE_CODES["KRC"]["KRC_MENU"]:
         startsetsleep()
 
 
@@ -1316,56 +1337,57 @@ def processIRw(irval):
             if irval == KR_wNUM[i][1]:
                 clickNum(KR_wNUM[i][0])
                 break
-        if irval == KW_VOLUP:
+        if irval == REMOTE_CODES["PUTIH"]["KW_VOLUP"]:
             print("volume up")
             setVOL(True)
-        elif irval == KW_VOLDOWN:
+        elif irval == REMOTE_CODES["PUTIH"]["KW_VOLDOWN"]:
             setVOL(False)
-        elif irval == KW_STUP:
+        elif irval == REMOTE_CODES["PUTIH"]["KW_STUP"]:
             setSTATION(True)
-        elif irval == KW_STDOWN:
+        elif irval == REMOTE_CODES["PUTIH"]["KW_STDOWN"]:
             setSTATION(False)
-        elif irval == KW_ENTER:
+        elif irval == REMOTE_CODES["PUTIH"]["KW_ENTER"]:
             global MIN_SLEEP
             if MIN_SLEEP>0:
-                ok()
+            ok()
             else:
-                print("enter")
-                os.system("mpc toggle")
-        elif irval == KW_PLAY:
+            print("enter")
+            os.system("mpc toggle")
+        elif irval == REMOTE_CODES["PUTIH"]["KW_PLAY"]:
             # global MIN_SLEEP
             if MIN_SLEEP>0:
-                ok()
+            ok()
             else:
-                print("play")
-                os.system("mpc play")
-        elif irval == KW_STOP:
+            print("play")
+            os.system("mpc play")
+        elif irval == REMOTE_CODES["PUTIH"]["KW_STOP"]:
             print("mute > stop")
             # display.display("player stopped", False)
             # display.frezeeDisplay(3)
             interuptDisplay(3, 0, "STOP")
             os.system("mpc stop")
-        elif irval == KW_INPUT:
+        elif irval == REMOTE_CODES["PUTIH"]["KW_INPUT"]:
             print("mode > switch playlist")  # switch playlist
             switchPLAYLIST()
-        elif irval == KW_SVOL:
+        elif irval == REMOTE_CODES["PUTIH"]["KW_SVOL"]:
             print("call > vol jump")  # start vol
             startVol()
-        elif irval == KW_TEN:  # 10+
+        elif irval == REMOTE_CODES["PUTIH"]["KW_TEN"]:  # 10+
             print("ccall > ten+")
             startTenPos()
-        elif irval == KW_POWER:  # 10+
+        elif irval == REMOTE_CODES["PUTIH"]["KW_POWER"]:  # 10+
             print("reboot")
             reboot()
-        elif irval == KW_POWER:  # 10+
+        elif irval == REMOTE_CODES["PUTIH"]["KW_POWER"]:  # 10+
             print("get net data")
-        elif irval == KW_SLEEP:
+        elif irval == REMOTE_CODES["PUTIH"]["KW_SLEEP"]:
             startsetsleep()
-        elif irval == KW_MUTE:
+        elif irval == REMOTE_CODES["PUTIH"]["KW_MUTE"]:
             restart()
 
 
 def processIRe(irval):
+    global REMOTE_CODES
     global REMOTES
     global GOTOSTATION
     print(f'irvaleu > {irval}')
@@ -1379,74 +1401,77 @@ def processIRe(irval):
             if irval == KR_eNUM[i][1]:
                 clickNum(KR_eNUM[i][0])
                 break
+        if irval==REMOTE_CODES["EVERCROSS"]["KRE_VOLUP"]:
+            print("volume up")
+            setVOL(True)
         if irval == KRE_VOLUP:
             print("volume up")
             setVOL(True)
-        elif irval == KRE_VOLDOWN:
+        elif irval == REMOTE_CODES["EVERCROSS"]["KRE_VOLDOWN"]:
             setVOL(False)
-        elif irval == KRE_STUP:
+        elif irval == REMOTE_CODES["EVERCROSS"]["KRE_STUP"]:
             setSTATION(True)
-        elif irval == KRE_STDOWN:
+        elif irval == REMOTE_CODES["EVERCROSS"]["KRE_STDOWN"]:
             setSTATION(False)
-        elif irval == KRE_OK:
+        elif irval == REMOTE_CODES["EVERCROSS"]["KRE_OK"]:
             global MIN_SLEEP
             if MIN_SLEEP>0:
-                ok()
+            ok()
             else:
-                print("enter")
-                interuptDisplay(3, 16, "PLAY/\nPAUSE")
-                # os.system("mpc toggle")
-                noReturnSubprocess("mpc toggle")
-        elif irval == KRE_PLAY:
+            print("enter")
+            interuptDisplay(3, 16, "PLAY/\nPAUSE")
+            # os.system("mpc toggle")
+            noReturnSubprocess("mpc toggle")
+        elif irval == REMOTE_CODES["EVERCROSS"]["KRE_PLAY"]:
             # global MIN_SLEEP
             if MIN_SLEEP>0:
-                ok()
+            ok()
             else:
-                print("play")
-                interuptDisplay(3, 16, "PLAY")
-                # os.system("mpc play")
-                noReturnSubprocess("mpc play")
-        elif irval == KRE_STOP:
+            print("play")
+            interuptDisplay(3, 16, "PLAY")
+            # os.system("mpc play")
+            noReturnSubprocess("mpc play")
+        elif irval == REMOTE_CODES["EVERCROSS"]["KRE_STOP"]:
             print("mute > stop")
             # display.display("player stopped", False)
             # display.frezeeDisplay(3)
             interuptDisplay(3, 0, "STOP")
             os.system("mpc stop")
-        elif irval == KRE_TV:
+        elif irval == REMOTE_CODES["EVERCROSS"]["KRE_TV"]:
             print("mode > switch playlist")  # switch playlist
             switchPLAYLIST()
-        elif irval == KRE_RECALL:
+        elif irval == REMOTE_CODES["EVERCROSS"]["KRE_RECALL"]:
             print("call > vol jump")  # start vol
             startVol()
-        elif irval == KRE_INFO:  # 10+
+        elif irval == REMOTE_CODES["EVERCROSS"]["KRE_INFO"]:  # 10+
             print("ccall > ten+")
             startTenPos()
-        elif irval == KRE_POWER:  # 10+
+        elif irval == REMOTE_CODES["EVERCROSS"]["KRE_POWER"]:  # 10+
             print("reboot")
             reboot()
-        elif irval == KRE_POWER:  # 10+
+        elif irval == REMOTE_CODES["EVERCROSS"]["KRE_POWER"]:  # 10+
             print("get net data")
-        elif irval == KRE_TIMER:
+        elif irval == REMOTE_CODES["EVERCROSS"]["KRE_TIMER"]:
             startsetsleep()
-        elif irval == KRE_MUTE:
+        elif irval == REMOTE_CODES["EVERCROSS"]["KRE_MUTE"]:
             restart()
-        elif irval == KRE_FAV:
+        elif irval == REMOTE_CODES["EVERCROSS"]["KRE_FAV"]:
             startPlistTo()
-        elif irval == KRE_EXIT:
+        elif irval == REMOTE_CODES["EVERCROSS"]["KRE_EXIT"]:
             exitset(True)
-        elif irval==KRE_PAGEUP:
+        elif irval==REMOTE_CODES["EVERCROSS"]["KRE_PAGEUP"]:
             display.setPage(True)
             # stationPage(True)
-        elif irval==KRE_PAGEDOWN:
+        elif irval==REMOTE_CODES["EVERCROSS"]["KRE_PAGEDOWN"]:
             # stationPage(False)
             display.setPage(False)
-        elif irval==KRE_FORWARD:
+        elif irval==REMOTE_CODES["EVERCROSS"]["KRE_FORWARD"]:
             stationPage(True)
-        elif irval==KRE_REVERSE:
+        elif irval==REMOTE_CODES["EVERCROSS"]["KRE_REVERSE"]:
             stationPage(False)
-        elif irval==KRE_GOTO:
+        elif irval==REMOTE_CODES["EVERCROSS"]["KRE_GOTO"]:
             GOTOSTATION=True
-        elif irval==KRE_SUB:
+        elif irval==REMOTE_CODES["EVERCROSS"]["KRE_SUB"]:
             restart_app()
             # print("This program will restart itself in 2 seconds...")
             # interuptDisplay(8, 0, "Restarting app")
@@ -1489,28 +1514,6 @@ def broadcast_message(message):
         except Exception as e:
             print(f"error sending ws msg : {e}")
         # client.write_message("info="+message)
-
-
-#
-# SCOUNT=0
-# prev_status=""
-# def infinity():
-#     # global SCOUNT
-#     # SCOUNT +=1
-#     # if SCOUNT == 10:
-#     #     if display.getmenu() is True:
-#     #         display.onmenu(False)
-#     #     SCOUNT=0
-#     global prev_status
-#     status = subprocess.check_output("mpc current", shell=True).decode("utf-8").replace("\n","")
-#     if status!=prev_status:
-#         broadcast_message("info="+status)
-#     prev_status=status
-#     print(status)
-#     threading.Timer(1, infinity).start()
-#
-# infinity()
-
 
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
