@@ -101,6 +101,7 @@ function loadvol() {
 }
 
 function setvol() {
+  var tbl = document.getElementById("svol");
   var cmd = "mpc volume " + tbl.value;
   websocket.send("0>" + cmd);
 }
