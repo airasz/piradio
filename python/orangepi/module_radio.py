@@ -263,7 +263,7 @@ def displaytooled2():
 
 old_station=""
 old_vol=""
-def anychange(status):
+def anychange(status): #not used
     change = False
     if "playing" in status or "paused" in status:
         global old_station
@@ -342,7 +342,7 @@ def getNetData():
         #     NETSTAT = NETSTAT + dbtopercent(dbm) #+ signal[1:]
         # except:
         #     NETSTAT
-def translate(value, leftMin, leftMax, rightMin, rightMax):
+def translate(value, leftMin, leftMax, rightMin, rightMax): #not used
     # Figure out how 'wide' each range is
     leftSpan = leftMax - leftMin
     rightSpan = rightMax - rightMin
