@@ -105,7 +105,7 @@ USERSLEEPTIMERENABLED=True
 USERSECONDSLEEPTIMER=3600
 PLAYlists=[]
 # Remote control key codes as JSON data
-REMOTE_CODES 
+REMOTE_CODES ={}
 # = {
 #     "NEXMEDIA": {
 #         "KR_RIGHT": "4106897",
@@ -582,12 +582,15 @@ def load_variable():
         pass
 
 def load_remote_codes():
+    print("load remote data")
     global REMOTE_CODES
     try:
-        with open("/home/remote_codes.json", "r") as f:
+        with open(remote_path, "r") as f:
             REMOTE_CODES = json.load(f)
+            print(REMOTE_CODES)
     except FileNotFoundError:
         pass
+        
 load_remote_codes()
 def getlocal_ip():
     global local_ip
@@ -1349,17 +1352,17 @@ def processIRw(irval):
         elif irval == REMOTE_CODES["PUTIH"]["KW_ENTER"]:
             global MIN_SLEEP
             if MIN_SLEEP>0:
-            ok()
+                ok()
             else:
-            print("enter")
-            os.system("mpc toggle")
+                print("enter")
+                os.system("mpc toggle")
         elif irval == REMOTE_CODES["PUTIH"]["KW_PLAY"]:
             # global MIN_SLEEP
             if MIN_SLEEP>0:
-            ok()
+                ok()
             else:
-            print("play")
-            os.system("mpc play")
+                print("play")
+                os.system("mpc play")
         elif irval == REMOTE_CODES["PUTIH"]["KW_STOP"]:
             print("mute > stop")
             # display.display("player stopped", False)
@@ -1404,9 +1407,9 @@ def processIRe(irval):
         if irval==REMOTE_CODES["EVERCROSS"]["KRE_VOLUP"]:
             print("volume up")
             setVOL(True)
-        if irval == KRE_VOLUP:
-            print("volume up")
-            setVOL(True)
+        #if irval == KRE_VOLUP:
+            #print("volume up")
+            #setVOL(True)
         elif irval == REMOTE_CODES["EVERCROSS"]["KRE_VOLDOWN"]:
             setVOL(False)
         elif irval == REMOTE_CODES["EVERCROSS"]["KRE_STUP"]:
@@ -1416,21 +1419,21 @@ def processIRe(irval):
         elif irval == REMOTE_CODES["EVERCROSS"]["KRE_OK"]:
             global MIN_SLEEP
             if MIN_SLEEP>0:
-            ok()
+                ok()
             else:
-            print("enter")
-            interuptDisplay(3, 16, "PLAY/\nPAUSE")
-            # os.system("mpc toggle")
-            noReturnSubprocess("mpc toggle")
+                print("enter")
+                interuptDisplay(3, 16, "PLAY/\nPAUSE")
+                # os.system("mpc toggle")
+                noReturnSubprocess("mpc toggle")
         elif irval == REMOTE_CODES["EVERCROSS"]["KRE_PLAY"]:
             # global MIN_SLEEP
             if MIN_SLEEP>0:
-            ok()
+                ok()
             else:
-            print("play")
-            interuptDisplay(3, 16, "PLAY")
-            # os.system("mpc play")
-            noReturnSubprocess("mpc play")
+                print("play")
+                interuptDisplay(3, 16, "PLAY")
+                # os.system("mpc play")
+                noReturnSubprocess("mpc play")
         elif irval == REMOTE_CODES["EVERCROSS"]["KRE_STOP"]:
             print("mute > stop")
             # display.display("player stopped", False)
