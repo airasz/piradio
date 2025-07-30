@@ -408,9 +408,6 @@ def displayto_oled(status):
     if totline> ttlline:
         totpage+=1 #get actual page
 
-    # print("total dirt line = " + str(ttlline))
-    # print(totpage)
-
     global P_COUNT
 
 #    print("P_COUNT = " + str(P_COUNT))
@@ -489,11 +486,8 @@ class sleeptimer:
 
 
     def beat(self):
-        # self.cekStart()
-        # self.cekStop()
         self.countdown()
         self.autostop()
-        # threading.Timer(1, loopy).start()  # Schedule the function to run again in 1 second
 
     def isrunning(self):
         global T_ENABLE
@@ -599,8 +593,6 @@ def getlocal_ip():
     local_ip =  result.decode("utf-8")
     if ":" in local_ip:
         local_ip=local_ip[:(local_ip.index(":")-4)]
-        # local_ip=local_ip.rstrip
-        # local_ip=local_ip.replace("\n", "")
     local_ip=local_ip.replace("\n", "")
     local_ip = "IP: " + local_ip
     print(local_ip)
@@ -660,16 +652,11 @@ def interuptDisplay(delay, fontsize, msg):
     global U_COUNT
     U_COUNT=20-delay
     if fontsize==0:
-        # display.frezeeDisplay(delay)
-        # display.display(msg, False)
         myoled.display_onpos(msg,False)
     else:
-        # display.frezeeDisplay(delay)
-        # display.displayfs(msg, fontsize)
         global P_COUNT
         P_COUNT=0
         myoled.displayfs(msg, fontsize)
-        # display.display(msg, False)
 
 def load_variable():
     global CDOWN
@@ -718,15 +705,6 @@ def noReturnSubprocess(cmd):
         print("error in cmd: "+cmd)
         print(e.output.decode("utf-8"))
 
-# def loadPLAYlists():
-#     global PLAYlists
-#     # status = cmd("ls /var/lib/mpd/playlists/")
-#     # status = status.replace(".m3u", "")
-#     # PLAYlists = status.split()
-#     sr=subprocess.check_output("mpc lsplaylists", shell=True).decode("utf-8")
-#     PLAYlists=sr.splitlines(keepends=False)
-# loadPLAYlists()
-
 PLAYlists =cmd("mpc lsplaylists").splitlines(keepends=False)
 PLAYlists= sorted(PLAYlists, key=str.lower)
 
@@ -760,8 +738,6 @@ def getPlayState():
 
 
 def startVol():
-    # display.frezeeDisplay(8)
-    # display.displayfs("jump volume...", 15)
     interuptDisplay(8, 15, "jump volume...")
     exitset(False)
     global NUM_VOL
@@ -806,14 +782,13 @@ def startPlistTo():
     PLAYlists.sort()
     for item in PLAYlists:
         dbl+=1
-        # print(f'{str(ids+1)}. {str(item)}\n')
-        if dbl%2==0:
-            pls+=(f'{str(ids+1)}. {str(item)}\n')
-        else:
-            pls+=(f'{str(ids+1)}. {str(item)}  ')
+        nl="\n"
+        pls+=(f'{str(ids+1)}. {str(item)}{nl if dbl%2==0 else "  "}')
+        # if dbl%2==0:
+        #     pls+=(f'{str(ids+1)}. {str(item)}\n')
+        # else:
+        #     pls+=(f'{str(ids+1)}. {str(item)}  ')
         ids+=1
-    # display.frezeeDisplay(8)
-    # display.display(f'select.\n{pls}', False)
     interuptDisplay(8, 0, f'select.\n{pls}')
 
 def setSTATION(next):
@@ -831,19 +806,6 @@ def setSTATION(next):
     # displaytooled(status)
 
 def getCurrentStation():
-
-    # status = "radio volume: 50%"
-    # status = subprocess.check_output("mpc", shell=True)
-    # status =  status.decode("utf-8")
-    # ps = status.index(']')
-    # pps=status.index('%')
-    # pss=status[ps:pps]
-    # ht=pss.index("#")
-    # fs=pss.index('/')
-    # cs=pss[ht+1:fs]
-
-
-    # cs=cmd("mpc status | grep -o '#[0-9]\+' | sed 's/#//'")
     cs=cmd("mpc -f %position%")
     return int(cs)
 
@@ -857,28 +819,18 @@ def stationPage(next):
             cs=TOQ
         interuptDisplay(3, 15, "play pos "+ str(cs))
         noReturnSubprocess(f'mpc play {cs}')
-        # status = subprocess.check_output(f"mpc play {cs}", shell=True)
-        # status =  status.decode("utf-8")
     else:
         cs= cs-10
         if cs< 1:
             cs=1
         interuptDisplay(3, 15, "play pos "+ str(cs))
         noReturnSubprocess(f'mpc play {cs}')
-        # status = subprocess.check_output(f"mpc play {cs}", shell=True)
-        # status =  status.decode("utf-8")
 
 
 def setVOL(up):
     status = ""
     vol=""
-    # status = subprocess.check_output(("mpc volume +5 | grep volume | awk '{print$2}'") if up else ("mpc volume -5 | grep volume | awk '{print$2}'"), shell=True).decode("utf-8")
-    # print("vol "+status)
-    # status=cmd(("mpc volume +5 | grep volume | awk '{print$2}'") if up else ("mpc volume -5 | grep volume | awk '{print$2}'"))
     status=cmd("mpc volume " + ("+5" if up else "-5")  + " | grep volume | awk '{print$2}'") 
-    # display.displaybig("v"+vol)
-    # display.frezeeDisplay(3)
-    # display.displayfs("v "+status, 25)
     interuptDisplay(3, 25, "v "+status)
     broadcast_message("vol="+status)
 
@@ -887,13 +839,8 @@ def reboot():
     global TO_REBOOT
     if TO_REBOOT is False:
         TO_REBOOT = True
-        # display.display("goto reboot", True)
-        # display.frezeeDisplay(8)
-        # myoled.displayfs("press again\nto reboot", 16)
         interuptDisplay(8, 16, "press again\nto reboot")
     else:
-        # display.frezeeDisplay(3)
-        # myoled.displayfs("rebooting...", 16)
         interuptDisplay(3, 16, "rebooting...")
         sleep(1)
         os.system("reboot")
@@ -917,10 +864,7 @@ def exitset(info):
     STOP_SLEEP = False
     MIN_SLEEP = 0
     if info:
-        # display.frezeeDisplay(2)
-        # myoled.displayfs("operation\ncanceled", 16)
         interuptDisplay(3, 16, "operation\ncanceled")
-    # display.onmenu(False)
 
 
 VOLTO=0
@@ -935,14 +879,9 @@ def clickNum(pos):
     global pulse_
     ypos = random.randint(0,54)
     xpos = random.randint(0,50)
-    # display.display("playing pos "+ str(pos), (xpos,ypos))
-    # display.display("playing pos "+ str(pos), True)
     pulse_=0
     status = ""
     if NUM_VOL==0 and MIN_SLEEP==0 and splp is False:
-        # display.display("play pos "+ str(pos), True)
-        # display.frezeeDisplay(3)
-        # myoled.displayfs("play pos "+ str(pos),15)
         if TOQ < 10:
             interuptDisplay(3, 15, "play pos "+ str(pos))
             os.system("mpc play " + str(pos))
@@ -971,9 +910,6 @@ def clickNum(pos):
         return
     if NUM_VOL == 1:
         VOLTO=pos * 10
-        # display.display("volume to "+ str(pos)+"x", True)
-        # display.frezeeDisplay(5)
-        # myoled.displayfs("volume to\n"+ str(pos)+"x",15)
         interuptDisplay(5, 15, "volume to\n"+ str(pos)+"x")
         print("start vol========== "+ str(VOLTO))
         NUM_VOL =2
@@ -981,9 +917,6 @@ def clickNum(pos):
     elif NUM_VOL == 2:
         VOLTO+= pos
         NUM_VOL=0
-        # display.display("volume to "+ str(VOLTO), True)
-        # display.frezeeDisplay(5)
-        # myoled.displayfs("set volume to\n"+ str(VOLTO),15)
         interuptDisplay(5, 15, "set volume to\n"+ str(VOLTO))
         os.system("mpc volume " + str(VOLTO))
         broadcast_message("resettimer")
@@ -992,33 +925,20 @@ def clickNum(pos):
         # MIN_SLEEPV+=pos**MIN_SLEEP
         MIN_SLEEPV=0
         MIN_SLEEPV=pos*10
-        # display.display("sleep in "+ str(pos)+"x minutes", False)
-        # display.frezeeDisplay(5)
-        # myoled.displayfs("sleep in\n"+ str(pos)+"x minutes",15)
         interuptDisplay(5, 15, "sleep in\n"+ str(pos)+"x minutes")
         MIN_SLEEP=2
     elif MIN_SLEEP==2:
         MIN_SLEEPV+=pos
-        # display.display("sleep in "+ str(MIN_SLEEPV)+" minutes\nClick OK to confirm", False)
-        # display.frezeeDisplay(8)
-        # myoled.displayfs("sleep in\n"+ str(MIN_SLEEPV)+" minutes\nClick OK to\nconfirm",13)
         interuptDisplay(8, 13,"sleep in\n"+ str(MIN_SLEEPV)+" minutes\nClick OK to\nconfirm")
     if splp is True:
-        # status = cmd("ls /var/lib/mpd/playlists/")
-        # status = status.replace(".m3u", "")
-        # PLAYlists = status.split()
 
 
         status = cmd("mpc clear")
         sleep(0.1)
-        # print(("mpc load " + PLAYlists[1]) if SWITCH_PLAYLIST else ("mpc load " + PLAYlists[0]))
-        # status = cmd("mpc load " + PLAYlists[1]) if SWITCH_PLAYLIST else cmd("mpc load " + PLAYlists[0])
         if pos < len(PLAYlists)+1:
             status= cmd("mpc load " + PLAYlists[pos-1])
             getstationlen()
             status= status.replace(" ", "\n")
-            # display.frezeeDisplay(2)
-            # myoled.displayfs(status, 16)
             interuptDisplay(2, 16,status)
             sleep(1)
             status = cmd("mpc play")
@@ -1038,8 +958,6 @@ def switchPLAYLIST():
     global PLAYLIST_X
     global PLAYlists
     PLAY_CURL=False
-    # global PLAYlists
-    # SWITCH_PLAYLIST = not SWITCH_PLAYLIST
     getstationlen()
     if SWITCH_PLAYLIST is True:
         SWITCH_PLAYLIST =False
@@ -1047,36 +965,15 @@ def switchPLAYLIST():
         SWITCH_PLAYLIST=True
 
     print("SWITCH_PLAYLIST="+str(SWITCH_PLAYLIST))
-    # import os
-
-    # status = os.popen("ls /var/lib/mpd/playlists/").read()
-    # status = cmd("ls /var/lib/mpd/playlists/")
-    # status = status.replace(".m3u", "")
-    # PLAYlists = status.split()
     PLAYLIST_X.sort()
     PLAYLIST_X+=1
     if PLAYLIST_X == len(PLAYlists):
         PLAYLIST_X=0
-    # print(PLAYlists[0])
-    # length = len(starr)
-    # for i in PLAYlists:
-    #     print(str(PLAYlists[i]))
-
-
-    # length = len(PLAYlists)
-    # for i in range(length):
-    #     print(PLAYlists[i])
-
     status = cmd("mpc clear")
     sleep(0.1)
-    # print(("mpc load " + PLAYlists[1]) if SWITCH_PLAYLIST else ("mpc load " + PLAYlists[0]))
-    # status = cmd("mpc load " + PLAYlists[1]) if SWITCH_PLAYLIST else cmd("mpc load " + PLAYlists[0])
     status= cmd("mpc load " + PLAYlists[PLAYLIST_X])
     # noReturnSubprocess(f"mpc load {PLAYlists[PLAYLIST_X]}")
     getstationlen()
-    # status= status.replace(" ", "\n")
-    # display.frezeeDisplay(2)
-    # myoled.displayfs(status, 16)
     interuptDisplay(2, 16,status)
     sleep(1)
     status = cmd("mpc play")
@@ -1089,8 +986,6 @@ def getstationlen(): #get total playlist
     global T_LINES
     global TOQ
     global SWITCH_PLAYLIST
-    # status = subprocess.check_output("mpc playlist", shell=True)
-    # status =  status.decode("utf-8")
     status = cmd("mpc playlist")
     if "radioislam" in status or "Rodja" in status:
         SWITCH_PLAYLIST = True
@@ -1154,10 +1049,6 @@ def displaytooled(status):
     if totline> ttlline:
         totpage+=1 #get actual page
 
-    # print("total dirt line = " + str(ttlline))
-    # print(totpage)
-
-#    print("P_COUNT = " + str(P_COUNT))
     for x in range(totline):
         sm=str(msglist[x])
         text += sm
@@ -1232,9 +1123,6 @@ def processIR(irval):
             setSTATION(True)
         elif irval == REMOTE_CODES["NEXMEDIA"]["KR_STDOWN"]:
             setSTATION(False)
-        # elif irval== REMOTE_CODES["NEXMEDIA"]["KR_D_UP"]:
-        #     print("dUP")
-        #     setVOL(False)
         elif irval == REMOTE_CODES["NEXMEDIA"]["KR_DOWN"]:
             print("DOWN")
             setVOL(False)
@@ -1276,9 +1164,6 @@ def processIR(irval):
 
     else:
         if irval[:2]=="41":
-            # interuptDisplay(3,  unregistered key remote\nor this remote locked")
-            # display.frezeeDisplay(3)
-            # display.display("unregistered key remote\nor this remote locked", False)
             interuptDisplay(3, 0, "unregistered key remote\nor this remote locked")
 
 
@@ -1305,8 +1190,6 @@ def processIRc(irval):
             os.system("mpc play")
     elif irval == REMOTE_CODES["KRC"]["KRC_MUTE"]:
         print("mute > stop")
-        # display.display("player stopped", False)
-        # display.frezeeDisplay(3)
         interuptDisplay(3, 0, "STOP")
         os.system("mpc stop")
     elif irval == REMOTE_CODES["KRC"]["KRC_MODE"]:
@@ -1331,8 +1214,6 @@ def processIRc(irval):
 def processIRw(irval):
     global REMOTES
     if REMOTES[1]["enable"] is False:
-        # display.frezeeDisplay(2)
-        # myoled.displayfs("remote locked", 16)
         processIRe(irval)
         return
     else:
@@ -1365,8 +1246,6 @@ def processIRw(irval):
                 os.system("mpc play")
         elif irval == REMOTE_CODES["PUTIH"]["KW_STOP"]:
             print("mute > stop")
-            # display.display("player stopped", False)
-            # display.frezeeDisplay(3)
             interuptDisplay(3, 0, "STOP")
             os.system("mpc stop")
         elif irval == REMOTE_CODES["PUTIH"]["KW_INPUT"]:
@@ -1395,8 +1274,6 @@ def processIRe(irval):
     global GOTOSTATION
     print(f'irvaleu > {irval}')
     if REMOTES[3]["enable"] is False:
-        # display.frezeeDisplay(2)
-        # myoled.displayfs("remote locked", 16)
         interuptDisplay(2, 10,"remote locked")
         return
     else:
@@ -1423,7 +1300,6 @@ def processIRe(irval):
             else:
                 print("enter")
                 interuptDisplay(3, 16, "PLAY/\nPAUSE")
-                # os.system("mpc toggle")
                 noReturnSubprocess("mpc toggle")
         elif irval == REMOTE_CODES["EVERCROSS"]["KRE_PLAY"]:
             # global MIN_SLEEP
@@ -1436,8 +1312,6 @@ def processIRe(irval):
                 noReturnSubprocess("mpc play")
         elif irval == REMOTE_CODES["EVERCROSS"]["KRE_STOP"]:
             print("mute > stop")
-            # display.display("player stopped", False)
-            # display.frezeeDisplay(3)
             interuptDisplay(3, 0, "STOP")
             os.system("mpc stop")
         elif irval == REMOTE_CODES["EVERCROSS"]["KRE_TV"]:
@@ -1476,42 +1350,14 @@ def processIRe(irval):
             GOTOSTATION=True
         elif irval==REMOTE_CODES["EVERCROSS"]["KRE_SUB"]:
             restart_app()
-            # print("This program will restart itself in 2 seconds...")
-            # interuptDisplay(8, 0, "Restarting app")
-            # time.sleep(0.5)  # Wait for 5 seconds before restarting
-            # # Restart the program
-            # print("Restarting...")
-            # rp = 'app restarting'
-            # time.sleep(1.5)
-            # os.execv(sys.executable, ["python"] + sys.argv)
 
-
-
-# ser = serial.Serial(
-#         port='/dev/ttyS5', #Replace ttyS0 with ttyAM0 for Pi1,Pi2,Pi0
-#         baudrate = 9600,
-#         parity=serial.PARITY_NONE,
-#         stopbits=serial.STOPBITS_ONE,
-#         bytesize=serial.EIGHTBITS,
-#         timeout=0.1
-# )
-
-
-# print("start listening serial")
-
-
-#Tornado Folder Paths
 settings = dict(
     template_path = os.path.join(os.path.dirname(__file__), "templates"), static_path = os.path.join(os.path.dirname(__file__), "static")
     )
 
 
 def broadcast_message(message):
-    # print("broadcast_message "+ message)
-    # wsclient=w
     for client in WSHandler.clients:
-        # client.write_message(message)
-        # print ("bc ws")
         try:
             client.write_message(message)
         except Exception as e:
@@ -1554,8 +1400,6 @@ class MainHandler(tornado.web.RequestHandler):
                 status = cmd("mpc clear")
             sleep(0.1)
             status = cmd("mpc add " + curlval)
-            # display.frezeeDisplay(2)
-            # myoled.displayfs(status, 16)
             interuptDisplay(2, 16,status)
             sleep(1)
             status = cmd("mpc play")
@@ -1608,10 +1452,6 @@ class shellCmd(tornado.web.RequestHandler):#scmd
             for i in range(len(pl)):
                 if "://" in pl[i]:
                     pl[i]=pl[i][pl[i].index("//")+2:]
-                # if i+1==idd:
-                #     rp+= "<button id=\"playing\" class=\"button1 bplay\" onclick=\"sendcmd('mpc play " + str(i+1) +"')\"><a>"+str(i+1)+". "+pl[i]+"</a></button>"
-                # else:
-                #     rp+= "<button class=\"button1\" onclick=\"sendcmd('mpc play " + str(i+1) +"')\"><a>"+str(i+1)+". "+pl[i]+"</a></button>"
                 mark='id=\"playing\" class=\"button1 bplay\"' if i+1==idd else 'class=\"button1\"'
                 rp+=(f"<button {mark} onclick=\"sendcmd('mpc play {i+1}')\"><a>{i+1}. {pl[i]}</a></button>")
             self.write(rp)
@@ -1713,8 +1553,6 @@ class WSHandler(tornado.websocket.WebSocketHandler):
             elif sbmsg.startswith("mpc volume"):
                 # out= subprocess.check_output(sbmsg + " | grep volume | awk '{print$2}'", shell=True).decode("utf-8")
                 out=cmd(sbmsg + " | grep volume | awk '{print$2}'")
-                # display.frezeeDisplay(3)
-                # display.displayfs("v "+out, 25)
                 interuptDisplay(3, 25,"v "+out)
 
             else:
@@ -1779,29 +1617,6 @@ def make_app():
     ],
         **settings)
 
-def sleepCountDown():
-    global RADIOSLEEPTIMERENABLED
-    global RADIOSECONDSLEEPTIMER
-    global USERSLEEPTIMERENABLED
-    global USERSECONDSLEEPTIMER
-
-    if RADIOSLEEPTIMERENABLED is True:
-        RADIOSECONDSLEEPTIMER-=1
-        if RADIOSECONDSLEEPTIMER==0:
-            RADIOSLEEPTIMERENABLED=False
-            status=int(subprocess.check_output("mpc stop",shell=True).decode("utf-8"))
-            broadcast_message("player stop cause inactive control over than 1 hour")
-
-    if USERSLEEPTIMERENABLED is True:
-        USERSECONDSLEEPTIMER-=1
-        if USERSECONDSLEEPTIMER==0:
-            USERSLEEPTIMERENABLED=False
-            status=int(subprocess.check_output("mpc stop",shell=True).decode("utf-8"))
-            broadcast_message("player stop cause set by user")
-
-
-
-
 SCOUNT=0
 prev_status=""
 prev_plist=""
@@ -1824,12 +1639,6 @@ def broadcast_rplist():
     if rp!=prev_plist:
         prev_plist=rp
         broadcast_message("pls="+rp)
-#
-#         try:
-#             print("broadcast playlist")
-#             broadcast_message("pls="+rp)
-#         except:
-#             print("error")
 
 
 
@@ -1855,9 +1664,6 @@ def signal_handler(sig, frame):
     print("Signal received, cancelling tasks...")
     for task in asyncio.all_tasks():
         task.cancel()
-
-
-
 
 
 pulse_1=0
@@ -1921,20 +1727,3 @@ except KeyboardInterrupt:
     print("Keyboard interrupt received, exiting...")
 
 
-
-#
-# while True:
-#     x=ser.readline()
-#     s=x.decode("utf-8")
-#     ss=s[:2]
-#     if ss == "FF":
-#         processIRc(s)
-#     elif ss == "41":
-#         processIR(s)
-#         # print (s)
-#     # print ("ss="+ss)
-#     sleep(0.01)
-#     # except:
-#     # print("device failed")
-# else:
-#     os.exit(0)
