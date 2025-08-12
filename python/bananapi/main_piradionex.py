@@ -65,7 +65,7 @@ KB_NUMKEYS=[[1 , 458841],[2 , 458842],[3 , 458843],[4 , 458844],[5 , 458845],[6 
 
 #KB_NUMKEYS=[[1 , KEY_KP1],[2 , KEY_KP2],[3 , KEY_KP3],[4 , KEY_KP4],[5 , KEY_KP5],[6 , KEY_KP6],[7 , KEY_KP7],[8 , KEY_KP8],[9 , KEY_KP9],[10 , KEY_KP0]]
 
-
+stationAlternative={"My Station name": "Hang FM BAtam"}
 #temporary flag
 TEN = False
 NUM_VOL=0
@@ -248,8 +248,8 @@ def getCurrentStation(): #return  pos
     # fs=pss.index('/')
     # cs=pss[ht+1:fs]
 
-    # cs=cmd("mpc status | grep -o '#[0-9]\+' | sed 's/#//'")
-    cs=cmd("mpc -f %position%")
+    cs=cmd("mpc status | grep -o '#[0-9]\+' | sed 's/#//'")
+    # cs=cmd("mpc -f %position%")
 
     return int(cs)
 
@@ -377,6 +377,8 @@ def playPos(pos):
             noReturnSubprocess("mpc play")
             sleep(0.4)
             status = cmd("mpc current")
+            if status in stationAlternative:
+                status = stationAlternative[status]
             interuptDisplay(1, status)
         loadPLAYlists()
         splp=False
@@ -522,7 +524,7 @@ def switchPLAYLIST():
     # status = status.replace(".m3u", "")
     # PLAYlists = status.split()
 
-    PLAYLIST_X.sort()
+    # PLAYLIST_X.sort()
     PLAYLIST_X+=1
     if PLAYLIST_X == len(PLAYlists):
         PLAYLIST_X=0
@@ -902,6 +904,8 @@ class shellCmd(tornado.web.RequestHandler):#scmd
 
             rp=""
             for i in range(len(pl)):
+                if pl[i]in stationAlternative:
+                    pl[i]=stationAlternative[pl[i]]
                 if "://" in pl[i]:
                     pl[i]=pl[i][pl[i].index("//")+2:]
                 if i+1==idd:

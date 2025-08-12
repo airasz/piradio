@@ -30,7 +30,9 @@ ASCDOWN=True
 ASSECCD=0
 PLAYING= True
 ASSECMX=3600
+nextion_page=4
 
+stationAlternative={"My Station name": "Hang FM Batam"}
 def send_wall_message(message: str):
     try:
         # Send the message using the 'wall' command
@@ -91,8 +93,9 @@ def map_value(src, in_from, in_to, outfrom, out_to):
     return int(outfrom + (src - in_from) * (out_to - outfrom) / (in_to - in_from))
 
 def nexinit():
+    global nextion_page
     MyNextion.set_port('/dev/ttyS1')
-    MyNextion.send_command('page page2')#sukses
+    # MyNextion.send_command('page page2')#sukses
     MyNextion.send_command('page 4')#sukses
     MyNextion.send_command('dim=30')#sukses
     # MyNextion.send_command('t1.bco=BLUE')# sukses
@@ -324,7 +327,8 @@ def displaytooled(status):
     # crop station info
     inbrace =status.index("[")
     station = status[:inbrace]
-
+    if station in stationAlternative:
+        station= stationAlternative[station]
     MyNextion.send_command(f't1.txt="{station}"')
     # print("station = " + station)
     # split limited length char to list
@@ -524,6 +528,7 @@ def loop():
     global SCREEN_SLEEP
     global ON_MENU
     global PLAYING
+    global nextion_page
     old_status=""
     status = ""
     sent, recv = getnspeed()
@@ -550,6 +555,10 @@ def loop():
         else:
             PLAYING = False
         if U_COUNT == 20:
+            if nextion_page != 4:
+                nextion_page=4
+                MyNextion.send_command('page 4')#sukses
+                MyNextion.send_command('t0.txt="banana radio"')
             if "playing" in status or "paused" in status:
                 # data= str.encode(status)
                 # serialdisplay(status)
@@ -661,8 +670,11 @@ class display:
     def sendCommand(self, msg):
         MyNextion.send_command(msg)
         return
-
-
+    def setPage(self, page):
+        global nextion_page
+        nextion_page=page
+        # MyNextion.send_command(f"page page{page}")
+        return
     def display(self, msg, pos):
         # myoled.display(msg, pos)
         # serialdisplay(msg)
