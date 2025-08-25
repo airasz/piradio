@@ -56,6 +56,9 @@ serial = i2c(port=1, address=0x3c)
 device = ssd1306(serial, rotate=2)
 device.cleanup = do_nothing
 
+# Add a global variable to store the serial transport
+serial_transport = None
+
 VOLUME_UP = 115
 VOLUME_DOWN = 114
 
@@ -584,7 +587,7 @@ def load_remote_codes():
             print(REMOTE_CODES)
     except FileNotFoundError:
         pass
-        
+
 load_remote_codes()
 def getlocal_ip():
     global local_ip
@@ -806,8 +809,12 @@ def setSTATION(next):
     # displaytooled(status)
 
 def getCurrentStation():
-    cs=cmd("mpc -f %position%")
-    return int(cs)
+    status=cmd("mpc")
+    if "playing" in status:
+        cs=cmd("mpc -f %position%")
+        return int(cs)
+    else:
+        return 0
 
 def stationPage(next):
     global TOQ
@@ -830,7 +837,7 @@ def stationPage(next):
 def setVOL(up):
     status = ""
     vol=""
-    status=cmd("mpc volume " + ("+5" if up else "-5")  + " | grep volume | awk '{print$2}'") 
+    status=cmd("mpc volume " + ("+5" if up else "-5")  + " | grep volume | awk '{print$2}'")
     interuptDisplay(3, 25, "v "+status)
     broadcast_message("vol="+status)
 
@@ -939,6 +946,8 @@ def clickNum(pos):
             status= cmd("mpc load " + PLAYlists[pos-1])
             getstationlen()
             status= status.replace(" ", "\n")
+            # display.frezeeDisplay(2)
+            # myoled.displayfs(status, 16)
             interuptDisplay(2, 16,status)
             sleep(1)
             status = cmd("mpc play")
@@ -958,6 +967,8 @@ def switchPLAYLIST():
     global PLAYLIST_X
     global PLAYlists
     PLAY_CURL=False
+    # global PLAYlists
+    # SWITCH_PLAYLIST = not SWITCH_PLAYLIST
     getstationlen()
     if SWITCH_PLAYLIST is True:
         SWITCH_PLAYLIST =False
@@ -965,7 +976,13 @@ def switchPLAYLIST():
         SWITCH_PLAYLIST=True
 
     print("SWITCH_PLAYLIST="+str(SWITCH_PLAYLIST))
-    PLAYLIST_X.sort()
+    # import os
+
+    # status = os.popen("ls /var/lib/mpd/playlists/").read()
+    # status = cmd("ls /var/lib/mpd/playlists/")
+    # status = status.replace(".m3u", "")
+    # PLAYlists = status.split()
+    # PLAYLIST_X.sort()
     PLAYLIST_X+=1
     if PLAYLIST_X == len(PLAYlists):
         PLAYLIST_X=0
@@ -974,6 +991,10 @@ def switchPLAYLIST():
     status= cmd("mpc load " + PLAYlists[PLAYLIST_X])
     # noReturnSubprocess(f"mpc load {PLAYlists[PLAYLIST_X]}")
     getstationlen()
+    # status= status.replace(" ", "\n")
+    # display.frezeeDisplay(2)
+    # myoled.displayfs(status, 16)
+    status= status.replace(" ", "\n")
     interuptDisplay(2, 16,status)
     sleep(1)
     status = cmd("mpc play")
@@ -1123,6 +1144,8 @@ def processIR(irval):
             setSTATION(True)
         elif irval == REMOTE_CODES["NEXMEDIA"]["KR_STDOWN"]:
             setSTATION(False)
+        elif irval == REMOTE_CODES["NEXMEDIA"]["KR_UP"]:
+            setVOL(True)
         elif irval == REMOTE_CODES["NEXMEDIA"]["KR_DOWN"]:
             print("DOWN")
             setVOL(False)
@@ -1156,11 +1179,20 @@ def processIR(irval):
             # msleep(20)
             startsetsleep()
         elif irval==REMOTE_CODES["NEXMEDIA"]["KR_OK"]:
-            ok()
+            global MIN_SLEEP
+            if MIN_SLEEP>0:
+                ok()
+            else:
+                print("enter")
+                interuptDisplay(3, 16, "PLAY/\nPAUSE")
+                # os.system("mpc toggle")
+                noReturnSubprocess("mpc toggle")
         elif irval==REMOTE_CODES["NEXMEDIA"]["KR_EXIT"]:
             exitset(True)
         elif irval==REMOTE_CODES["NEXMEDIA"]["KR_MEDIA"]:
             startPlistTo()
+        elif irval==REMOTE_CODES["NEXMEDIA"]["KR_TV"]:
+            GOTOSTATION=True
 
     else:
         if irval[:2]=="41":
@@ -1300,6 +1332,7 @@ def processIRe(irval):
             else:
                 print("enter")
                 interuptDisplay(3, 16, "PLAY/\nPAUSE")
+                # os.system("mpc toggle")
                 noReturnSubprocess("mpc toggle")
         elif irval == REMOTE_CODES["EVERCROSS"]["KRE_PLAY"]:
             # global MIN_SLEEP
@@ -1312,6 +1345,8 @@ def processIRe(irval):
                 noReturnSubprocess("mpc play")
         elif irval == REMOTE_CODES["EVERCROSS"]["KRE_STOP"]:
             print("mute > stop")
+            # display.display("player stopped", False)
+            # display.frezeeDisplay(3)
             interuptDisplay(3, 0, "STOP")
             os.system("mpc stop")
         elif irval == REMOTE_CODES["EVERCROSS"]["KRE_TV"]:
@@ -1579,11 +1614,15 @@ class SerialReader(asyncio.Protocol):
         self.transport = None
 
     def connection_made(self, transport):
+        global serial_transport
         self.transport = transport
+        serial_transport = transport  # Store globally
         print("Serial port opened", transport)
 
     def data_received(self, data):
         message = data.decode('utf-8').strip()
+        # serial_write(message)
+
         print(f"Received from serial: {message}")
         ss=message[:2]
         if ss == "FF":
@@ -1606,6 +1645,14 @@ async def start_serial_reader(port, baudrate):
     loop = asyncio.get_event_loop()
     await serial_asyncio.create_serial_connection(loop, SerialReader, port, baudrate)
 
+# Function to write to serial port
+def serial_write(msg):
+    global serial_transport
+    if serial_transport is not None:
+        print(f'Sending to serial: {msg}')
+        serial_transport.write(msg.encode())
+    else:
+        print("Serial port not connected.")
 # Tornado application setup
 def make_app():
     return tornado.web.Application([
