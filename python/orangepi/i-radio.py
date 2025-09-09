@@ -17,8 +17,8 @@ import serial_asyncio
 import socket
 import signal
 
+import re
 import math
-import json
 import psutil
 
 
@@ -434,8 +434,107 @@ class display:
         myoled.display(msg, (xpos,ypos))
         return
 
-
 display=display()
+
+
+def to_bool(value: str) -> bool:
+    return value.lower() == "on"
+
+def get_mpc_status():
+    # Run mpc status and capture output
+    result = subprocess.run(["mpc", "status"], capture_output=True, text=True)
+    lines = result.stdout.strip().splitlines()
+
+    if not lines:
+        return {"error": "mpc returned no output (MPD might not be running)"}
+
+    data = {}
+
+    # line 1: track info (if any)
+    if " - " in lines[0]:
+        artist, title = lines[0].split(" - ", 1)
+        data["artist"] = artist
+        data["title"] = title
+    else:
+        data["artist"] = None
+        data["title"] = lines[0]
+
+    # if only 1 line → stopped, nothing playing
+    if len(lines) == 1:
+        data.update({
+            "mode": "stopped",
+            "is_playing": False,
+            "position": {"current": 0, "total": 0},
+            "time": {"elapsed": "0:00", "total": "0:00"},
+            "progress_percent": 0,
+            "volume": None,
+            "repeat": False,
+            "random": False,
+            "single": False,
+            "consume": False
+        })
+        volume_match = re.search(r'volume:\s*(\d+)%', lines[0])
+        data["volume"] = int(volume_match.group(1)) if volume_match else None
+        return data
+
+    # line 2 contains mode, pos, time (if playing or paused)
+    mode_match = re.search(r'\[([^\]]+)\]', lines[1])
+    if mode_match:
+        mode = mode_match.group(1).lower()
+        data["mode"] = mode
+        data["is_playing"] = (mode == "playing")
+    else:
+        data["mode"] = "unknown"
+        data["is_playing"] = False
+
+    pos_match = re.search(r'#(\d+)/(\d+)', lines[1])
+    if pos_match:
+        pos_cur, pos_total = pos_match.groups()
+    else:
+        pos_cur, pos_total = "0", "0"
+
+    time_match = re.search(r'(\d+:\d+)/(\d+:\d+)', lines[1])
+    if time_match:
+        elapsed, total = time_match.groups()
+    else:
+        elapsed, total = "0:00", "0:00"
+
+    progress_match = re.search(r'\((\d+)%\)', lines[1])
+    progress = progress_match.group(1) if progress_match else "0"
+
+    data["position"] = {"current": int(pos_cur), "total": int(pos_total)}
+    data["time"] = {"elapsed": elapsed, "total": total}
+    data["progress_percent"] = int(progress)
+
+    # line 3 (if present) → volume + flags
+    if len(lines) >= 3:
+        volume_match = re.search(r'volume:\s*(\d+)%', lines[2])
+        data["volume"] = int(volume_match.group(1)) if volume_match else None
+
+        def extract_flag(name):
+            m = re.search(rf'{name}:\s*(\w+)', lines[2])
+            return to_bool(m.group(1)) if m else False
+
+        data["repeat"] = extract_flag("repeat")
+        data["random"] = extract_flag("random")
+        data["single"] = extract_flag("single")
+        data["consume"] = extract_flag("consume")
+    else:
+        # Default if no settings line
+        data.update({
+            "volume": None,
+            "repeat": False,
+            "random": False,
+            "single": False,
+            "consume": False
+        })
+
+    return data
+
+
+
+
+
 def load_variable():
     try:
         with open("/home/timer.json", "r") as f:
