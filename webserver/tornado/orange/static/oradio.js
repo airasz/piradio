@@ -150,6 +150,7 @@ function load_status() {
         updatevolslider(ajax_request.responseText);
         polpulatesl();
         getsleep();
+        load_status_json();
         scrollcount++;
         if (scrollcount > 2) {
           scroll_to();
@@ -163,6 +164,20 @@ function load_status() {
     }
   };
   // alert("getdata.php?d=" + dokter);
+  ajax_request.send();
+}
+function load_status_json() {
+  var ajax_request = new XMLHttpRequest();
+  ajax_request.open("GET", "scmd/sttsjson", true);
+  ajax_request.onreadystatechange = function () {
+    if (ajax_request.status == 200) {
+      if (ajax_request.readyState == 4) {
+        var data = JSON.parse(ajax_request.responseText);
+        console.log("data json volume: " + data.volume);
+        console.log("data json:", data);
+      }
+    }
+  };
   ajax_request.send();
 }
 
