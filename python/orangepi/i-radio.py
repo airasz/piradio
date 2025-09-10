@@ -104,7 +104,7 @@ G_VAR = {
     "NEXT_PLAYLIST": False,
 }
 CONFIGDATA = {}
-MPC_DATA = {}
+RADIO_STATUS = {}
 PLAYlists = []
 # Remote control key codes as JSON data
 REMOTE_CODES = {}
@@ -444,6 +444,8 @@ class sleeptimer:
     def update(self):
         # print("sec cd = "+str(SEC_CD))
         if G_VAR["T_ENABLE"] is True:
+            RADIO_STATUS["sleeptimer"]["second_countdown"] = seconds_to_time(G_VAR["SECOND_CDOWN"])
+            print(f' sleep countdown json= {RADIO_STATUS["sleeptimer"]["countdown"]}')
             mins, secs = divmod(G_VAR["SECOND_CDOWN"], 60)
             hours, mins = divmod(mins, 60)
             timer = f"{hours:02d}:{mins:02d}:{secs:02d}"
@@ -535,11 +537,11 @@ def get_mpc_status():
     if not lines:
         return {"error": "mpc returned no output (MPD might not be running)"}
 
-    global MPC_DATA
+    global RADIO_STATUS
 
     # --- Case: stopped ---
     if len(lines) == 1 and ("volume:" in lines[0] or "stopped" in lines[0].lower()):
-        MPC_DATA.update(
+        RADIO_STATUS.update(
             {
                 "artist": None,
                 "title": None,
@@ -563,28 +565,27 @@ def get_mpc_status():
                 "repeat": False,
                 "random": False,
                 "single": False,
-                "consume": False,
-                "sleeptimer": {},
+                "consume": False
             }
         )
-        return MPC_DATA
+        return RADIO_STATUS
 
     # --- Case: playing or paused ---
     if " - " in lines[0]:
         artist, title = lines[0].split(" - ", 1)
-        MPC_DATA["artist"] = artist
-        MPC_DATA["title"] = title
+        RADIO_STATUS["artist"] = artist
+        RADIO_STATUS["title"] = title
     else:
-        MPC_DATA["artist"] = None
-        MPC_DATA["title"] = lines[0]
+        RADIO_STATUS["artist"] = None
+        RADIO_STATUS["title"] = lines[0]
 
     # line 2: mode, position, time, progress
     mode_match = re.search(r"\[([^\]]+)\]", lines[1])
     mode = mode_match.group(1).lower() if mode_match else "unknown"
-    MPC_DATA["mode"] = mode
-    MPC_DATA["is_playing"] = mode == "playing"
-    MPC_DATA["is_paused"] = mode == "paused"
-    MPC_DATA["is_stopped"] = mode == "stopped"
+    RADIO_STATUS["mode"] = mode
+    RADIO_STATUS["is_playing"] = mode == "playing"
+    RADIO_STATUS["is_paused"] = mode == "paused"
+    RADIO_STATUS["is_stopped"] = mode == "stopped"
 
     pos_match = re.search(r"#(\d+)/(\d+)", lines[1])
     pos_cur, pos_total = pos_match.groups() if pos_match else ("0", "0")
@@ -604,8 +605,8 @@ def get_mpc_status():
     progress_ratio = (elapsed_sec / total_sec) if total_sec > 0 else 0.0
     duration_ratio = (pos_cur / pos_total) if pos_total > 0 else 0.0
 
-    MPC_DATA["position"] = {"current": pos_cur, "total": pos_total}
-    MPC_DATA["time"] = {
+    RADIO_STATUS["position"] = {"current": pos_cur, "total": pos_total}
+    RADIO_STATUS["time"] = {
         "elapsed": elapsed,
         "total": total,
         "elapsed_seconds": elapsed_sec,
@@ -613,25 +614,25 @@ def get_mpc_status():
         "remaining_seconds": remaining_sec,
         "remaining_time": remaining_time,
     }
-    MPC_DATA["progress_percent"] = progress
-    MPC_DATA["progress_ratio"] = round(progress_ratio, 3)
-    MPC_DATA["duration_ratio"] = round(duration_ratio, 3)
+    RADIO_STATUS["progress_percent"] = progress
+    RADIO_STATUS["progress_ratio"] = round(progress_ratio, 3)
+    RADIO_STATUS["duration_ratio"] = round(duration_ratio, 3)
 
     # line 3: volume + flags
     if len(lines) >= 3:
         volume_match = re.search(r"volume:\s*(\d+)%", lines[2])
-        MPC_DATA["volume"] = int(volume_match.group(1)) if volume_match else None
+        RADIO_STATUS["volume"] = int(volume_match.group(1)) if volume_match else None
 
         def extract_flag(name):
             m = re.search(rf"{name}:\s*(\w+)", lines[2])
             return to_bool(m.group(1)) if m else False
 
-        MPC_DATA["repeat"] = extract_flag("repeat")
-        MPC_DATA["random"] = extract_flag("random")
-        MPC_DATA["single"] = extract_flag("single")
-        MPC_DATA["consume"] = extract_flag("consume")
+        RADIO_STATUS["repeat"] = extract_flag("repeat")
+        RADIO_STATUS["random"] = extract_flag("random")
+        RADIO_STATUS["single"] = extract_flag("single")
+        RADIO_STATUS["consume"] = extract_flag("consume")
     else:
-        MPC_DATA.update(
+        RADIO_STATUS.update(
             {
                 "volume": None,
                 "repeat": False,
@@ -640,8 +641,22 @@ def get_mpc_status():
                 "consume": False,
             }
         )
-
-    return MPC_DATA
+    RADIO_STATUS.update(
+        {
+            "sleeptimer": {
+                "enable": False,
+                "second_countdown": 120,
+                "countdown": "0:00",
+                "auto_stop": {
+                    "enable": False,
+                    "second_countdown": 3600,
+                    "second_max": 3600,
+                    "countdown": "0:00",
+                },
+            }
+        }
+    )
+    return RADIO_STATUS
 
 
 def load_variable():
