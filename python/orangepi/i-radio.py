@@ -452,8 +452,6 @@ class sleeptimer:
             return "sleep in > " + str(timer)
         else:
             return "off"  # do not change
-
-
 sleeptimer = sleeptimer()
 
 
@@ -529,6 +527,14 @@ def seconds_to_time(sec: int) -> str:
     m, s = divmod(sec, 60)
     return f"{m}:{s:02d}"
 
+def seconds_to_hms(sec: int) -> str:
+    """Convert seconds to hh:mm:ss format"""
+    if sec < 0:
+        sec = 0
+    h, m = divmod(sec, 3600)
+    m, s = divmod(m, 60)
+    return f"{h}:{m:02d}:{s:02d}"
+
 
 def get_mpc_status():
     result = subprocess.run(["mpc", "status"], capture_output=True, text=True)
@@ -538,7 +544,7 @@ def get_mpc_status():
         return {"error": "mpc returned no output (MPD might not be running)"}
 
     global RADIO_STATUS
-
+    sleeptimer.update()
     # --- Case: stopped ---
     if len(lines) == 1 and ("volume:" in lines[0] or "stopped" in lines[0].lower()):
         RADIO_STATUS.update(
@@ -561,13 +567,16 @@ def get_mpc_status():
                 "progress_percent": 0,
                 "progress_ratio": 0.0,
                 "duration_ratio": 0.0,
-                "volume": None,
+                "volume": None ,
                 "repeat": False,
                 "random": False,
                 "single": False,
                 "consume": False
             }
         )
+        volume_match = re.search(r"volume:\s*(\d+)%", lines[0])
+        RADIO_STATUS["volume"] = int(volume_match.group(1)) if volume_match else None
+
         return RADIO_STATUS
 
     # --- Case: playing or paused ---
@@ -644,14 +653,14 @@ def get_mpc_status():
     RADIO_STATUS.update(
         {
             "sleeptimer": {
-                "enable": False,
-                "second_countdown": 120,
-                "countdown": "0:00",
+                "enable": G_VAR["T_ENABLE"],
+                "second_countdown": G_VAR["SECOND_CDOWN"],
+                "countdown": seconds_to_time(G_VAR["SECOND_CDOWN"]) if G_VAR["T_ENABLE"] else "off",
                 "auto_stop": {
-                    "enable": False,
-                    "second_countdown": 3600,
-                    "second_max": 3600,
-                    "countdown": "0:00",
+                    "enable": G_VAR["AUTOSTOP_COUNT_DOWN"],
+                    "second_countdown": G_VAR["AUTOSTOP_SECOND_CDOWN"],
+                    "second_max": G_VAR["ASSECMX"],
+                    "countdown": seconds_to_hms(G_VAR["AUTOSTOP_SECOND_CDOWN"]) if G_VAR["AUTOSTOP_COUNT_DOWN"] else "off",
                 },
             }
         }
@@ -1532,6 +1541,8 @@ class MainHandler(tornado.web.RequestHandler):
         if value != "":
             G_VAR["MIN_SLEEP_VALUE"] = int(value)
             sleeptimer.startcdown(G_VAR["MIN_SLEEP_VALUE"])
+            RADIO_STATUS["sleeptimer"]["enable"] = True
+            
             interuptDisplay(
                 3,
                 15,

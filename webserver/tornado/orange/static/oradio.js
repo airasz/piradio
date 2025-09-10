@@ -1,10 +1,13 @@
 var bstop = false;
 var count = 0;
 var old_sl = "";
+var json_radio_status;
 function loop() {
   count++;
   if (count > 5) {
-    load_status();
+    // load_status();
+    load_status_json();
+    polpulatesl();
     // count=0;
   }
   setTimeout(loop, 1000);
@@ -17,7 +20,8 @@ function loadonce() {
   polpulatesl();
   polpulatepl();
   // colorscheme.setAttribute('href', 'cscheme.css');
-  load_status();
+  // load_status();
+  load_status_json();
 
   // loadvol();
 }
@@ -108,6 +112,7 @@ function setvol() {
 
 function getsleep() {
   // console.log("get sleep")
+  // console.log("sleep timer countdown: ", json_radio_status.sleeptimer.countdown);
   var ajax_request = new XMLHttpRequest();
   var sinfo = document.getElementById("timerinfo");
   ajax_request.open("GET", "scmd/getsleep", true);
@@ -126,6 +131,13 @@ function getsleep() {
   };
 
   ajax_request.send();
+}
+function updatesleep(timetxt) {
+  document.getElementById("sleepinfo").style.display =
+    timetxt === "off" ? "none" : "block";
+  document.getElementById("sleepform").style.display =
+    timetxt === "off" ? "block" : "none";
+  document.getElementById("timerinfo").innerHTML = "stop in > " + timetxt;
 }
 var scrollcount = 0;
 function load_status() {
@@ -146,17 +158,11 @@ function load_status() {
           0,
           ajax_request.responseText.indexOf("repeat"),
         );
-        playbutton(ajax_request.responseText);
-        updatevolslider(ajax_request.responseText);
+        // playbutton(ajax_request.responseText);
+        // updatevolslider(ajax_request.responseText);
         polpulatesl();
-        getsleep();
+        // getsleep();
         load_status_json();
-        scrollcount++;
-        if (scrollcount > 2) {
-          scroll_to();
-          scrollcount = 0;
-        }
-        count = 0;
       }
       // setTimeout(load_status, 5000); //repeat call this function
     } else {
@@ -172,9 +178,20 @@ function load_status_json() {
   ajax_request.onreadystatechange = function () {
     if (ajax_request.status == 200) {
       if (ajax_request.readyState == 4) {
-        var data = JSON.parse(ajax_request.responseText);
-        console.log("data json volume: " + data.volume);
-        console.log("data json:", data);
+        json_radio_status = JSON.parse(ajax_request.responseText);
+
+        var radiostatus = (json_radio_status.artis == null ? "" : (json_radio_status.artis + " - ")) +
+          (json_radio_status.title == null ? "" : json_radio_status.title);
+        document.getElementById("radiostatus").innerHTML = radiostatus;
+        // console.log("json data: ", json_radio_status);
+        // console.log("data json volume: " , json_radio_status.volume);
+        // console.log("data json vol: ", json_radio_status.volume);
+        updatevolslider(json_radio_status.volume);
+        updatesleep(json_radio_status.sleeptimer.countdown);
+        update_control_button(
+          json_radio_status.is_stopped,
+          json_radio_status.is_playing,
+        );
       }
     }
   };
@@ -198,7 +215,9 @@ function restart() {
   };
   ajax_request.send();
 }
-function updatevolslider(txt) {
+function updatevolslider2(txt) {
+  // console.log("data json volume: ", json_radio_status.volume);
+  // console.log("data json volume: ", json_radio_status);
   var tbl = document.getElementById("svol");
   // Extract the volume using RegExp
   const match = txt.match(/volume:\s*(\d+)%/);
@@ -213,6 +232,13 @@ function updatevolslider(txt) {
     // console.log("Volume not found");
   }
 }
+function updatevolslider(volume) {
+  // console.log("update volume slider: ", volume);
+  var tbl = document.getElementById("svol");
+  tbl.value = volume;
+  var ivol = document.querySelector("#isvol");
+  ivol.innerHTML = "volume : " + volume;
+}
 function playbutton(txt) {
   let ps = txt.match(/\[([^\]]+)\]/)?.[1];
 
@@ -225,6 +251,15 @@ function playbutton(txt) {
         : "initial";
   }
 }
+function update_control_button(stopped, isplaying) {
+  if (stopped) {
+    document.getElementById("bstop").style.display = "none";
+  } else {
+    document.getElementById("bstop").style.display = "initial";
+    document.getElementById("bplay").innerHTML = isplaying ? "pause" : "play";
+  }
+}
+
 function sendcmd(cmd) {
   websocket.send("0>" + cmd);
   count = 4;
@@ -282,6 +317,12 @@ function polpulatesl() {
           old_sl = this.responseText;
         }
         stations.innerHTML = this.responseText;
+        scrollcount++;
+        if (scrollcount > 2) {
+          scroll_to();
+          scrollcount = 0;
+        }
+        count = 0;
       }
       // setTimeout(polpulatesl, 15000); //repeat call this function
     } else {
