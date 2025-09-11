@@ -273,6 +273,8 @@ function updateauidoprogress(current, total, scurent, stotal) {
   if (total == 0) {
     document.getElementById("track-progress-container").style.display = "none";
     return;
+  } else {
+    document.getElementById("track-progress-container").style.display = "block";
   }
   var iprog = document.querySelector("#isprogress");
   iprog.innerHTML = scurent + "/" + stotal;

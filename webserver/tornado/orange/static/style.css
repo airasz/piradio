@@ -216,7 +216,8 @@ div p3 {
   font-family: sans-serif;
   /* background-color: teal; */
   display: block;
-  margin-top: 5mm;
+  margin-bottom: 5mm;
+  margin-top: 2mm;
 }
 
 div p5 {
