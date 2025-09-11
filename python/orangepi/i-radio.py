@@ -790,6 +790,7 @@ def load_config():
             REMOTES = CONFIGDATA.get("remote", "")
             G_VAR["TS_ENABLE"] = CONFIGDATA.get("timer", {}).get("enable", False)
             G_VAR["SECOND_CDOWN"] = CONFIGDATA.get("timer", {}).get("seconds", 120)
+            G_VAR["PLAY_CURL"]= CONFIGDATA.get("play_custom", False)
             if CONFIGDATA.get("autoload", "true") is True:
                 os.system("mpc play")
                 print("auto play by config")
@@ -1065,6 +1066,7 @@ def clickNum(pos):
         sleep(0.1)
         if pos < len(PLAYlists) + 1:
             status = cmd("mpc load " + PLAYlists[pos - 1])
+            G_VAR["PLAY_CURL"] = False
             getstationlen()
             status = status.replace(" ", "\n")
             interuptDisplay(2, 16, status)
@@ -1104,6 +1106,7 @@ def load_playlist():
     status = cmd("mpc clear")
     sleep(0.1)
     status = cmd("mpc load " + PLAYlists[G_VAR["PLAYLIST_POINTER"] - 1])
+    G_VAR["PLAY_CURL"] = False
     getstationlen()
     status = status.replace(" ", "\n")
     interuptDisplay(2, 16, status)
@@ -1556,6 +1559,7 @@ class MainHandler(tornado.web.RequestHandler):
             sleeptimer.resetAutoStop()
             if G_VAR["PLAY_CURL"] is False:
                 status = cmd("mpc clear")
+                
             sleep(0.1)
             status = cmd("mpc add " + curlval)
             interuptDisplay(2, 16, status)
@@ -1565,6 +1569,7 @@ class MainHandler(tornado.web.RequestHandler):
             broadcast_message("info=" + status)
             display.frezeeDisplay(3)
             G_VAR["PLAY_CURL"] = True
+            save_config()
             self.render("index.html")
 
 
@@ -1721,6 +1726,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
                         save_config()
                         break
                 G_VAR["PLAY_CURL"] = False
+                save_config()
                 interuptDisplay(3, 16, "switcing PLAYlists")
             elif sbmsg.startswith("mpc volume"):
                 out = cmd(sbmsg + " | grep volume | awk '{print$2}'")
