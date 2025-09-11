@@ -2,8 +2,8 @@
   --out_wide: 15px 15px 30px #919191, -15px -15px 30px #ffffff;
   --out_short: 6px 6px 16px #919191, -6px -6px 10px #ffffff;
   --ins: inset 2px 2px 4px #8a8a8a, inset -2px -2px 4px rgb(255, 255, 255);
-  --tridi: 2px 2px 6px #000, -2px -2px 6px rgb(43, 40, 40), inset 2px 2px 4px #6abedf,inset -2px -2px 4px #6bc0e2;
-  --tridi-mini: 2px 2px 3px #000, -2px -2px 3px rgb(43, 40, 40), inset 2px 2px 3px #6dc4e6,inset -2px -2px 3px #67b9d9;
+  --tridi: 2px 2px 6px #000, -2px -2px 6px rgb(43, 40, 40), inset 2px 2px 4px #6abedf, inset -2px -2px 4px #6bc0e2;
+  --tridi-mini: 2px 2px 3px #000, -2px -2px 3px rgb(43, 40, 40), inset 2px 2px 3px #6dc4e6, inset -2px -2px 3px #67b9d9;
 }
 
 html {
@@ -101,6 +101,7 @@ input[type="submit"]:hover {
   overflow-y: auto;
   max-height: 300px;
 }
+
 .button1 {
   /*   color: rgb(78, 75, 75); */
   padding: 8px;
@@ -307,10 +308,16 @@ div p6 {
     -2px -2px 12px #fff;
 }
 
+/* 
 .switchled input {
   opacity: 0;
   width: 0;
   height: 0;
+} */
+.playmode {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .switch_led {
@@ -321,7 +328,7 @@ div p6 {
           padding-right: 10mm;
           /* padding-bottom: 10mm; */
   justify-content: center;
-  display: flex;
+  /* display: flex; */
 }
 
 /* The slider */
@@ -359,13 +366,13 @@ div p6 {
   transition: 0.4s;
 }
 
-input:checked + .slider {
+input:checked+.slider {
   /* background-color: rgb(95, 248, 215); */
 
   /* background-color: rgb(126, 126, 126); */
 }
 
-input:focus + .slider {
+input:focus+.slider {
   /* box-shadow: 0 0 1px #2196F3; */
 
   box-shadow:
@@ -373,7 +380,7 @@ input:focus + .slider {
     inset -2px -2px 4px rgb(255, 255, 255);
 }
 
-input:checked + .slider:before {
+input:checked+.slider:before {
   -webkit-transform: translateX(26px);
   -ms-transform: translateX(26px);
   transform: translateX(26px);
@@ -398,7 +405,7 @@ input:checked + .slider:before {
   right: 0;
   bottom: 0;
   border-radius: 4px;
-  background:white;
+  background: white;
   box-shadow: inset 2px 2px 4px #7b7b7b, inset -2px -2px 4px rgb(157, 151, 156);
   -webkit-transition: 0.4s;
   transition: 0.4s;
@@ -418,13 +425,13 @@ input:checked + .slider:before {
   transition: 0.4s;
 }
 
-input:checked + .sslider {
+input:checked+.sslider {
   /* background-color: rgb(95, 248, 215); */
 
   /* background-color: rgb(126, 126, 126); */
 }
 
-input:focus + .sslider {
+input:focus+.sslider {
   /* box-shadow: 0 0 1px #2196F3; */
 
   box-shadow:
@@ -432,7 +439,7 @@ input:focus + .sslider {
     inset -2px -2px 4px rgb(255, 255, 255);
 }
 
-input:checked + .sslider:before {
+input:checked+.sslider:before {
   -webkit-transform: translateX(26px);
   -ms-transform: translateX(26px);
   transform: translateX(26px);

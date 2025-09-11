@@ -64,7 +64,7 @@ function onMessage(event) {
     var sdata = event.data.substring(5);
     var el = document.getElementById("radiostatus");
     el.innerHTML = sdata;
-    console.log("got info");
+    // console.log("got info");
   } else if (event.data.startsWith("vol")) {
     var sdata = event.data.substring(4);
     document.getElementById("svol").value = parseInt(sdata);
@@ -74,7 +74,7 @@ function onMessage(event) {
     var stations = document.getElementById("stations");
     stations.innerHTML = sdata;
 
-    console.log("got pls");
+    // console.log("got pls");
   } else if (event.data.startsWith("resettimer")) {
     count = 4;
     // var sdata = event.data.substring(2);
@@ -180,13 +180,27 @@ function load_status_json() {
       if (ajax_request.readyState == 4) {
         json_radio_status = JSON.parse(ajax_request.responseText);
 
-        var radiostatus = (json_radio_status.artis == null ? "" : (json_radio_status.artis + " - ")) +
+        // var radiostatus = ((json_radio_status.artist == null || typeof json_radio_status.artist === "undefined") ? "" : (json_radio_status.artis + " - ")) +
+        //   (json_radio_status.title == null ? "" : json_radio_status.title);
+
+        var radiostatus = ((json_radio_status.artist == null || typeof json_radio_status.artist === "undefined") ? "" : (json_radio_status.artist + " - ")) +
           (json_radio_status.title == null ? "" : json_radio_status.title);
+        // console.log("artis: ", json_radio_status.artis);
         document.getElementById("radiostatus").innerHTML = radiostatus;
         // console.log("json data: ", json_radio_status);
         // console.log("data json volume: " , json_radio_status.volume);
         // console.log("data json vol: ", json_radio_status.volume);
         updatevolslider(json_radio_status.volume);
+        updateauidoprogress(json_radio_status.time.elapsed_seconds, json_radio_status.time.total_seconds,
+          json_radio_status.time.elapsed, json_radio_status.time.total
+        );
+        update_play_mode(
+          json_radio_status.repeat,
+          json_radio_status.random,
+          json_radio_status.single,
+          json_radio_status.consume,
+        );
+        // console.log("sleep timer countdown: ", json_radio_status.sleeptimer.countdown);
         updatesleep(json_radio_status.sleeptimer.countdown);
         update_control_button(
           json_radio_status.is_stopped,
@@ -239,6 +253,61 @@ function updatevolslider(volume) {
   var ivol = document.querySelector("#isvol");
   ivol.innerHTML = "volume : " + volume;
 }
+function update_play_mode(repeat, random, single, consume) {
+  // console.log("update play mode: ", repeat, random, single, consume);
+  document.getElementById("radiorepeat").checked = repeat;
+  document.getElementById("radiorandom").checked = random;
+  document.getElementById("radiosingle").checked = single;
+  document.getElementById("radioconsume").checked = consume;
+}
+function set_play_mode(mode) {
+  var cmd = "mpc " + mode + (document.getElementById("radio" + mode).checked ? " on" : " off");
+  websocket.send("0>" + cmd);
+  console.log("set play mode: ", cmd);
+}
+
+function updateauidoprogress(current, total, scurent, stotal) {
+  var slider = document.getElementById("track-progress");
+  slider.max = total;
+  slider.value = current;
+  if (total == 0) {
+    document.getElementById("track-progress-container").style.display = "none";
+    return;
+  }
+  var iprog = document.querySelector("#isprogress");
+  iprog.innerHTML = scurent + "/" + stotal;
+}
+
+function seekaudio() {
+  var slider = document.getElementById("track-progress");
+  var seekto = slider.value;
+  websocket.send("0>mpc seek " + seekto);
+  // console.log("seeking to: ", seekto);
+}
+function formatSeconds(seconds) {
+  if (isNaN(seconds) || seconds < 0) {
+    return "Invalid input";
+  }
+
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const remainingSeconds = seconds % 60;
+
+  const pad = (num) => String(num).padStart(2, '0');
+
+  const formattedHours = hours > 0 ? `${hours}:` : '';
+  const formattedMinutes = pad(minutes);
+  const formattedSeconds = pad(remainingSeconds);
+
+  return `${formattedHours}${formattedMinutes}:${formattedSeconds}`;
+}
+
+// Example usage:
+// console.log(formatSeconds(3665)); // "1:01:05"
+// console.log(formatSeconds(65));    // "01:05"
+// console.log(formatSeconds(3600));  // "1:00:00"
+// console.log(formatSeconds(5));     // "00:05"
+
 function playbutton(txt) {
   let ps = txt.match(/\[([^\]]+)\]/)?.[1];
 
@@ -254,9 +323,10 @@ function playbutton(txt) {
 function update_control_button(stopped, isplaying) {
   if (stopped) {
     document.getElementById("bstop").style.display = "none";
+    document.getElementById("bplay").innerHTML = "play";
   } else {
     document.getElementById("bstop").style.display = "initial";
-    document.getElementById("bplay").innerHTML = isplaying ? "pause" : "play";
+    document.getElementById("bplay").innerHTML = isplaying ? "pause" : "resume";
   }
 }
 
@@ -318,7 +388,7 @@ function polpulatesl() {
         }
         stations.innerHTML = this.responseText;
         scrollcount++;
-        if (scrollcount > 2) {
+        if (scrollcount > 3) {
           scroll_to();
           scrollcount = 0;
         }

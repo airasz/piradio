@@ -298,7 +298,7 @@ def loop():
 # split and paged all information to display
 def displayto_oled(status):
     get_mpc_status()
-    print(json.dumps(get_mpc_status(), indent=2))
+    # print(json.dumps(get_mpc_status(), indent=2))
     if len(G_VAR["LOCAL_IP"]) < 8:
         getlocal_ip()
 
@@ -660,7 +660,7 @@ def get_mpc_status():
                     "enable": G_VAR["AUTOSTOP_COUNT_DOWN"],
                     "second_countdown": G_VAR["AUTOSTOP_SECOND_CDOWN"],
                     "second_max": G_VAR["ASSECMX"],
-                    "countdown": seconds_to_hms(G_VAR["AUTOSTOP_SECOND_CDOWN"]) if G_VAR["AUTOSTOP_COUNT_DOWN"] else "off",
+                    "countdown": seconds_to_hms(G_VAR["ASSECMX"] - G_VAR["AUTOSTOP_SECOND_CDOWN"]) if G_VAR["AUTOSTOP_COUNT_DOWN"] else "off",
                 },
             }
         }
