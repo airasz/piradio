@@ -49,16 +49,6 @@ function onMessage(event) {
   // alert(event.data);
   // console.log("incoming ws message : " + event.data);
   if (event.data.startsWith("btn")) {
-    // var sdata = event.data.substring(2);
-    // if (sdata.startsWith("tab")) {
-    //     var iss = parseInt(sdata.substring(3));
-    //     document.getElementById(iss).click();
-    // } else if (sdata.startsWith("stimer")) {
-    //     document.getElementById("divtimer").style.display = "block"
-    // } else if (sdata.startsWith("htimer")) {
-    //     document.getElementById("divtimer").style.display = "none"
-    // }
-
     console.log("btn");
   } else if (event.data.startsWith("info")) {
     var sdata = event.data.substring(5);
@@ -81,13 +71,6 @@ function onMessage(event) {
     // document.getElementById("light").innerHTML = sdata;// timer clock
     console.log("reset timer");
   }
-  // else {
-  //
-  //     var sdata = event.data.substring(2);
-  //     printInfo(parseInt(event.data.substring(0, 1)), sdata);
-  // }
-
-  // document.getElementById('state').innerHTML = state;
 }
 function loadvol() {
   var ajax_request = new XMLHttpRequest();
@@ -214,8 +197,14 @@ function load_status_json() {
 
 function scroll_to() {
   var el = document.getElementById("stations");
-  var bplaying = document.getElementById("playing");
-  if (bplaying !== null) bplaying.focus();
+  if (hasVerticalScrollbar(el)) {
+    var bplaying = document.getElementById("playing");
+    if (bplaying !== null) bplaying.focus();
+    // console.log("has vertical scrollbar");
+  }
+}
+function hasVerticalScrollbar(element) {
+  return element.scrollHeight > element.clientHeight;
 }
 
 function restart() {
