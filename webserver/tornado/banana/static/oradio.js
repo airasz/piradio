@@ -1,9 +1,13 @@
 var bstop = false;
 var count = 0;
+var old_sl = "";
+var json_radio_status;
 function loop() {
   count++;
   if (count > 5) {
-    load_status();
+    // load_status();
+    load_status_json();
+    polpulatesl();
     // count=0;
   }
   setTimeout(loop, 1000);
@@ -16,7 +20,8 @@ function loadonce() {
   polpulatesl();
   polpulatepl();
   // colorscheme.setAttribute('href', 'cscheme.css');
-  load_status();
+  // load_status();
+  load_status_json();
 
   // loadvol();
 }
@@ -34,6 +39,7 @@ function initWebSocket() {
 function onOpen(event) {
   console.log("Connection opened");
 }
+
 function onClose(event) {
   console.log("Connection closed");
   setTimeout(initWebSocket, 2000);
@@ -41,54 +47,38 @@ function onClose(event) {
 //0=data, 1=weight, 2=timer, 3=info
 function onMessage(event) {
   // alert(event.data);
-  console.log("incoming ws message : " + event.data);
+  // console.log("incoming ws message : " + event.data);
   if (event.data.startsWith("btn")) {
-    // var sdata = event.data.substring(2);
-    // if (sdata.startsWith("tab")) {
-    //     var iss = parseInt(sdata.substring(3));
-    //     document.getElementById(iss).click();
-    // } else if (sdata.startsWith("stimer")) {
-    //     document.getElementById("divtimer").style.display = "block"
-    // } else if (sdata.startsWith("htimer")) {
-    //     document.getElementById("divtimer").style.display = "none"
-    // }
-
     console.log("btn");
   } else if (event.data.startsWith("info")) {
     var sdata = event.data.substring(5);
     var el = document.getElementById("radiostatus");
     el.innerHTML = sdata;
-    console.log("vol");
+    // console.log("got info");
   } else if (event.data.startsWith("vol")) {
     var sdata = event.data.substring(4);
     document.getElementById("svol").value = parseInt(sdata);
-
-    // console.log("vol");
+    console.log("updating volume slide");
   } else if (event.data.startsWith("pls")) {
-    // var sdata = event.data.substring(2);
-    // document.getElementById("light").innerHTML = sdata;// timer clock
-    console.log("pls");
+    var sdata = event.data.substring(4);
+    var stations = document.getElementById("stations");
+    stations.innerHTML = sdata;
+
+    // console.log("got pls");
   } else if (event.data.startsWith("resettimer")) {
     count = 4;
     // var sdata = event.data.substring(2);
     // document.getElementById("light").innerHTML = sdata;// timer clock
-    console.log("pls");
+    console.log("reset timer");
   }
-  // else {
-  //
-  //     var sdata = event.data.substring(2);
-  //     printInfo(parseInt(event.data.substring(0, 1)), sdata);
-  // }
-
-  // document.getElementById('state').innerHTML = state;
 }
 function loadvol() {
   var ajax_request = new XMLHttpRequest();
   var tbl = document.getElementById("svol");
   ajax_request.open("GET", "scmd/volume", true);
   ajax_request.onreadystatechange = function () {
-    if (ajax_request.readyState == 4 && ajax_request.status == 200) {
-      tbl.value = ajax_request.responseText;
+    if (ajax_request.status == 200) {
+      if (ajax_request.readyState == 4) tbl.value = ajax_request.responseText;
     } else {
       // document.getElementById("loadingtbl").style.display = "block";
     }
@@ -98,57 +88,26 @@ function loadvol() {
 }
 
 function setvol() {
-  var ajax_request = new XMLHttpRequest();
   var tbl = document.getElementById("svol");
-  ajax_request.open("GET", "scmd/mpc volume " + tbl.value, true);
-  // ajax_request.onreadystatechange = function () {
-  //     if (ajax_request.readyState == 4 && ajax_request.status == 200) {
-  //         tbl.value = ajax_request.responseText;
-  //     }
-  //     else {
-  //         // document.getElementById("loadingtbl").style.display = "block";
-  //     }
-  // }
-
-  // ajax_request.send();
   var cmd = "mpc volume " + tbl.value;
   websocket.send("0>" + cmd);
 }
 
 function getsleep() {
   // console.log("get sleep")
+  // console.log("sleep timer countdown: ", json_radio_status.sleeptimer.countdown);
   var ajax_request = new XMLHttpRequest();
   var sinfo = document.getElementById("timerinfo");
   ajax_request.open("GET", "scmd/getsleep", true);
   ajax_request.onreadystatechange = function () {
-    if (ajax_request.readyState == 4 && ajax_request.status == 200) {
-      if (this.responseText === "off") {
-        document.getElementById("sleepinfo").style.display = "none";
-        document.getElementById("sleepform").style.display = "block";
-      } else {
-        document.getElementById("sleepinfo").style.display = "block";
-        document.getElementById("sleepform").style.display = "none";
+    if (ajax_request.status == 200) {
+      if (ajax_request.readyState == 4) {
+        document.getElementById("sleepinfo").style.display =
+          this.responseText === "off" ? "none" : "block";
+        document.getElementById("sleepform").style.display =
+          this.responseText === "off" ? "block" : "none";
       }
       sinfo.innerHTML = this.responseText;
-      // var toHHMMSS = (secs) => {
-      //   var sec_num = parseInt(secs, 10);
-      //   var hours = Math.floor(sec_num / 3600);
-      //   var minutes = Math.floor(sec_num / 60) % 60;
-      //   var seconds = sec_num % 60;
-      //
-      //   return [hours, minutes, seconds]
-      //     .map((v) => (v < 10 ? "0" + v : v))
-      //     .filter((v, i) => v !== "00" || i > 0)
-      //     .join(":");
-      // };
-      // const obj = JSON.parse(this.responseText);
-      // // console.log(this.responseText)
-      // if (obj.enable === true) {
-      //   var sscond;
-      //   sscond = obj.seconds;
-      //   // console.log(obj.seconds)
-      //   sinfo.innerHTML = "player sleep in > " + toHHMMSS(sscond);
-      // }
     } else {
       // document.getElementById("loadingtbl").style.display = "block";
     }
@@ -156,11 +115,15 @@ function getsleep() {
 
   ajax_request.send();
 }
+function updatesleep(timetxt) {
+  document.getElementById("sleepinfo").style.display =
+    timetxt === "off" ? "none" : "block";
+  document.getElementById("sleepform").style.display =
+    timetxt === "off" ? "block" : "none";
+  document.getElementById("timerinfo").innerHTML = "stop in > " + timetxt;
+}
 var scrollcount = 0;
 function load_status() {
-  // document.getElementById("loadingtbl").style.display = "block";
-  // alert("hai");
-  // console.log("load status")
   var tbl = document.getElementById("radiostatus");
 
   var ajax_request = new XMLHttpRequest();
@@ -172,21 +135,18 @@ function load_status() {
 
   // new Response(form_data).text().then(console.log)
   ajax_request.onreadystatechange = function () {
-    if (ajax_request.readyState == 4 && ajax_request.status == 200) {
-      tbl.innerHTML = ajax_request.responseText.substring(
-        0,
-        ajax_request.responseText.indexOf("repeat"),
-      );
-      playbutton(ajax_request.responseText);
-      updatevolslider(ajax_request.responseText);
-      polpulatesl();
-      getsleep();
-      scrollcount++;
-      if (scrollcount > 2) {
-        scroll_to();
-        scrollcount = 0;
+    if (ajax_request.status == 200) {
+      if (ajax_request.readyState == 4) {
+        tbl.innerHTML = ajax_request.responseText.substring(
+          0,
+          ajax_request.responseText.indexOf("repeat"),
+        );
+        // playbutton(ajax_request.responseText);
+        // updatevolslider(ajax_request.responseText);
+        polpulatesl();
+        // getsleep();
+        load_status_json();
       }
-      count = 0;
       // setTimeout(load_status, 5000); //repeat call this function
     } else {
       // document.getElementById("loadingtbl").style.display = "block";
@@ -195,37 +155,172 @@ function load_status() {
   // alert("getdata.php?d=" + dokter);
   ajax_request.send();
 }
+function load_status_json() {
+  var ajax_request = new XMLHttpRequest();
+  ajax_request.open("GET", "scmd/sttsjson", true);
+  ajax_request.onreadystatechange = function () {
+    if (ajax_request.status == 200) {
+      if (ajax_request.readyState == 4) {
+        json_radio_status = JSON.parse(ajax_request.responseText);
+
+        // var radiostatus = ((json_radio_status.artist == null || typeof json_radio_status.artist === "undefined") ? "" : (json_radio_status.artis + " - ")) +
+        //   (json_radio_status.title == null ? "" : json_radio_status.title);
+
+        var radiostatus = ((json_radio_status.artist == null || typeof json_radio_status.artist === "undefined") ? "" : (json_radio_status.artist + " - ")) +
+          (json_radio_status.title == null ? "" : json_radio_status.title);
+        // console.log("artis: ", json_radio_status.artis);
+        document.getElementById("radiostatus").innerHTML = radiostatus;
+        // console.log("json data: ", json_radio_status);
+        // console.log("data json volume: " , json_radio_status.volume);
+        // console.log("data json vol: ", json_radio_status.volume);
+        updatevolslider(json_radio_status.volume);
+        updateauidoprogress(json_radio_status.time.elapsed_seconds, json_radio_status.time.total_seconds,
+          json_radio_status.time.elapsed, json_radio_status.time.total
+        );
+        update_play_mode(
+          json_radio_status.repeat,
+          json_radio_status.random,
+          json_radio_status.single,
+          json_radio_status.consume,
+        );
+        // console.log("sleep timer countdown: ", json_radio_status.sleeptimer.countdown);
+        updatesleep(json_radio_status.sleeptimer.countdown);
+        update_control_button(
+          json_radio_status.is_stopped,
+          json_radio_status.is_playing,
+        );
+      }
+    }
+  };
+  ajax_request.send();
+}
 
 function scroll_to() {
   var el = document.getElementById("stations");
-  var bplaying = document.getElementById("playing");
-  if (bplaying !== null) bplaying.focus();
+  if (hasVerticalScrollbar(el)) {
+    var bplaying = document.getElementById("playing");
+    if (bplaying !== null) bplaying.focus();
+    // console.log("has vertical scrollbar");
+  }
+}
+function hasVerticalScrollbar(element) {
+  return element.scrollHeight > element.clientHeight;
 }
 
-function updatevolslider(txt) {
-  // var vol = txt.substring(txt.length - 3, txt.length - 1);
-
-  var vol = txt.substring(
-    txt.indexOf("volume") + 7,
-    txt.indexOf("volume") + 10,
-  );
+function restart() {
+  var ajax_request = new XMLHttpRequest();
+  ajax_request.open("GET", "scmd/restart", true);
+  ajax_request.onreadystatechange = function () {
+    if (ajax_request.status == 200) {
+      alert(this.responseText);
+      // if (ajax_request.readyState == 4) { alert(this.responseText); }
+    }
+  };
+  ajax_request.send();
+}
+function updatevolslider2(txt) {
+  // console.log("data json volume: ", json_radio_status.volume);
+  // console.log("data json volume: ", json_radio_status);
   var tbl = document.getElementById("svol");
-  // console.log("vol=" + vol);
-  tbl.value = parseInt(vol);
-  var ivol = document.querySelector("#isvol");
-  ivol.innerHTML = "volume : " + vol;
-}
-function playbutton(txt) {
-  var ps = txt.substring(txt.indexOf("[") + 1, txt.indexOf("]"));
-  var tbl = document.getElementById("bplay");
+  // Extract the volume using RegExp
+  const match = txt.match(/volume:\s*(\d+)%/);
 
-  // console.log("ps=" + ps);
-  tbl.innerHTML = ps == "playing" ? "pause" : "play";
-  if (document.getElementById("bstop") !== null)
-    document.getElementById("bstop").style.display = txt.includes("stopped")
-      ? "none"
-      : "initial";
+  if (match) {
+    const volume = parseInt(match[1], 10);
+    tbl.value = volume;
+    var ivol = document.querySelector("#isvol");
+    ivol.innerHTML = "volume : " + volume;
+    // console.log("Volume:", volume); // Output: 39
+  } else {
+    // console.log("Volume not found");
+  }
 }
+function updatevolslider(volume) {
+  // console.log("update volume slider: ", volume);
+  var tbl = document.getElementById("svol");
+  tbl.value = volume;
+  var ivol = document.querySelector("#isvol");
+  ivol.innerHTML = "volume : " + volume;
+}
+function update_play_mode(repeat, random, single, consume) {
+  // console.log("update play mode: ", repeat, random, single, consume);
+  document.getElementById("radiorepeat").checked = repeat;
+  document.getElementById("radiorandom").checked = random;
+  document.getElementById("radiosingle").checked = single;
+  document.getElementById("radioconsume").checked = consume;
+}
+function set_play_mode(mode) {
+  var cmd = "mpc " + mode + (document.getElementById("radio" + mode).checked ? " on" : " off");
+  websocket.send("0>" + cmd);
+  console.log("set play mode: ", cmd);
+}
+
+function updateauidoprogress(current, total, scurent, stotal) {
+  var slider = document.getElementById("track-progress");
+  slider.max = total;
+  slider.value = current;
+  if (total == 0) {
+    document.getElementById("track-progress-container").style.display = "none";
+    return;
+  } else {
+    document.getElementById("track-progress-container").style.display = "block";
+  }
+  var iprog = document.querySelector("#isprogress");
+  iprog.innerHTML = scurent + "/" + stotal;
+}
+
+function seekaudio() {
+  var slider = document.getElementById("track-progress");
+  var seekto = slider.value;
+  websocket.send("0>mpc seek " + seekto);
+  // console.log("seeking to: ", seekto);
+}
+function formatSeconds(seconds) {
+  if (isNaN(seconds) || seconds < 0) {
+    return "Invalid input";
+  }
+
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const remainingSeconds = seconds % 60;
+
+  const pad = (num) => String(num).padStart(2, '0');
+
+  const formattedHours = hours > 0 ? `${hours}:` : '';
+  const formattedMinutes = pad(minutes);
+  const formattedSeconds = pad(remainingSeconds);
+
+  return `${formattedHours}${formattedMinutes}:${formattedSeconds}`;
+}
+
+// Example usage:
+// console.log(formatSeconds(3665)); // "1:01:05"
+// console.log(formatSeconds(65));    // "01:05"
+// console.log(formatSeconds(3600));  // "1:00:00"
+// console.log(formatSeconds(5));     // "00:05"
+
+function playbutton(txt) {
+  let ps = txt.match(/\[([^\]]+)\]/)?.[1];
+
+  if (ps) {
+    document.getElementById("bplay").innerHTML =
+      ps == "playing" ? "pause" : "play";
+    if (document.getElementById("bstop") !== null)
+      document.getElementById("bstop").style.display = txt.includes("stopped")
+        ? "none"
+        : "initial";
+  }
+}
+function update_control_button(stopped, isplaying) {
+  if (stopped) {
+    document.getElementById("bstop").style.display = "none";
+    document.getElementById("bplay").innerHTML = "play";
+  } else {
+    document.getElementById("bstop").style.display = "initial";
+    document.getElementById("bplay").innerHTML = isplaying ? "pause" : "resume";
+  }
+}
+
 function sendcmd(cmd) {
   websocket.send("0>" + cmd);
   count = 4;
@@ -243,14 +338,11 @@ function gethostname() {
   var tbl = document.getElementById("colorscheme");
   // ajax_request.open('POST', 'oradio.php');
   ajax_request.open("GET", "scmd/hostname", true);
-
-  // ajax_request.send(form_data);
-
-  // new Response(form_data).text().then(console.log)
   ajax_request.onreadystatechange = function () {
-    if (ajax_request.readyState == 4 && ajax_request.status == 200) {
-      // alert("hn=" + this.responseText);
-      document.title = this.responseText + " radio";
+    if (ajax_request.status == 200) {
+      if (ajax_request.readyState == 4)
+        // alert("hn=" + this.responseText);
+        document.title = this.responseText + " radio";
       if (this.responseText.includes("banana")) {
         colorscheme.setAttribute("href", "blurry.css");
         // spn.style.cssText = 'display:inline-flex !important';
@@ -275,12 +367,29 @@ function polpulatesl() {
   var stations = document.getElementById("stations");
   ajax_request.open("GET", "scmd/playlist", true);
   ajax_request.onreadystatechange = function () {
-    if (ajax_request.readyState == 4 && ajax_request.status == 200) {
-      stations.innerHTML = this.responseText;
+    // console.log("xhr code: " + ajax_request.status);
+    // console.log("ajax_request.readyState: " + ajax_request.readyState);
+    if (ajax_request.status == 200) {
+      if (ajax_request.readyState == 4) {
+        // console.log("got playlist");
+        if (this.responseText != old_sl) {
+          // console.log("got playlist");
+          stations.innerHTML = this.responseText;
+          old_sl = this.responseText;
+        }
+        stations.innerHTML = this.responseText;
+        scrollcount++;
+        if (scrollcount > 3) {
+          scroll_to();
+          scrollcount = 0;
+        }
+        count = 0;
+      }
       // setTimeout(polpulatesl, 15000); //repeat call this function
     } else {
+      console.log("failed get playist");
       stations.innerHTML =
-        '<button class="button1" onclick="sendcmd(\'mpc status\')"><a>reload page</a></button>';
+        '<button class="button1" onclick="windows.location.reload()"><a>reload page</a></button>';
     }
   };
   ajax_request.send();
@@ -291,8 +400,8 @@ function polpulatesl2() {
   var stations = document.getElementById("stations");
   ajax_request.open("GET", "scmd/playlist", true);
   ajax_request.onreadystatechange = function () {
-    if (ajax_request.readyState == 4 && ajax_request.status == 200) {
-      stations.innerHTML = this.responseText;
+    if (ajax_request.status == 200) {
+      if (ajax_request.readyState == 4) stations.innerHTML = this.responseText;
     } else {
       stations.innerHTML =
         '<button class="button1" onclick="sendcmd(\'mpc status\')"><a>reload page</a></button>';
@@ -306,8 +415,8 @@ function polpulatepl() {
   var stations = document.getElementById("playlists");
   ajax_request.open("GET", "scmd/iplaylist", true);
   ajax_request.onreadystatechange = function () {
-    if (ajax_request.readyState == 4 && ajax_request.status == 200) {
-      stations.innerHTML = this.responseText;
+    if (ajax_request.status == 200) {
+      if (ajax_request.readyState == 4) stations.innerHTML = this.responseText;
     } else {
       stations.innerHTML = "station list failed to loaded";
     }
@@ -326,9 +435,11 @@ function setsleep() {
     // console.log("set sleeep" + tval);
     ajax_request.open("GET", "scmd/sleep=" + tval, true);
     ajax_request.onreadystatechange = function () {
-      if (ajax_request.readyState == 4 && ajax_request.status == 200) {
-        stations.innerHTML = this.responseText;
-        it.value = "";
+      if (ajax_request.status == 200) {
+        if (ajax_request.readyState == 4) {
+          stations.innerHTML = this.responseText;
+          it.value = "";
+        }
       } else {
         stations.innerHTML = "set sleep timer failed";
       }

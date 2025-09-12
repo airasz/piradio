@@ -2,6 +2,10 @@
   --out_wide: 15px 15px 30px #919191, -15px -15px 30px #ffffff;
   --out_short: 6px 6px 16px #919191, -6px -6px 10px #ffffff;
   --ins: inset 2px 2px 4px #8a8a8a, inset -2px -2px 4px rgb(255, 255, 255);
+  --tridi: 2px 2px 6px #000, -2px -2px 6px rgb(43, 40, 40),
+    inset 2px 2px 4px #6abedf, inset -2px -2px 4px #6bc0e2;
+  --tridi-mini: 2px 2px 3px #000, -2px -2px 3px rgb(43, 40, 40),
+    inset 2px 2px 3px #6dc4e6, inset -2px -2px 3px #67b9d9;
 }
 
 html {
@@ -99,6 +103,7 @@ input[type="submit"]:hover {
   overflow-y: auto;
   max-height: 300px;
 }
+
 .button1 {
   /*   color: rgb(78, 75, 75); */
   padding: 8px;
@@ -213,7 +218,8 @@ div p3 {
   font-family: sans-serif;
   /* background-color: teal; */
   display: block;
-  margin-top: 5mm;
+  margin-bottom: 5mm;
+  margin-top: 2mm;
 }
 
 div p5 {
@@ -270,15 +276,14 @@ div p6 {
 
 .groupboxx {
   display: block;
-  /* margin: auto; */
+  margin: auto;
   margin: 6px;
   padding: 10px;
   justify-content: center;
   align-items: center;
   border-radius: 10px;
-  box-shadow:
-    inset 2px 2px 4px #8a8a8a,
-    inset -2px -2px 4px rgb(255, 255, 255);
+  box-shadow: var(--tridi);
+  background: #e8f9ff;
 }
 
 .ceditbox {
@@ -306,21 +311,27 @@ div p6 {
     -2px -2px 12px #fff;
 }
 
+/*
 .switchled input {
   opacity: 0;
   width: 0;
   height: 0;
+} */
+.playmode {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .switch_led {
-  background-color: rgb(61, 61, 61);
+  /*   background-color: rgb(61, 61, 61); */
   align-items: center;
   /* centervertical/*
           padding-left: 10mm;
           padding-right: 10mm;
           /* padding-bottom: 10mm; */
   justify-content: center;
-  display: flex;
+  /* display: flex; */
 }
 
 /* The slider */
@@ -358,13 +369,13 @@ div p6 {
   transition: 0.4s;
 }
 
-input:checked + .slider {
+input:checked+.slider {
   /* background-color: rgb(95, 248, 215); */
 
   /* background-color: rgb(126, 126, 126); */
 }
 
-input:focus + .slider {
+input:focus+.slider {
   /* box-shadow: 0 0 1px #2196F3; */
 
   box-shadow:
@@ -372,8 +383,74 @@ input:focus + .slider {
     inset -2px -2px 4px rgb(255, 255, 255);
 }
 
-input:checked + .slider:before {
+input:checked+.slider:before {
   -webkit-transform: translateX(26px);
   -ms-transform: translateX(26px);
   transform: translateX(26px);
+}
+
+.switchled {
+  position: relative;
+  /* display: inline-block; */
+  width: 60px;
+  height: 34px;
+
+  margin-left: 3mm;
+  margin-right: 3mm;
+}
+
+/* The slider */
+.sslider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 4px;
+  background: white;
+  box-shadow:
+    inset 2px 2px 4px #7b7b7b,
+    inset -2px -2px 4px rgb(157, 151, 156);
+  -webkit-transition: 0.4s;
+  transition: 0.4s;
+}
+
+.sslider::before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  border-radius: 4px;
+  background: white;
+  box-shadow: var(--tridi);
+  -webkit-transition: 0.4s;
+  transition: 0.4s;
+}
+
+input:checked+.sslider {
+  /* background-color: rgb(95, 248, 215); */
+
+  /* background-color: rgb(126, 126, 126); */
+}
+
+input:focus+.sslider {
+  /* box-shadow: 0 0 1px #2196F3; */
+
+  box-shadow:
+    inset 2px 2px 4px #8a8a8a,
+    inset -2px -2px 4px rgb(255, 255, 255);
+}
+
+input:checked+.sslider:before {
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+  transform: translateX(26px);
+}
+
+.svg-icon {
+  width: 30px;
+  height: 30px;
 }
