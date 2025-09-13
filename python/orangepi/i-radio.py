@@ -1578,6 +1578,7 @@ class SettingHandler(tornado.web.RequestHandler):
         self.render("settings.html")
 
     def post(self):
+        global CONFIGDATA, REMOTES
         try:
             data = json.loads(self.request.body)
         except json.JSONDecodeError:
