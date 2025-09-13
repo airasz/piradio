@@ -22,7 +22,7 @@ function loadonce() {
   // colorscheme.setAttribute('href', 'cscheme.css');
   // load_status();
   load_status_json();
-
+  load_cofig();
   // loadvol();
 }
 var gateway = `ws://${window.location.hostname}:8888/websocket`;
@@ -194,6 +194,24 @@ function load_status_json() {
   };
   ajax_request.send();
 }
+function load_cofig() {
+  var ajax_request = new XMLHttpRequest();
+  ajax_request.open("GET", "scmd/config", true);
+  ajax_request.onreadystatechange = function () {
+    if (ajax_request.status == 200) {
+      if (ajax_request.readyState == 4) {
+        var json_config = JSON.parse(ajax_request.responseText);
+        console.log("web theme: ", json_config.web.client_web_theme);
+        if (json_config.web.client_web_theme == 0) {
+          colorscheme.setAttribute("href", "blurry.css");
+        } else {
+          colorscheme.setAttribute("href", "bordered.css");
+        }
+      }
+    }
+  }
+  ajax_request.send();
+}
 
 function scroll_to() {
   var el = document.getElementById("stations");
@@ -335,8 +353,6 @@ function playurl() {
 }
 function gethostname() {
   var ajax_request = new XMLHttpRequest();
-  var tbl = document.getElementById("colorscheme");
-  // ajax_request.open('POST', 'oradio.php');
   ajax_request.open("GET", "scmd/hostname", true);
   ajax_request.onreadystatechange = function () {
     if (ajax_request.status == 200) {
@@ -344,12 +360,12 @@ function gethostname() {
         // alert("hn=" + this.responseText);
         document.title = this.responseText + " radio";
       if (this.responseText.includes("banana")) {
-        colorscheme.setAttribute("href", "blurry.css");
+        // colorscheme.setAttribute("href", "blurry.css");
         // spn.style.cssText = 'display:inline-flex !important';
         document.getElementById("title").innerHTML =
           this.responseText + " radio &#x1F34C";
       } else if (this.responseText.includes("orange")) {
-        colorscheme.setAttribute("href", "blurry.css");
+        // colorscheme.setAttribute("href", "bordered.css");
         document.getElementById("title").innerHTML =
           this.responseText + " radio &#x1F34A";
       }
