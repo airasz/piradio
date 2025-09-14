@@ -103,7 +103,7 @@ def map_value(src, in_from, in_to, outfrom, out_to):
 
 
 def nexinit():
-    global nextion_page
+    # global nextion_page
     MyNextion.set_port("/dev/ttyS1")
     # MyNextion.send_command('page page2')#sukses
     MyNextion.send_command("page 4")  # sukses
@@ -149,16 +149,14 @@ nexinit()  # setup nextion
 
 class sleeptimer:
     def startcdown(self, minutes):
-        global T_ENABLE
-        global SEC_CD
+        global T_ENABLE, SEC_CD
         T_ENABLE = True
         SEC_CD = minutes * 60
         print("sleep timer just started")
         return
 
     def stopcdown(self):
-        global T_ENABLE
-        global SEC_CD
+        global T_ENABLE, SEC_CD
         T_ENABLE = False
         SEC_CD = 0
         MyNextion.send_command("sleep timer stopped by user")
@@ -192,14 +190,10 @@ class sleeptimer:
 
     # get auto stop second running
     def getsecac(self):
-        global ASSECCD
         return str(ASSECCD)
 
     def autostop(self):
-        global PLAYING
-        global ASSECCD
-        global ASCDOWN
-        global ASSECMX
+        global ASSECCD#, ASCDOWN, ASSECMX
         if ASCDOWN is True and PLAYING is True:
             ASSECCD += 1
             # print("serial display auto stop  "+str(ASSECCD))
@@ -225,8 +219,8 @@ class sleeptimer:
         return T_ENABLE
 
     def update(self):
-        global T_ENABLE
-        global SEC_CD
+        #global T_ENABLE
+        #global SEC_CD
         # print("sec cd = "+str(SEC_CD))
         if T_ENABLE is True:
             mins, secs = divmod(SEC_CD, 60)
@@ -566,7 +560,6 @@ def loop():
     global STOP_COUNT
     global P_COUNT
     global SCREEN_SLEEP
-    global ON_MENU
     global PLAYING
     global nextion_page
     old_status = ""
@@ -784,10 +777,9 @@ def seconds_to_hms(sec: int) -> str:
 
 
 def get_mpc_status():
-    global PLAYING
-    global ASSECCD
-    global ASCDOWN
-    global ASSECMX
+    #global ASSECCD
+    #global ASCDOWN
+    #global SEC_CD, T_ENABLE
     result = subprocess.run(["mpc", "status"], capture_output=True, text=True)
     lines = result.stdout.strip().splitlines()
 

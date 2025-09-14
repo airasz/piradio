@@ -109,7 +109,7 @@ NUM_VOL = 0
 TO_REBOOT = False
 HASINTERNET_ = False
 MIN_SLEEP = 0
-MIN_SLEEPV = 0
+MINUTE_SLEEP_VALUE = 0
 T_LINES = 0
 TOQ = 0
 TS_ENABLE = False
@@ -138,9 +138,7 @@ B_MUTE = False
 SP = 240
 P_VOL = 0
 C_VOL = 0
-T_LINES = 0
 # TEN = False
-# TOQ=0
 
 NUMKEYS = [
     [1, 79],
@@ -173,6 +171,22 @@ def load_variable():
     except FileNotFoundError:
         pass
 
+def load_config():
+    global CONFIGDATA
+    try:
+        with open(config_path, "r") as f:
+            CONFIGDATA = json.load(f)
+            REMOTES = CONFIGDATA.get("remote", "")
+            PLAY_CURL= CONFIGDATA.get("play_custom", False)
+            if CONFIGDATA.get("autoload", "true") is True:
+                os.system("mpc play")
+                print("auto play by config")
+    except FileNotFoundError:
+        pass
+    print("configdata=" + str(CONFIGDATA))
+
+
+load_config()
 
 def save_config():
     global CONFIGDATA
@@ -363,7 +377,6 @@ def getCurrentStation():  # return  pos
 
 
 def stationPage(next):
-    global TOQ
     status = ""
     cs = getCurrentStation()
     if next:
@@ -398,11 +411,11 @@ def reboot():
 
 
 def playPos(pos):
-    global TEN
+    #global TEN
     global VOLTO
     global NUM_VOL
     global MIN_SLEEP
-    global MIN_SLEEPV
+    global MINUTE_SLEEP_VALUE
     global splp
     global secondDigit
     global pulse_
@@ -466,16 +479,16 @@ def playPos(pos):
         exitset(False)
 
     if MIN_SLEEP == 1:
-        # MIN_SLEEPV+=pos**MIN_SLEEP
-        MIN_SLEEPV = 0
-        MIN_SLEEPV = pos * 10
+        # MINUTE_SLEEP_VALUE+=pos**MIN_SLEEP
+        MINUTE_SLEEP_VALUE = 0
+        MINUTE_SLEEP_VALUE = pos * 10
         interuptDisplay(5, "sleep in " + str(pos) + "x minutes")
         #
         MIN_SLEEP = 2
     elif MIN_SLEEP == 2:
-        MIN_SLEEPV += pos
+        MINUTE_SLEEP_VALUE += pos
         interuptDisplay(
-            5, "sleep in " + str(MIN_SLEEPV) + " minutes\nClick OK to confirm"
+            5, "sleep in " + str(MINUTE_SLEEP_VALUE) + " minutes\nClick OK to confirm"
         )
     if splp is True:
         # status = cmd("mpc clear")
@@ -508,7 +521,6 @@ def startVol():
 
 def startTenPos():
     global TEN
-    global NUM_VOL
     exitset(False)
     TEN = True
 
@@ -518,7 +530,6 @@ def startTenPos():
 
 def startsetsleep():
     global stimerStop
-    global NUM_VOL
     global TEN
     global MIN_SLEEP
     global STOP_SLEEP
@@ -565,13 +576,13 @@ def startPlistTo():
 
 def ok():
     global MIN_SLEEP
-    global MIN_SLEEPV
+    global MINUTE_SLEEP_VALUE
     if MIN_SLEEP > 0:
-        # stimer.startcdown(MIN_SLEEPV)
-        # os.system("/usr/bin/python3 startsleeper.py "+ str(MIN_SLEEPV))
-        interuptDisplay(5, "sleep timer starting for " + str(MIN_SLEEPV) + " minutes")
+        # stimer.startcdown(MINUTE_SLEEP_VALUE)
+        # os.system("/usr/bin/python3 startsleeper.py "+ str(MINUTE_SLEEP_VALUE))
+        interuptDisplay(5, "sleep timer starting for " + str(MINUTE_SLEEP_VALUE) + " minutes")
         MIN_SLEEP = 0
-        sleeptimer.startcdown(MIN_SLEEPV)
+        sleeptimer.startcdown(MINUTE_SLEEP_VALUE)
         exitset(False)
     else:
         noReturnSubprocess("mpc toggle")
@@ -584,7 +595,7 @@ def exitset(info):
     global TEN
     global MIN_SLEEP
     global STOP_SLEEP
-    global MIN_SLEEPV
+    global MINUTE_SLEEP_VALUE
     global TO_REBOOT
     global splp
     global GOTOSTATION
@@ -662,7 +673,6 @@ def switchPLAYLIST():
 def drawPlayList():
     global splited_playlist
     global splited_playlist_pointer
-    global TOQ
     display.frezeeDisplay(50)
     rp = ""
     prange = ""
@@ -696,7 +706,6 @@ def drawPlayList():
 
 def processIR(irval):
     global EN_NEXMEDIA_R
-    global GOTOSTATION
     print(irval)
     # display.resettimer()
     # hexval = hex(irval)
@@ -973,13 +982,13 @@ class MainHandler(tornado.web.RequestHandler):
         except:
             print("skiping cause argument not contain " + curlval)
         if value != "":
-            global MIN_SLEEPV
-            MIN_SLEEPV = int(value)
-            sleeptimer.startcdown(MIN_SLEEPV)
-            # os.system("/usr/bin/python startsleeper.py "+ str(MIN_SLEEPV))
+            global MINUTE_SLEEP_VALUE
+            MINUTE_SLEEP_VALUE = int(value)
+            sleeptimer.startcdown(MINUTE_SLEEP_VALUE)
+            # os.system("/usr/bin/python startsleeper.py "+ str(MINUTE_SLEEP_VALUE))
             # display.display("starting sleep timer\n", True)
             # display.frezeeDisplay(3)
-            # myoled.displayfs("starting sleep timer\nin "+ str(MIN_SLEEPV)+" minutes",15)
+            # myoled.displayfs("starting sleep timer\nin "+ str(MINUTE_SLEEP_VALUE)+" minutes",15)
         if curlval != "":
             # stimer.resetas()
             global PLAY_CURL
@@ -1066,11 +1075,13 @@ class shellCmd(tornado.web.RequestHandler):  # scmd
             self.write(sr)
         elif input == "sttsjson":
             status = module_piradionex.get_mpc_status()
-            print(json.dumps(module_piradionex.get_mpc_status(), indent=2))
+            print("status>:  ", status)
+            print(json.dumps(status, indent=2))
             self.write(json.dumps(status))
         elif input == "config":
-            self.set_header("Content-Type", "application/json")
+            # self.set_header("Content-Type", "application/json")
             self.write(json.dumps(CONFIGDATA))
+            print("CONFIGDATA>:  ", CONFIGDATA)
         elif input == "hostname":
             sr = subprocess.check_output("hostname", shell=True).decode("utf-8")
             self.write(sr)

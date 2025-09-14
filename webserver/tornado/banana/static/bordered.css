@@ -1,5 +1,5 @@
 .card_switch {
-  background-color: ##ffd6be !important;
+  background-color:#88f9d5 !important;
   /* background-image: url(../static/mesh_bg.png) !important; */
   background-repeat: no-repeat;
   background-size: cover;
@@ -16,11 +16,11 @@
 
 .button1 {
   /*   color: rgb(255, 255, 255); */
-  color: #ffffff;
+  color: #002c24;
   /*   background:transparent !important; */
   /*   background:rgba(60, 185, 10, 0.5)!important; */
   border-radius: 20px;
-  background: #006a00 !important;
+  background: #00fcc5 !important;
   /*   background: linear-gradient(360deg, rgba(18,244,109,1) 0%, rgba(49,189,84,1) 42%, rgba(21,227,110,1) 43%, rgba(42,250,122,1) 100%)!important; */
   backdrop-filter: blur(8px);
   border: solid 1px #000 !important;
@@ -43,7 +43,7 @@ p4 {
 }
 
 p3 {
-  color: #fff !important;
+  color: #9c00d0 !important;
 }
 
 .switch_led p4 {
@@ -116,9 +116,9 @@ h1 {
 }
 
 .bplay {
-  background: #ffae21 !important;
+  background: #dbdf0c !important;
   /*   background: linear-gradient(360deg, rgba(164,207,1,1) 0%, rgba(137,146,17,1) 42%, rgba(208,224,1,1) 43%, rgba(255,231,0,0.9668067055923932) 100%)!important; */
-  color: #872e0b !important;
+  color: #151515 !important;
   cursor: pointer;
   border: solid 1px #000 !important;
 }
@@ -131,7 +131,7 @@ h1 {
 
 #radiostatus {
   font-family: monospace, monospace;
-  color: #00aaff !important;
+  color: #88ff00 !important;
   margin: 6px 6px 6px 16px !important;
   text-align: left;
   padding: 2px 2px 8px 1px !important;
@@ -139,7 +139,7 @@ h1 {
 }
 
 .slider {
-  background: rgb(6, 121, 4) !important;
+  background: rgb(6, 155, 3) !important;
   /* background: linear-gradient(90deg,
       rgba(223, 255, 0, 0.975210066936931) 0%,
       rgba(255, 42, 0, 1) 100%) !important; */
@@ -171,17 +171,19 @@ h1 {
 .slider::-moz-range-thumb {
   width: 18px;
   height: 18px;
-  background: rgb(255, 255, 255);
+  background: rgb(6, 121, 4) !important;;
   cursor: pointer;
   border-radius: 14px;
-  background: repeating-radial-gradient(#1de1ff, #1660d8) !important;
+/*   background: repeating-radial-gradient(#6b02ff, #aa05d8) !important; */
   border: solid 1px #000 !important;
   /* box-shadow:
     2px 2px 8px #56e7ee,
     -2px -2px 8px #61eaf7 !important; */
 }
 
-
+.switch_button_container{
+  display:flex;
+}
 .switchbutton {
 
   position: relative;
@@ -240,7 +242,7 @@ h1 {
   /* bottom: 4px; */
   border-radius: 50%;
   border: solid 1px #000 !important;
-  background-color: rgb(240, 106, 16);
+  background-color: #005500;
   /* box-shadow: 5px 5px 8px #8a8a8a, -2px -2px 8px #fff; */
   -webkit-transition: .4s;
   transition: .4s;
@@ -281,7 +283,7 @@ input:checked+.slider_switch:before {
 
   /*   background: linear-gradient(145deg, #b35808, #f08d0e); */
 
-  background: rgb(152, 251, 84) !important;
+  background: #d6acff !important;
   backdrop-filter: blur(6px);
   border: solid 1px #000 !important;
 }

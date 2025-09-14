@@ -22,7 +22,7 @@ function loadonce() {
   // colorscheme.setAttribute('href', 'cscheme.css');
   // load_status();
   load_status_json();
-
+  load_cofig();
   // loadvol();
 }
 var gateway = `ws://${window.location.hostname}:8888/websocket`;
@@ -166,7 +166,11 @@ function load_status_json() {
         // var radiostatus = ((json_radio_status.artist == null || typeof json_radio_status.artist === "undefined") ? "" : (json_radio_status.artis + " - ")) +
         //   (json_radio_status.title == null ? "" : json_radio_status.title);
 
-        var radiostatus = ((json_radio_status.artist == null || typeof json_radio_status.artist === "undefined") ? "" : (json_radio_status.artist + " - ")) +
+        var radiostatus =
+          (json_radio_status.artist == null ||
+          typeof json_radio_status.artist === "undefined"
+            ? ""
+            : json_radio_status.artist + " - ") +
           (json_radio_status.title == null ? "" : json_radio_status.title);
         // console.log("artis: ", json_radio_status.artis);
         document.getElementById("radiostatus").innerHTML = radiostatus;
@@ -174,8 +178,11 @@ function load_status_json() {
         // console.log("data json volume: " , json_radio_status.volume);
         // console.log("data json vol: ", json_radio_status.volume);
         updatevolslider(json_radio_status.volume);
-        updateauidoprogress(json_radio_status.time.elapsed_seconds, json_radio_status.time.total_seconds,
-          json_radio_status.time.elapsed, json_radio_status.time.total
+        updateauidoprogress(
+          json_radio_status.time.elapsed_seconds,
+          json_radio_status.time.total_seconds,
+          json_radio_status.time.elapsed,
+          json_radio_status.time.total,
         );
         update_play_mode(
           json_radio_status.repeat,
@@ -189,6 +196,26 @@ function load_status_json() {
           json_radio_status.is_stopped,
           json_radio_status.is_playing,
         );
+      }
+    }
+  };
+  ajax_request.send();
+}
+function load_cofig() {
+  var ajax_request = new XMLHttpRequest();
+  ajax_request.open("GET", "scmd/config", true);
+  ajax_request.onreadystatechange = function () {
+    if (ajax_request.status == 200) {
+      if (ajax_request.readyState == 4) {
+        var json_config = JSON.parse(ajax_request.responseText);
+
+        console.log("json_config: ", json_config);
+        console.log("web theme: ", json_config.web.client_web_theme);
+        if (json_config.web.client_web_theme == 0) {
+          colorscheme.setAttribute("href", "blurry.css");
+        } else {
+          colorscheme.setAttribute("href", "bordered.css");
+        }
       }
     }
   };
@@ -250,7 +277,10 @@ function update_play_mode(repeat, random, single, consume) {
   document.getElementById("radioconsume").checked = consume;
 }
 function set_play_mode(mode) {
-  var cmd = "mpc " + mode + (document.getElementById("radio" + mode).checked ? " on" : " off");
+  var cmd =
+    "mpc " +
+    mode +
+    (document.getElementById("radio" + mode).checked ? " on" : " off");
   websocket.send("0>" + cmd);
   console.log("set play mode: ", cmd);
 }
@@ -284,9 +314,9 @@ function formatSeconds(seconds) {
   const minutes = Math.floor((seconds % 3600) / 60);
   const remainingSeconds = seconds % 60;
 
-  const pad = (num) => String(num).padStart(2, '0');
+  const pad = (num) => String(num).padStart(2, "0");
 
-  const formattedHours = hours > 0 ? `${hours}:` : '';
+  const formattedHours = hours > 0 ? `${hours}:` : "";
   const formattedMinutes = pad(minutes);
   const formattedSeconds = pad(remainingSeconds);
 
@@ -335,8 +365,6 @@ function playurl() {
 }
 function gethostname() {
   var ajax_request = new XMLHttpRequest();
-  var tbl = document.getElementById("colorscheme");
-  // ajax_request.open('POST', 'oradio.php');
   ajax_request.open("GET", "scmd/hostname", true);
   ajax_request.onreadystatechange = function () {
     if (ajax_request.status == 200) {
@@ -344,12 +372,14 @@ function gethostname() {
         // alert("hn=" + this.responseText);
         document.title = this.responseText + " radio";
       if (this.responseText.includes("banana")) {
-        colorscheme.setAttribute("href", "blurry.css");
+        // colorscheme.setAttribute("href", "blurry.css");
         // spn.style.cssText = 'display:inline-flex !important';
+        document.querySelector("#nav").style.display = "none";
         document.getElementById("title").innerHTML =
           this.responseText + " radio &#x1F34C";
       } else if (this.responseText.includes("orange")) {
-        colorscheme.setAttribute("href", "blurry.css");
+        // colorscheme.setAttribute("href", "bordered.css");
+        document.querySelector("#nav").style.display = "block";
         document.getElementById("title").innerHTML =
           this.responseText + " radio &#x1F34A";
       }

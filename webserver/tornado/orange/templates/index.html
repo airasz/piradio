@@ -3,28 +3,29 @@
 design by airasz
 -->
 <html>
+  <head>
+    <title>oradio v 0.1</title>
+    <link rel="shortcut icon" type="image/x-icon" href="iradio.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="cache-control" content="no-cache" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Cache-Control" content="no-store" />
+    <link rel="stylesheet" type="text/css" href="radio.css  " />
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <!--     <link rel="stylesheet" type="text/css" id="colorscheme"> -->
+    <link rel="stylesheet" type="text/css" id="colorscheme" href="orange.css" />
+    <script src="oradio.js"></script>
+    <!-- <link rel="script" type="text/js" href="app.js"> -->
+    <!-- <script type="text/javascript" src="https://unpkg.com/xlsx@0.15.1/dist/xlsx.full.min.js"></script> -->
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.min.js"></script> -->
+    <!-- <script type="text/javascript" src="xlsx.full.js"></script> -->
+    <!-- <script type="text/javascript" src="xlsx.min.js"></script> -->
+  </head>
 
-<head>
-  <title>oradio v 0.1</title>
-  <link rel="shortcut icon" type="image/x-icon" href="iradio.ico" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta http-equiv="cache-control" content="no-cache" />
-  <meta http-equiv="Pragma" content="no-cache" />
-  <meta http-equiv="Cache-Control" content="no-store" />
-  <link rel="stylesheet" type="text/css" href="radio.css  " />
-  <link rel="stylesheet" type="text/css" href="style.css" />
-  <!--     <link rel="stylesheet" type="text/css" id="colorscheme"> -->
-  <link rel="stylesheet" type="text/css" id="colorscheme" href="orange.css" />
-  <script src="oradio.js"></script>
-  <!-- <link rel="script" type="text/js" href="app.js"> -->
-  <!-- <script type="text/javascript" src="https://unpkg.com/xlsx@0.15.1/dist/xlsx.full.min.js"></script> -->
-  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.min.js"></script> -->
-  <!-- <script type="text/javascript" src="xlsx.full.js"></script> -->
-  <!-- <script type="text/javascript" src="xlsx.min.js"></script> -->
-</head>
-
-<body onload="loadonce()" style="background-color: #dbdbdb">
-  <div id="loading" style="
+  <body onload="loadonce()" style="background-color: #dbdbdb">
+    <div
+      id="loading"
+      style="
         position: fixed;
         z-index: 1000;
         width: 100vw;
@@ -35,151 +36,209 @@ design by airasz
         justify-content: center;
         align-items: center;
         display: none;
-      ">
-    <span>Wait...</span>
-    <!-- Loading spinner goes here -->
-  </div>
-  <div class="main">
-    <div class="card_switch">
-      <!-- <div id="info" style="min-height: 1cm;"></div> -->
-      <div class="card-body" id="card-body">
-        <h1 id="title">oradio</h1>
-        <div id="radiostatus" style="color: black"></div>
-      </div>
-      <!-- and class card-body-->
-      <button class="button1 media" onclick="sendcmd('mpc volume +5')">
-        <a>vol UP</a>
-      </button>
-      <button class="button1 media" onclick="sendcmd('mpc volume -5')">
-        <a>Vol down</a>
-      </button>
-      <button class="button1 media" onclick="sendcmd('mpc prev')">
-        <a>prev</a>
-      </button>
-      <button class="button1 media" onclick="sendcmd('mpc next')">
-        <a>Next</a>
-      </button>
-      <button class="button1 media" id="bplay" onclick="sendcmd('mpc toggle')">
-        <a>play/pause</a>
-      </button>
-      <button class="button1 media" id="bstop" onclick="sendcmd('mpc stop')">
-        <a>Stop</a>
-      </button>
-      <button class="button1 media" onclick="sendcmd('mpc volume 0')">
-        <a>Mute</a>
-      </button>
-
-      <button class="button1" onclick="restart()" id="restart">restart app</button>
-      <br />
-      <div class="playmode">
-        <div class="switch_button">
-          <p4 id="swp1" style="font-size: 12px">repeat</p4>
-          <label class="switchbutton">
-            <input type="checkbox" id="radiorepeat" onchange="set_play_mode('repeat')">
-            <span class="slider_switch"></span>
-          </label>
-        </div>
-        <div class="switch_button">
-          <p4 id="swp1" style="font-size: 12px">random</p4>
-          <label class="switchbutton">
-            <input type="checkbox" id="radiorandom" onchange="set_play_mode('random')">
-            <span class="slider_switch"></span>
-          </label>
-        </div>
-        <div class="switch_button">
-          <p4 id="swp2" style="font-size: 12px">single</p4>
-          <label class="switchbutton">
-            <input type="checkbox" id="radiosingle" onchange="set_play_mode('single')">
-            <span class="slider_switch"></span>
-          </label>
-        </div>
-        <div class="switch_button">
-          <p4 id="swp3" style="font-size: 12px">consume</p4>
-          <label class="switchbutton">
-            <input type="checkbox" id="radioconsume" onchange="set_play_mode('consume')">
-            <span class="slider_switch"></span>
-          </label>
-        </div>
-      </div>
-
-      <div class="text-center" style="margin-bottom: 1px;">
-        <div class="contr" style="display: grid">
-          <input id="svol" type="range" min="0" max="100" value="%volume%" class="slider" name="set_volume"
-            onchange="setvol()" style="min-width: 280px" />
-        </div>
-        <p3 id="isvol">volume</p3>
-      </div>
-
-
-      <div id="track-progress-container" class="text-center" style="margin-bottom: 1px;">
-        <div class="contr" style="display: grid">
-          <input id="track-progress" type="range" min="0" max="100" value="%auidoprogress%" class="slider"
-            name="auidoprogress" onchange="seekaudio()" style="min-width: 280px" />
-        </div>
-        <p3 id="isprogress">00:00/0:00</p3>
-      </div>
-
-      <p></p>
-      <div class="buttonstation" id="stations"></div>
-      <div class="groupbox">
-        <p4>Playlist Group</p4>
-        <div class="buttonstation" id="playlists"></div>
-      </div>
-      <div class="groupbox">
-        <form id="curlform" method="post">
-          <div class="ceditbox" id="cedit1">
-            <p4>play custom url : </p4>
-            <input class="form_data" type="text" id="curl" name="curl" placeholder="http://.." onfocus="this.value=''"
-              style="
-                  color: darkslategray;
-                  align-content: flex-start;
-                " /><br />
-            <button type="submit" name="submit" class="button1 button2">
-              play
-            </button>
-          </div>
-        </form>
-      </div>
-      <div class="groupbox">
-        <div id="sleepinfo">
-          <div id="timerinfo" style="color: black"></div>
-          <button class="button1 button2" id="bstop" onclick="sendwsm('stopsleep')">
-            <a>Abort</a>
-          </button>
-        </div>
-        <form id="sleepform" method="post">
-          <div class="ceditbox" id="cedit1">
-            <p4> set sleep timer in minutes : </p4>
-            <input class="form_data" type="text" id="tval" placeholder="30" name="sleep" onfocus="this.value=''" style="
-                  color: darkslategray;
-                  align-content: flex-start;
-                " /><br />
-            <button type="submit" name="submit" id="submit" class="button1 button2">
-              submit
-            </button>
-          </div>
-        </form>
-      </div>
-      <!-- <div><p>play url</p><div style="display: flex;"><input id="purl" type="text" class="slider" name="playurl" onclick="playurl()"
-                        style="min-width: 280px;"><button class="button1" onclick="playurl()"><a>play</a></button></div></div> -->
-      <nav>
-        <ul class="menu">
-          <li><a href="settings" data-translate="settings">
-              settings
-            </a>
-          </li>
-          <!--         <li><a href="/logout" data-translate="logout">logout</a></li> -->
-        </ul>
-      </nav>
-      <h2 id="cname">write by airasz</h2>
+      "
+    >
+      <span>Wait...</span>
+      <!-- Loading spinner goes here -->
     </div>
-    <!-- and class card_switch-->
-  </div>
-  <!-- end div main -->
-</body>
-<script>
-  // document.getElementById("defaultOpen").click();
-</script>
-<script type="application/javascript"></script>
+    <div class="main">
+      <div class="card_switch">
+        <!-- <div id="info" style="min-height: 1cm;"></div> -->
+        <div class="card-body" id="card-body">
+          <h1 id="title">oradio</h1>
+          <div id="radiostatus" style="color: black"></div>
+        </div>
+        <!-- and class card-body-->
+        <button class="button1 media" onclick="sendcmd('mpc volume +5')">
+          <a>vol UP</a>
+        </button>
+        <button class="button1 media" onclick="sendcmd('mpc volume -5')">
+          <a>Vol down</a>
+        </button>
+        <button class="button1 media" onclick="sendcmd('mpc prev')">
+          <a>prev</a>
+        </button>
+        <button class="button1 media" onclick="sendcmd('mpc next')">
+          <a>Next</a>
+        </button>
+        <button
+          class="button1 media"
+          id="bplay"
+          onclick="sendcmd('mpc toggle')"
+        >
+          <a>play/pause</a>
+        </button>
+        <button class="button1 media" id="bstop" onclick="sendcmd('mpc stop')">
+          <a>Stop</a>
+        </button>
+        <button class="button1 media" onclick="sendcmd('mpc volume 0')">
+          <a>Mute</a>
+        </button>
 
+        <button class="button1" onclick="restart()" id="restart">
+          restart app
+        </button>
+        <br />
+        <div class="playmode">
+          <div class="switch_button">
+            <p4 id="swp1" style="font-size: 12px">repeat</p4>
+            <label class="switchbutton">
+              <input
+                type="checkbox"
+                id="radiorepeat"
+                onchange="set_play_mode('repeat')"
+              />
+              <span class="slider_switch"></span>
+            </label>
+          </div>
+          <div class="switch_button">
+            <p4 id="swp1" style="font-size: 12px">random</p4>
+            <label class="switchbutton">
+              <input
+                type="checkbox"
+                id="radiorandom"
+                onchange="set_play_mode('random')"
+              />
+              <span class="slider_switch"></span>
+            </label>
+          </div>
+          <div class="switch_button">
+            <p4 id="swp2" style="font-size: 12px">single</p4>
+            <label class="switchbutton">
+              <input
+                type="checkbox"
+                id="radiosingle"
+                onchange="set_play_mode('single')"
+              />
+              <span class="slider_switch"></span>
+            </label>
+          </div>
+          <div class="switch_button">
+            <p4 id="swp3" style="font-size: 12px">consume</p4>
+            <label class="switchbutton">
+              <input
+                type="checkbox"
+                id="radioconsume"
+                onchange="set_play_mode('consume')"
+              />
+              <span class="slider_switch"></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="text-center" style="margin-bottom: 1px">
+          <div class="contr" style="display: grid">
+            <input
+              id="svol"
+              type="range"
+              min="0"
+              max="100"
+              value="%volume%"
+              class="slider"
+              name="set_volume"
+              onchange="setvol()"
+              style="min-width: 280px"
+            />
+          </div>
+          <p3 id="isvol">volume</p3>
+        </div>
+
+        <div
+          id="track-progress-container"
+          class="text-center"
+          style="margin-bottom: 1px"
+        >
+          <div class="contr" style="display: grid">
+            <input
+              id="track-progress"
+              type="range"
+              min="0"
+              max="100"
+              value="%auidoprogress%"
+              class="slider"
+              name="auidoprogress"
+              onchange="seekaudio()"
+              style="min-width: 280px"
+            />
+          </div>
+          <p3 id="isprogress">00:00/0:00</p3>
+        </div>
+
+        <p></p>
+        <div class="buttonstation" id="stations"></div>
+        <div class="groupbox">
+          <p4>Playlist Group</p4>
+          <div class="buttonstation" id="playlists"></div>
+        </div>
+        <div class="groupbox">
+          <form id="curlform" method="post">
+            <div class="ceditbox" id="cedit1">
+              <p4>play custom url : </p4>
+              <input
+                class="form_data"
+                type="text"
+                id="curl"
+                name="curl"
+                placeholder="http://.."
+                onfocus="this.value=''"
+                style="color: darkslategray; align-content: flex-start"
+              /><br />
+              <button type="submit" name="submit" class="button1 button2">
+                play
+              </button>
+            </div>
+          </form>
+        </div>
+        <div class="groupbox">
+          <div id="sleepinfo">
+            <div id="timerinfo" style="color: black"></div>
+            <button
+              class="button1 button2"
+              id="bstop"
+              onclick="sendwsm('stopsleep')"
+            >
+              <a>Abort</a>
+            </button>
+          </div>
+          <form id="sleepform" method="post">
+            <div class="ceditbox" id="cedit1">
+              <p4> set sleep timer in minutes : </p4>
+              <input
+                class="form_data"
+                type="text"
+                id="tval"
+                placeholder="30"
+                name="sleep"
+                onfocus="this.value=''"
+                style="color: darkslategray; align-content: flex-start"
+              /><br />
+              <button
+                type="submit"
+                name="submit"
+                id="submit"
+                class="button1 button2"
+              >
+                submit
+              </button>
+            </div>
+          </form>
+        </div>
+        <!-- <div><p>play url</p><div style="display: flex;"><input id="purl" type="text" class="slider" name="playurl" onclick="playurl()"
+                        style="min-width: 280px;"><button class="button1" onclick="playurl()"><a>play</a></button></div></div> -->
+        <nav id="nav" style="display: none">
+          <ul class="menu">
+            <li><a href="settings" data-translate="settings"> settings </a></li>
+            <!--         <li><a href="/logout" data-translate="logout">logout</a></li> -->
+          </ul>
+        </nav>
+        <h2 id="cname">write by airasz</h2>
+      </div>
+      <!-- and class card_switch-->
+    </div>
+    <!-- end div main -->
+  </body>
+  <script>
+    // document.getElementById("defaultOpen").click();
+  </script>
+  <script type="application/javascript"></script>
 </html>
