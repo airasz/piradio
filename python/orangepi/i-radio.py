@@ -98,6 +98,7 @@ G_VAR = {
     "MIN_SLEEP_VALUE": 0,
     "TO_REBOOT": False,
     "TO_RESTARTAPP": False,
+    "TO_SET_PLAYMODE": False,
     "TS_ENABLE": False,
     "STOP_SLEEP": 0,
     "CDOWN": 0,
@@ -914,6 +915,18 @@ def startPlistTo():
         ids += 1
     interuptDisplay(8, 0, f"select.\n{pls}")
 
+def startSetPlayMode():
+    exitset(False)
+    G_VAR["TO_SET_PLAYMODE"] = True
+    modes = ["repeat", "random", "single", "consume"]
+    playmode=cmd("mpc status | grep -o 'repeat: \w\+' | awk '{print $2}'")
+    get_mpc_status()
+    info="set playmode\n"
+    info+=f'1. repeat {"on" if RADIO_STATUS["repeat"] else "off"}\n'
+    info+=f'2. random {"on" if RADIO_STATUS["random"] else "off"}\n'
+    info+=f'3. single {"on" if RADIO_STATUS["single"] else "    off"}\n'
+    info+=f'4. consume {"on" if RADIO_STATUS["consume"] else "off"}\n'
+    interuptDisplay(8, 0, info)
 
 def seekthrough(forward):
     status = ""
@@ -1082,6 +1095,12 @@ def clickNum(pos):
             broadcast_message("info=" + status)
             display.frezeeDisplay(3)
         G_VAR["PICK_PLAYLIST"] = False
+    if G_VAR["TO_SET_PLAYMODE"]:
+        modes = ["repeat", "random", "single", "consume"]
+        if pos in [1, 2, 3, 4]:
+            mode = modes[pos - 1]
+            status = cmd(f"mpc {mode}")
+            RESULT = cmd(f"mpc {mode} | grep -o '{mode}: \w\+' | awk '{{print $2}}'")
 
 
 def switchPLAYLIST():
@@ -1505,8 +1524,10 @@ def processIRe(irval):
             G_VAR["GOTOSTATION"] = True
         elif irval == REMOTE_CODES["EVERCROSS"]["KRE_SUB"]:
             restart_app()
+        #elif irval == REMOTE_CODES["EVERCROSS"]["KRE_REPEAT"]:
+           # trackrepeat()
         elif irval == REMOTE_CODES["EVERCROSS"]["KRE_REPEAT"]:
-            trackrepeat()
+            startSetPlayMode()
 
 
 settings = dict(

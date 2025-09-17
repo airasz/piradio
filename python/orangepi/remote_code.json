@@ -78,6 +78,7 @@
         "KRE_GOTO": "FD708F",
         "KRE_FORWARD": "FDD02F",
         "KRE_REVERSE": "FD10EF",
-        "KRE_SUB": "FD1AE5"
+        "KRE_SUB": "FD1AE5",
+        "KRE_REPEAT": "FD48B7"
     }
 }
