@@ -251,6 +251,7 @@ def loop():
     else:
         G_VAR["PLAYING"] = False
     if G_VAR["U_COUNT"] == 20:
+        exitset(False)
         if "playing" in status or "paused" in status:
             # displaytooled2()
             displayto_oled(status)
@@ -1006,6 +1007,7 @@ def exitset(info):
     G_VAR["NUM_VOL"] = 0
     G_VAR["STOP_SLEEP"] = False
     G_VAR["MINUTE_SLEEP"] = 0
+    G_VAR["TO_SET_PLAYMODE"] = False
     if info:
         interuptDisplay(3, 16, "operation\ncanceled")
 
@@ -1097,19 +1099,20 @@ def clickNum(pos):
             display.frezeeDisplay(3)
         G_VAR["PICK_PLAYLIST"] = False
     if G_VAR["TO_SET_PLAYMODE"]:
-        value_modes=[RADIO_STATUS["repeat"], RADIO_STATUS["random"], RADIO_STATUS["single"], RADIO_STATUS["consume"]]
-        key_modes = ["repeat", "random", "single", "consume"]
-        value_modes[pos-1]= not value_modes[pos-1]
-        reslt= f'mpc {key_modes[pos-1]} {value_modes[pos-1] and "on" or "off"}'
-        print(reslt)
-        get_mpc_status()
-        # noReturnSubprocess(f'mpc {key_modes[pos-1]} {value_modes[pos-1] and "on" or "off"}')
-        info=""
-        info+=f'1. repeat {"on" if RADIO_STATUS["repeat"] else "off"}\n'
-        info+=f'2. random {"on" if RADIO_STATUS["random"] else "off"}\n'
-        info+=f'3. single {"on" if RADIO_STATUS["single"] else "off"}\n'
-        info+=f'4. consume {"on" if RADIO_STATUS["consume"] else "off"}\n'
-        interuptDisplay(8, 0, info)
+        if pos in [1, 2, 3, 4]:
+            value_modes=[RADIO_STATUS["repeat"], RADIO_STATUS["random"], RADIO_STATUS["single"], RADIO_STATUS["consume"]]
+            key_modes = ["repeat", "random", "single", "consume"]
+            value_modes[pos-1]= not value_modes[pos-1]
+            reslt= cmd(f'mpc {key_modes[pos-1]} {value_modes[pos-1] and "on" or "off"}')
+            print(reslt)
+            get_mpc_status()
+            # noReturnSubprocess(f'mpc {key_modes[pos-1]} {value_modes[pos-1] and "on" or "off"}')
+            info=""
+            info+=f'1. repeat {"on" if RADIO_STATUS["repeat"] else "off"}\n'
+            info+=f'2. random {"on" if RADIO_STATUS["random"] else "off"}\n'
+            info+=f'3. single {"on" if RADIO_STATUS["single"] else "off"}\n'
+            info+=f'4. consume {"on" if RADIO_STATUS["consume"] else "off"}\n'
+            interuptDisplay(8, 0, info)
 
 
 def switchPLAYLIST():

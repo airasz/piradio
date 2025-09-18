@@ -53,7 +53,7 @@ PLAYLIST_X = 0
 saved_eval = 0
 
 SCOUNT = 0
-
+COUNT_ONMENU=0
 
 VOLTO = 0
 CONFIGDATA = {}
@@ -108,13 +108,14 @@ TEN = False
 NUM_VOL = 0
 TO_REBOOT = False
 HASINTERNET_ = False
+TO_SET_PLAYMODE = False
 MIN_SLEEP = 0
 MINUTE_SLEEP_VALUE = 0
 T_LINES = 0
 TOQ = 0
 TS_ENABLE = False
 STOP_SLEEP = 0
-drawPlayListMode = 0
+drawPlayListMode = 0 
 
 PLAYlists = []
 splited_playlist = []
@@ -423,7 +424,7 @@ def playPos(pos):
 
     pulse_ = 0
     # display.display("volume to "+ str(pos + 10 if TEN else pos))
-    if NUM_VOL == 0 and MIN_SLEEP == 0 and splp is False:
+    if NUM_VOL == 0 and MIN_SLEEP == 0 and splp is False and TO_SET_PLAYMODE is False:
         # display.display("play pos "+ str(pos), True)
         # display.frezeeDisplay(3)
         # myoled.displayfs("play pos "+ str(pos),15)
@@ -509,10 +510,28 @@ def playPos(pos):
             interuptDisplay(1, status)
         loadPLAYlists()
         splp = False
+    if TO_SET_PLAYMODE:
+        if pos<5:
+            RADIO_STATUS=module_piradionex.get_mpc_status()
+            value_modes=[RADIO_STATUS["repeat"], RADIO_STATUS["random"], RADIO_STATUS["single"], RADIO_STATUS["consume"]]
+            key_modes = ["repeat", "random", "single", "consume"]
+            value_modes[pos-1]= not value_modes[pos-1]
+            reslt= cmd(f'mpc {key_modes[pos-1]} {value_modes[pos-1] and "on" or "off"}')
+            print(reslt)
+            module_piradionex.get_mpc_status()
+            # noReturnSubprocess(f'mpc {key_modes[pos-1]} {value_modes[pos-1] and "on" or "off"}')
+            info=""
+            info+=f'1. repeat {"on" if RADIO_STATUS["repeat"] else "off"}\n'
+            info+=f'2. random {"on" if RADIO_STATUS["random"] else "off"}\n'
+            info+=f'3. single {"on" if RADIO_STATUS["single"] else "off"}\n'
+            info+=f'4. consume {"on" if RADIO_STATUS["consume"] else "off"}\n'
+            interuptDisplay(2, info)
 
 
 def startVol():
     global NUM_VOL
+    global COUNT_ONMENU
+    COUNT_ONMENU=0
     exitset(False)
     NUM_VOL = 1
     interuptDisplay(1, "jump volume to...")
@@ -521,6 +540,8 @@ def startVol():
 
 def startTenPos():
     global TEN
+    global COUNT_ONMENU
+    COUNT_ONMENU=0
     exitset(False)
     TEN = True
 
@@ -533,6 +554,8 @@ def startsetsleep():
     global TEN
     global MIN_SLEEP
     global STOP_SLEEP
+    global COUNT_ONMENU
+    COUNT_ONMENU=0
     load_variable()
     # display.onmenu(True)
     if TS_ENABLE is True:
@@ -555,6 +578,8 @@ def startsetsleep():
 def startPlistTo():
     global splp
     global PLAYlists
+    global COUNT_ONMENU
+    COUNT_ONMENU=0
     exitset(False)
     splp = True
     pls = ""
@@ -573,6 +598,21 @@ def startPlistTo():
     # display.display(f'select.\n{pls}', False)
     interuptDisplay(2, (f"select.\n{pls}"))
 
+def startSetPlayMode():
+    exitset(False)
+    global COUNT_ONMENU
+    COUNT_ONMENU=0
+    global TO_SET_PLAYMODE
+    TO_SET_PLAYMODE = True
+    playmode=cmd("mpc status | grep -o 'repeat: \w\+' | awk '{print $2}'")
+    get_mpc_status()
+    RADIO_STATUS=module_piradionex.get_mpc_status()
+    info=""
+    info+=f'1. repeat {"on" if RADIO_STATUS["repeat"] else "off"}\n'
+    info+=f'2. random {"on" if RADIO_STATUS["random"] else "off"}\n'
+    info+=f'3. single {"on" if RADIO_STATUS["single"] else "off"}\n'
+    info+=f'4. consume {"on" if RADIO_STATUS["consume"] else "off"}\n'
+    interuptDisplay(2, info)
 
 def ok():
     global MIN_SLEEP
@@ -600,6 +640,8 @@ def exitset(info):
     global splp
     global GOTOSTATION
     global splited_playlist_pointer
+    global TO_SET_PLAYMODE
+    TO_SET_PLAYMODE = False
     GOTOSTATION = False
     TO_REBOOT = False
     splp = False
@@ -802,6 +844,8 @@ def processIR(irval):
             seekthrough(True)
         elif irval == 2099273:
             seekthrough(False)
+        elif irval == 2099213: #EPG
+            startSetPlayMode()
 
     else:
         if irval > 2000000:
@@ -1187,11 +1231,18 @@ def make_app():
         **settings,
     )
 
-
+#100ms tick
 async def tick():
+    global COUNT_ONMENU
     global pulse_
     global secondDigit
     while True:
+        COUNT_ONMENU += 1
+        if COUNT_ONMENU > 100: 
+            # if display.getmenu() is True:
+            #     display.onmenu(False)
+            exitset(False)
+            COUNT_ONMENU = 0
         pulse_ += 1
         if pulse_ > 15:
             pulse_ = 0
@@ -1200,6 +1251,7 @@ async def tick():
                 os.system("mpc play " + str(secondDigit))
                 secondDigit = 0
             # print("tick")
+        
         await asyncio.sleep(0.1)
 
 
