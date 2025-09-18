@@ -23,7 +23,8 @@
         "KR_SLEEP": "410F807",
         "KR_OK": "410A857",
         "KR_EXIT": "41008F7",
-        "KR_MEDIA": "4105AA5"
+        "KR_MEDIA": "4105AA5",
+        "KR_NEXT": "410D22D"
     },
     "KRC": {
         "KRC_VOLUP": "FFF20D",
@@ -76,9 +77,12 @@
         "KRE_PAGEUP": "FDB04F",
         "KRE_PAGEDOWN": "FD8877",
         "KRE_GOTO": "FD708F",
-        "KRE_FORWARD": "FDD02F",
-        "KRE_REVERSE": "FD10EF",
+        "KRE_NEXT": "FDD02F",
+        "KRE_PREVIOUS": "FD10EF",
+        "KRE_FORWARD": "FD12ED",
+        "KRE_REWIND":"FD52AD",
         "KRE_SUB": "FD1AE5",
-        "KRE_REPEAT": "FD48B7"
+        "KRE_REPEAT":"FD48B7",
+		"KRE_MENU" :"FDA25D"
     }
 }

@@ -466,11 +466,16 @@ class display:
     def setPage(self, up):
         G_VAR["U_COUNT"] = 19
         print(f'G_VAR["U_COUNT"] = {G_VAR["U_COUNT"]}')
-        if up is True:
-            G_VAR["DISPLAY_PAGER"] += 1
-        else:
+        print(f'G_VAR["DISPLAY_PAGER"] = {G_VAR["DISPLAY_PAGER"]}')
+        # if up is True:
+            # G_VAR["DISPLAY_PAGER"] += 1
+        # else:
+            # G_VAR["DISPLAY_PAGER"] = 0
+        if up is False:
             G_VAR["DISPLAY_PAGER"] = 0
-        displayto_oled(status)
+        print(f'G_VAR["DISPLAY_PAGER"] after = {G_VAR["DISPLAY_PAGER"]}')
+        # status = cmd("mpc")
+        # displayto_oled(status)
 
     def delay(self, time):
         if time > 0:
@@ -1536,9 +1541,9 @@ def processIRe(irval):
             G_VAR["GOTOSTATION"] = True
         elif irval == REMOTE_CODES["EVERCROSS"]["KRE_SUB"]:
             restart_app()
-        #elif irval == REMOTE_CODES["EVERCROSS"]["KRE_REPEAT"]:
-           # trackrepeat()
         elif irval == REMOTE_CODES["EVERCROSS"]["KRE_REPEAT"]:
+           trackrepeat()
+        elif irval == REMOTE_CODES["EVERCROSS"]["KRE_MENU"]:
             startSetPlayMode()
 
 
@@ -1915,7 +1920,10 @@ async def secondy():
 async def tick():  # 100ms pulse
     while True:
         infinity()
-        G_VAR["PULSE_COUNT"] += 1
+        # G_VAR["COUNT_ONMENU"]+=1
+        # if G_VAR["COUNT_ONMENU"]>100:
+            # exitset(False)
+        # G_VAR["PULSE_COUNT"] += 1
         if G_VAR["PULSE_COUNT"] > 15:
             G_VAR["PULSE_COUNT"] = 0
             if G_VAR["SECOND_DIGIT"] > 0:
