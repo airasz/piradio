@@ -240,7 +240,7 @@ h1 {
   /* bottom: 4px; */
   border-radius: 50%;
   border: solid 1px #000 !important;
-  background-color: rgb(240, 106, 16);
+  background-color: rgb(2, 119, 51);
   /* box-shadow: 5px 5px 8px #8a8a8a, -2px -2px 8px #fff; */
   -webkit-transition: .4s;
   transition: .4s;
@@ -257,11 +257,11 @@ h1 {
   border: solid 1px #000 !important;
   /* box-shadow:
     2px 2px 8px #56e7ee,
-    -2px -2px 8px #61eaf7 !important; */
-}
+    -2px -2px 8px #61eaf7 !important; 
+}*/
 
-*/ input:checked+.slider_switch {
-  background-color: rgb(243, 243, 243);
+input:checked+.slider_switch {
+  background-color: rgb(243, 152, 16);
 }
 
 
@@ -284,8 +284,4 @@ input:checked+.slider_switch:before {
   background: rgb(152, 251, 84) !important;
   backdrop-filter: blur(6px);
   border: solid 1px #000 !important;
-}
-
-input[type="text"] {
-  /* width: 10%; */
 }
