@@ -1,5 +1,5 @@
 .card_switch {
-  background-color:#88f9d5 !important;
+  background-color: #88f9d5 !important;
   /* background-image: url(../static/mesh_bg.png) !important; */
   background-repeat: no-repeat;
   background-size: cover;
@@ -171,19 +171,21 @@ h1 {
 .slider::-moz-range-thumb {
   width: 18px;
   height: 18px;
-  background: rgb(6, 121, 4) !important;;
+  background: rgb(6, 121, 4) !important;
+  ;
   cursor: pointer;
   border-radius: 14px;
-/*   background: repeating-radial-gradient(#6b02ff, #aa05d8) !important; */
+  /*   background: repeating-radial-gradient(#6b02ff, #aa05d8) !important; */
   border: solid 1px #000 !important;
   /* box-shadow:
     2px 2px 8px #56e7ee,
     -2px -2px 8px #61eaf7 !important; */
 }
 
-.switch_button_container{
-  display:flex;
+.switch_button_container {
+  display: flex;
 }
+
 .switchbutton {
 
   position: relative;
@@ -242,7 +244,7 @@ h1 {
   /* bottom: 4px; */
   border-radius: 50%;
   border: solid 1px #000 !important;
-  background-color: #005500;
+  background-color: rgb(2, 119, 51);
   /* box-shadow: 5px 5px 8px #8a8a8a, -2px -2px 8px #fff; */
   -webkit-transition: .4s;
   transition: .4s;
@@ -259,11 +261,11 @@ h1 {
   border: solid 1px #000 !important;
   /* box-shadow:
     2px 2px 8px #56e7ee,
-    -2px -2px 8px #61eaf7 !important; */
-}
+    -2px -2px 8px #61eaf7 !important; 
+}*/
 
-*/ input:checked+.slider_switch {
-  background-color: rgb(243, 243, 243);
+input:checked+.slider_switch {
+  background-color: rgb(243, 152, 16);
 }
 
 
@@ -286,8 +288,4 @@ input:checked+.slider_switch:before {
   background: #d6acff !important;
   backdrop-filter: blur(6px);
   border: solid 1px #000 !important;
-}
-
-input[type="text"] {
-  /* width: 10%; */
 }
