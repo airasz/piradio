@@ -168,6 +168,7 @@ KR_wNUM = [
 ]
 
 KR_eNUM = [
+    [0, "FDF00F"],
     [1, "FD4AB5"],
     [2, "FD0AF5"],
     [3, "FD08F7"],
@@ -176,8 +177,7 @@ KR_eNUM = [
     [6, "FD28D7"],
     [7, "FD728D"],
     [8, "FD32CD"],
-    [9, "FD30CF"],
-    [10, "FDF00F"],
+    [9, "FD30CF"]
 ]
 # temporary flag
 
@@ -873,32 +873,45 @@ def getPlayState():
 
 
 def startVol():
-    interuptDisplay(8, 15, "jump volume...")
-    exitset(False)
-    G_VAR["NUM_VOL"] = 1
+    if G_VAR["NUM_VOL"] >0:
+        interuptDisplay(8, 15, "jump volume...")
+        exitset(False)
+        G_VAR["NUM_VOL"] = 1
+    else:
+        exitset(False)
+        G_VAR["NUM_VOL"] =0
+        G_VAR["U_COUNT"]=20
+        loop()
 
 
 stimerStop = 0
 
 
 def startsetsleep():
-    exitset(False)
-    global stimerStop
-    G_VAR["MINUTE_SLEEP"] = 1
-
-    # load_variable()
-    if sleeptimer.isrunning() is True:
-        if stimerStop == 0:
-            interuptDisplay(3, 0, "timer is running\npress again to stop")
-            stimerStop += 1
-        elif stimerStop == 1:
-            display.frezeeDisplay(3)
-            sleeptimer.stopcdown()
-            interuptDisplay(3, 0, "timer is stopped")
-            stimerStop = 0
-    else:
-        interuptDisplay(8, 0, "set sleep...")
+    if G_VAR["MINUTE_SLEEP"] >0:
+        exitset(False)
+        global stimerStop
         G_VAR["MINUTE_SLEEP"] = 1
+
+        # load_variable()
+        if sleeptimer.isrunning() is True:
+            if stimerStop == 0:
+                interuptDisplay(3, 0, "timer is running\npress again to stop")
+                stimerStop += 1
+            elif stimerStop == 1:
+                display.frezeeDisplay(3)
+                sleeptimer.stopcdown()
+                interuptDisplay(3, 0, "timer is stopped")
+                stimerStop = 0
+        else:
+            interuptDisplay(8, 0, "set sleep...")
+            G_VAR["MINUTE_SLEEP"] = 1
+    else:
+        exitset(False)
+        G_VAR["MINUTE_SLEEP"] =0
+        G_VAR["U_COUNT"]=20
+        loop()
+
 
 
 def startTenPos():
@@ -908,31 +921,42 @@ def startTenPos():
 
 
 def startPlistTo():
-    exitset(False)
-    G_VAR["PICK_PLAYLIST"] = True
-    pls = ""
-    ids = 0
-    dbl = 0
-    PLAYlists.sort()
-    for item in PLAYlists:
-        dbl += 1
-        nl = "\n"
-        pls += f'{str(ids+1)}. {str(item)}{nl if dbl%2==0 else "  "}'
-        ids += 1
-    interuptDisplay(8, 0, f"select.\n{pls}")
+    if G_VAR["PICK_PLAYLIST"] is False:
+        exitset(False)
+        G_VAR["PICK_PLAYLIST"] = True
+        pls = ""
+        ids = 0
+        dbl = 0
+        PLAYlists.sort()
+        for item in PLAYlists:
+            dbl += 1
+            nl = "\n"
+            pls += f'{str(ids+1)}. {str(item)}{nl if dbl%2==0 else "  "}'
+            ids += 1
+        interuptDisplay(8, 0, f"select.\n{pls}")
+    else:
+        exitset(False)
+        G_VAR["U_COUNT"]=20
+        loop()
 
 def startSetPlayMode():
-    exitset(False)
-    G_VAR["TO_SET_PLAYMODE"] = True
-    modes = ["repeat", "random", "single", "consume"]
-    playmode=cmd("mpc status | grep -o 'repeat: \w\+' | awk '{print $2}'")
-    get_mpc_status()
-    info=""
-    info+=f'1. repeat {"on" if RADIO_STATUS["repeat"] else "off"}\n'
-    info+=f'2. random {"on" if RADIO_STATUS["random"] else "off"}\n'
-    info+=f'3. single {"on" if RADIO_STATUS["single"] else "off"}\n'
-    info+=f'4. consume {"on" if RADIO_STATUS["consume"] else "off"}\n'
-    interuptDisplay(8, 0, info)
+    if G_VAR["TO_SET_PLAYMODE"] is False:
+        exitset(False)
+        G_VAR["TO_SET_PLAYMODE"] = True
+        modes = ["repeat", "random", "single", "consume"]
+        playmode=cmd("mpc status | grep -o 'repeat: \w\+' | awk '{print $2}'")
+        get_mpc_status()
+        info=""
+        info+=f'1. repeat {"on" if RADIO_STATUS["repeat"] else "off"}\n'
+        info+=f'2. random {"on" if RADIO_STATUS["random"] else "off"}\n'
+        info+=f'3. single {"on" if RADIO_STATUS["single"] else "off"}\n'
+        info+=f'4. consume {"on" if RADIO_STATUS["consume"] else "off"}\n'
+        interuptDisplay(8, 0, info)
+    else:
+        exitset(False)
+        G_VAR["U_COUNT"]=20
+        loop()
+        # displaytooled(cmd("mpc"))
 
 def seekthrough(forward):
     status = ""
