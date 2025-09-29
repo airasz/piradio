@@ -85,7 +85,7 @@ KR_NUMKEYS = [
     [7, 2099268],
     [8, 2099269],
     [9, 2099270],
-    [10, 2099271],
+    [0, 2099271],
 ]
 KB_NUMKEYS = [
     [1, 458841],
@@ -151,7 +151,7 @@ NUMKEYS = [
     [7, 71],
     [8, 72],
     [9, 73],
-    [10, 82],
+    [0, 82],
 ]
 
 config_path = "radioconfig.json"
@@ -329,12 +329,17 @@ def playToggle():
 def setVOL(up):
     status = ""
     vol = ""
+
     # status = subprocess.check_output(("mpc volume +5 | grep volume | awk '{print$2}'") if up else ("mpc volume -5 | grep volume | awk '{print$2}'"), shell=True).decode("utf-8")
     status = cmd(
         "mpc volume " + ("+5" if up else "-5") + " | grep volume | awk '{print$2}'"
     )
+    vol=status.replace("%", "")
+    intvol=int(vol)
     print("vol " + status)
     interuptDisplay(3, "set volume " + status)
+    sleep(0.1)
+    display.sendCommand(f'h0.val={intvol}')
 
 
 def trackrepeat():
@@ -1114,13 +1119,13 @@ class shellCmd(tornado.web.RequestHandler):  # scmd
             self.write(rp)
         elif input == "status":
             status = module_piradionex.get_mpc_status()
-            print(json.dumps(module_piradionex.get_mpc_status(), indent=2))
+            # print(json.dumps(module_piradionex.get_mpc_status(), indent=2))
             sr = subprocess.check_output("mpc", shell=True).decode("utf-8")
             self.write(sr)
         elif input == "sttsjson":
             status = module_piradionex.get_mpc_status()
-            print("status>:  ", status)
-            print(json.dumps(status, indent=2))
+            # print("status>:  ", status)
+            # print(json.dumps(status, indent=2))
             self.write(json.dumps(status))
         elif input == "config":
             # self.set_header("Content-Type", "application/json")
