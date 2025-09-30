@@ -177,7 +177,7 @@ KR_eNUM = [
     [6, "FD28D7"],
     [7, "FD728D"],
     [8, "FD32CD"],
-    [9, "FD30CF"]
+    [9, "FD30CF"],
 ]
 # temporary flag
 
@@ -446,7 +446,9 @@ class sleeptimer:
     def update(self):
         # print("sec cd = "+str(SEC_CD))
         if G_VAR["T_ENABLE"] is True:
-            RADIO_STATUS["sleeptimer"]["second_countdown"] = seconds_to_time(G_VAR["SECOND_CDOWN"])
+            RADIO_STATUS["sleeptimer"]["second_countdown"] = seconds_to_time(
+                G_VAR["SECOND_CDOWN"]
+            )
             print(f' sleep countdown json= {RADIO_STATUS["sleeptimer"]["countdown"]}')
             mins, secs = divmod(G_VAR["SECOND_CDOWN"], 60)
             hours, mins = divmod(mins, 60)
@@ -454,6 +456,8 @@ class sleeptimer:
             return "sleep in > " + str(timer)
         else:
             return "off"  # do not change
+
+
 sleeptimer = sleeptimer()
 
 
@@ -468,9 +472,9 @@ class display:
         print(f'G_VAR["U_COUNT"] = {G_VAR["U_COUNT"]}')
         print(f'G_VAR["DISPLAY_PAGER"] = {G_VAR["DISPLAY_PAGER"]}')
         # if up is True:
-            # G_VAR["DISPLAY_PAGER"] += 1
+        # G_VAR["DISPLAY_PAGER"] += 1
         # else:
-            # G_VAR["DISPLAY_PAGER"] = 0
+        # G_VAR["DISPLAY_PAGER"] = 0
         if up is False:
             G_VAR["DISPLAY_PAGER"] = 0
         print(f'G_VAR["DISPLAY_PAGER"] after = {G_VAR["DISPLAY_PAGER"]}')
@@ -534,6 +538,7 @@ def seconds_to_time(sec: int) -> str:
     m, s = divmod(sec, 60)
     return f"{m}:{s:02d}"
 
+
 def seconds_to_hms(sec: int) -> str:
     """Convert seconds to hh:mm:ss format"""
     if sec < 0:
@@ -574,11 +579,11 @@ def get_mpc_status():
                 "progress_percent": 0,
                 "progress_ratio": 0.0,
                 "duration_ratio": 0.0,
-                "volume": None ,
+                "volume": None,
                 "repeat": False,
                 "random": False,
                 "single": False,
-                "consume": False
+                "consume": False,
             }
         )
         volume_match = re.search(r"volume:\s*(\d+)%", lines[0])
@@ -662,12 +667,22 @@ def get_mpc_status():
             "sleeptimer": {
                 "enable": G_VAR["T_ENABLE"],
                 "second_countdown": G_VAR["SECOND_CDOWN"],
-                "countdown": seconds_to_time(G_VAR["SECOND_CDOWN"]) if G_VAR["T_ENABLE"] else "off",
+                "countdown": (
+                    seconds_to_time(G_VAR["SECOND_CDOWN"])
+                    if G_VAR["T_ENABLE"]
+                    else "off"
+                ),
                 "auto_stop": {
                     "enable": G_VAR["AUTOSTOP_COUNT_DOWN"],
                     "second_countdown": G_VAR["AUTOSTOP_SECOND_CDOWN"],
                     "second_max": G_VAR["ASSECMX"],
-                    "countdown": seconds_to_hms(G_VAR["ASSECMX"] - G_VAR["AUTOSTOP_SECOND_CDOWN"]) if G_VAR["AUTOSTOP_COUNT_DOWN"] else "off",
+                    "countdown": (
+                        seconds_to_hms(
+                            G_VAR["ASSECMX"] - G_VAR["AUTOSTOP_SECOND_CDOWN"]
+                        )
+                        if G_VAR["AUTOSTOP_COUNT_DOWN"]
+                        else "off"
+                    ),
                 },
             }
         }
@@ -797,7 +812,7 @@ def load_config():
             REMOTES = CONFIGDATA.get("remote", "")
             G_VAR["TS_ENABLE"] = CONFIGDATA.get("timer", {}).get("enable", False)
             G_VAR["SECOND_CDOWN"] = CONFIGDATA.get("timer", {}).get("seconds", 120)
-            G_VAR["PLAY_CURL"]= CONFIGDATA.get("play_custom", False)
+            G_VAR["PLAY_CURL"] = CONFIGDATA.get("play_custom", False)
             if CONFIGDATA.get("autoload", "true") is True:
                 os.system("mpc play")
                 print("auto play by config")
@@ -873,14 +888,14 @@ def getPlayState():
 
 
 def startVol():
-    if G_VAR["NUM_VOL"] >0:
+    if G_VAR["NUM_VOL"] > 0:
         interuptDisplay(8, 15, "jump volume...")
         exitset(False)
         G_VAR["NUM_VOL"] = 1
     else:
         exitset(False)
-        G_VAR["NUM_VOL"] =0
-        G_VAR["U_COUNT"]=20
+        G_VAR["NUM_VOL"] = 0
+        G_VAR["U_COUNT"] = 20
         loop()
 
 
@@ -888,7 +903,7 @@ stimerStop = 0
 
 
 def startsetsleep():
-    if G_VAR["MINUTE_SLEEP"] >0:
+    if G_VAR["MINUTE_SLEEP"] > 0:
         exitset(False)
         global stimerStop
         G_VAR["MINUTE_SLEEP"] = 1
@@ -908,10 +923,9 @@ def startsetsleep():
             G_VAR["MINUTE_SLEEP"] = 1
     else:
         exitset(False)
-        G_VAR["MINUTE_SLEEP"] =0
-        G_VAR["U_COUNT"]=20
+        G_VAR["MINUTE_SLEEP"] = 0
+        G_VAR["U_COUNT"] = 20
         loop()
-
 
 
 def startTenPos():
@@ -936,27 +950,29 @@ def startPlistTo():
         interuptDisplay(8, 0, f"select.\n{pls}")
     else:
         exitset(False)
-        G_VAR["U_COUNT"]=20
+        G_VAR["U_COUNT"] = 20
         loop()
+
 
 def startSetPlayMode():
     if G_VAR["TO_SET_PLAYMODE"] is False:
         exitset(False)
         G_VAR["TO_SET_PLAYMODE"] = True
         modes = ["repeat", "random", "single", "consume"]
-        playmode=cmd("mpc status | grep -o 'repeat: \w\+' | awk '{print $2}'")
+        playmode = cmd("mpc status | grep -o 'repeat: \w\+' | awk '{print $2}'")
         get_mpc_status()
-        info=""
-        info+=f'1. repeat {"on" if RADIO_STATUS["repeat"] else "off"}\n'
-        info+=f'2. random {"on" if RADIO_STATUS["random"] else "off"}\n'
-        info+=f'3. single {"on" if RADIO_STATUS["single"] else "off"}\n'
-        info+=f'4. consume {"on" if RADIO_STATUS["consume"] else "off"}\n'
+        info = ""
+        info += f'1. repeat {"on" if RADIO_STATUS["repeat"] else "off"}\n'
+        info += f'2. random {"on" if RADIO_STATUS["random"] else "off"}\n'
+        info += f'3. single {"on" if RADIO_STATUS["single"] else "off"}\n'
+        info += f'4. consume {"on" if RADIO_STATUS["consume"] else "off"}\n'
         interuptDisplay(8, 0, info)
     else:
         exitset(False)
-        G_VAR["U_COUNT"]=20
+        G_VAR["U_COUNT"] = 20
         loop()
         # displaytooled(cmd("mpc"))
+
 
 def seekthrough(forward):
     status = ""
@@ -1129,18 +1145,25 @@ def clickNum(pos):
         G_VAR["PICK_PLAYLIST"] = False
     if G_VAR["TO_SET_PLAYMODE"]:
         if pos in [1, 2, 3, 4]:
-            value_modes=[RADIO_STATUS["repeat"], RADIO_STATUS["random"], RADIO_STATUS["single"], RADIO_STATUS["consume"]]
+            value_modes = [
+                RADIO_STATUS["repeat"],
+                RADIO_STATUS["random"],
+                RADIO_STATUS["single"],
+                RADIO_STATUS["consume"],
+            ]
             key_modes = ["repeat", "random", "single", "consume"]
-            value_modes[pos-1]= not value_modes[pos-1]
-            reslt= cmd(f'mpc {key_modes[pos-1]} {value_modes[pos-1] and "on" or "off"}')
+            value_modes[pos - 1] = not value_modes[pos - 1]
+            reslt = cmd(
+                f'mpc {key_modes[pos-1]} {value_modes[pos-1] and "on" or "off"}'
+            )
             print(reslt)
             get_mpc_status()
             # noReturnSubprocess(f'mpc {key_modes[pos-1]} {value_modes[pos-1] and "on" or "off"}')
-            info=""
-            info+=f'1. repeat {"on" if RADIO_STATUS["repeat"] else "off"}\n'
-            info+=f'2. random {"on" if RADIO_STATUS["random"] else "off"}\n'
-            info+=f'3. single {"on" if RADIO_STATUS["single"] else "off"}\n'
-            info+=f'4. consume {"on" if RADIO_STATUS["consume"] else "off"}\n'
+            info = ""
+            info += f'1. repeat {"on" if RADIO_STATUS["repeat"] else "off"}\n'
+            info += f'2. random {"on" if RADIO_STATUS["random"] else "off"}\n'
+            info += f'3. single {"on" if RADIO_STATUS["single"] else "off"}\n'
+            info += f'4. consume {"on" if RADIO_STATUS["consume"] else "off"}\n'
             interuptDisplay(8, 0, info)
 
 
@@ -1566,7 +1589,7 @@ def processIRe(irval):
         elif irval == REMOTE_CODES["EVERCROSS"]["KRE_SUB"]:
             restart_app()
         elif irval == REMOTE_CODES["EVERCROSS"]["KRE_REPEAT"]:
-           trackrepeat()
+            trackrepeat()
         elif irval == REMOTE_CODES["EVERCROSS"]["KRE_MENU"]:
             startSetPlayMode()
 
@@ -1607,7 +1630,7 @@ class MainHandler(tornado.web.RequestHandler):
             G_VAR["MIN_SLEEP_VALUE"] = int(value)
             sleeptimer.startcdown(G_VAR["MIN_SLEEP_VALUE"])
             RADIO_STATUS["sleeptimer"]["enable"] = True
-            
+
             interuptDisplay(
                 3,
                 15,
@@ -1621,7 +1644,7 @@ class MainHandler(tornado.web.RequestHandler):
             sleeptimer.resetAutoStop()
             if G_VAR["PLAY_CURL"] is False:
                 status = cmd("mpc clear")
-                
+
             sleep(0.1)
             status = cmd("mpc add " + curlval)
             interuptDisplay(2, 16, status)
@@ -1681,6 +1704,28 @@ class shellCmd(tornado.web.RequestHandler):  # scmd
                 )
                 rp += f"<button {mark} onclick=\"sendcmd('mpc play {i+1}')\"><a>{i+1}. {pl[i]}</a></button>"
             self.write(rp)
+        elif input == "playlistsjson":
+            self.set_header("Content-Type", "application/json")
+            idd = 0
+            jdata = []
+            # print(f'get play state: {getPlayState()}')
+            if (getPlayState()) is True:
+                idd = int(
+                    subprocess.check_output(
+                        "mpc -f [%position%] | awk 'NR==1 {print}'", shell=True
+                    ).decode("utf-8")
+                )
+            sr = subprocess.check_output("mpc playlist", shell=True).decode("utf-8")
+            pl = sr.splitlines(keepends=False)
+            rp = ""
+            for i in range(len(pl)):
+                if "://" in pl[i]:
+                    pl[i] = pl[i][pl[i].index("//") + 2 :]
+                jdata.append({"id": i + 1, "name": pl[i], "playing": (i + 1 == idd)})
+                # jdata = {"id": i + 1, "name": pl[i], "playing": (i + 1 == idd)}
+                # rp += f"<button {mark} onclick=\"sendcmd('mpc play {i+1}')\"><a>{i+1}. {pl[i]}</a></button>"
+            print(jdata)
+            self.write(json.dumps(jdata))
         elif input == "iplaylist":
             sr = subprocess.check_output("mpc lsplaylists", shell=True).decode("utf-8")
             pl = sr.splitlines(keepends=False)
@@ -1946,7 +1991,7 @@ async def tick():  # 100ms pulse
         infinity()
         # G_VAR["COUNT_ONMENU"]+=1
         # if G_VAR["COUNT_ONMENU"]>100:
-            # exitset(False)
+        # exitset(False)
         # G_VAR["PULSE_COUNT"] += 1
         if G_VAR["PULSE_COUNT"] > 15:
             G_VAR["PULSE_COUNT"] = 0
