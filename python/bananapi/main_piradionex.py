@@ -102,10 +102,7 @@ KB_NUMKEYS = [
 
 # KB_NUMKEYS=[[1 , KEY_KP1],[2 , KEY_KP2],[3 , KEY_KP3],[4 , KEY_KP4],[5 , KEY_KP5],[6 , KEY_KP6],[7 , KEY_KP7],[8 , KEY_KP8],[9 , KEY_KP9],[10 , KEY_KP0]]
 
-stationAlternative = {
-    "My Station name": "Hang FM Batam",
-    "Unnamed Server": "",
-}
+stationAlternative = {"My Station name": "Hang FM Batam"}
 # temporary flag
 TEN = False
 NUM_VOL = 0
@@ -798,7 +795,16 @@ def processIR(irval):
                 break
         if irval == 2099218:
             print("UP")
+            setSTATION(True)
+        elif irval == 2099219:
+            print("DOWN")
+            setSTATION(False)
+        elif irval == 2099222:
+            print("right")
             setVOL(True)
+        elif irval == 2099220:
+            print("left")
+            setVOL(False)
         elif irval == KR_VOLUP:
             print("volume up")
             setVOL(True)
@@ -811,15 +817,6 @@ def processIR(irval):
         # elif irval== KR_D_UP:
         #     print("dUP")
         #     setVOL(False)
-        elif irval == 2099219:
-            print("DOWN")
-            setVOL(False)
-        elif irval == 2099222:
-            print("right")
-            setSTATION(True)
-        elif irval == 2099220:
-            print("left")
-            setSTATION(False)
         elif irval == 2099278:
             print("play")
             # os.system("mpc play")
