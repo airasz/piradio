@@ -1093,6 +1093,7 @@ def clickNum(pos):
             else:
                 interuptDisplay(3, 15, (f"play pos {str(pos)}_"))
                 G_VAR["SECOND_DIGIT"] = pos * 10
+                print(f'second digit = {G_VAR["SECOND_DIGIT"]}')
                 return
         return
     if G_VAR["NUM_VOL"] == 1:
@@ -1747,6 +1748,7 @@ class shellCmd(tornado.web.RequestHandler):  # scmd
             sr = status
             self.write(sr)
         elif input == "sttsjson":
+            self.set_header("Content-Type", "application/json")
             status = get_mpc_status()
             self.write(json.dumps(status))
         elif input == "config":
@@ -1826,6 +1828,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
             if sbmsg.startswith("mpc load"):
                 subprocess.check_output("mpc clear", shell=True)
                 subprocess.check_output(sbmsg, shell=True).decode("utf-8")
+                getstationlen()
                 subprocess.check_output("mpc play ", shell=True).decode("utf-8")
                 for i in range(len(PLAYlists)):
                     if PLAYlists[i] in sbmsg:
@@ -1988,13 +1991,15 @@ async def secondy():
 
 async def tick():  # 100ms pulse
     while True:
+        # print("tick")
         infinity()
         # G_VAR["COUNT_ONMENU"]+=1
         # if G_VAR["COUNT_ONMENU"]>100:
         # exitset(False)
-        # G_VAR["PULSE_COUNT"] += 1
+        G_VAR["PULSE_COUNT"] += 1
         if G_VAR["PULSE_COUNT"] > 15:
             G_VAR["PULSE_COUNT"] = 0
+            print(f'second digit = {G_VAR["SECOND_DIGIT"]}')
             if G_VAR["SECOND_DIGIT"] > 0:
                 G_VAR["SECOND_DIGIT"] = int(G_VAR["SECOND_DIGIT"] / 10)
                 os.system("mpc play " + str(G_VAR["SECOND_DIGIT"]))
