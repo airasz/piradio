@@ -548,146 +548,156 @@ def seconds_to_hms(sec: int) -> str:
     return f"{h}:{m:02d}:{s:02d}"
 
 
+# get mpc status in json format
 def get_mpc_status():
-    result = subprocess.run(["mpc", "status"], capture_output=True, text=True)
-    lines = result.stdout.strip().splitlines()
+    try:
+        result = subprocess.run(
+            ["mpc", "status"], timeout=3, capture_output=True, text=True, check=True
+        )
+        lines = result.stdout.strip().splitlines()
 
-    if not lines:
-        return {"error": "mpc returned no output (MPD might not be running)"}
+        if not lines:
+            return {"error": "mpc returned no output (MPD might not be running)"}
 
-    global RADIO_STATUS
-    sleeptimer.update()
-    # --- Case: stopped ---
-    if len(lines) == 1 and ("volume:" in lines[0] or "stopped" in lines[0].lower()):
+        global RADIO_STATUS
+        sleeptimer.update()
+        # --- Case: stopped ---
+        if len(lines) == 1 and ("volume:" in lines[0] or "stopped" in lines[0].lower()):
+            RADIO_STATUS.update(
+                {
+                    "artist": None,
+                    "title": None,
+                    "mode": "stopped",
+                    "is_playing": False,
+                    "is_paused": False,
+                    "is_stopped": True,
+                    "position": {"current": 0, "total": 0},
+                    "time": {
+                        "elapsed": "0:00",
+                        "total": "0:00",
+                        "elapsed_seconds": 0,
+                        "total_seconds": 0,
+                        "remaining_seconds": 0,
+                        "remaining_time": "0:00",
+                    },
+                    "progress_percent": 0,
+                    "progress_ratio": 0.0,
+                    "duration_ratio": 0.0,
+                    "volume": None,
+                    "repeat": False,
+                    "random": False,
+                    "single": False,
+                    "consume": False,
+                }
+            )
+            volume_match = re.search(r"volume:\s*(\d+)%", lines[0])
+            RADIO_STATUS["volume"] = (
+                int(volume_match.group(1)) if volume_match else None
+            )
+
+            return RADIO_STATUS
+
+        # --- Case: playing or paused ---
+        if " - " in lines[0]:
+            artist, title = lines[0].split(" - ", 1)
+            RADIO_STATUS["artist"] = artist
+            RADIO_STATUS["title"] = title
+        else:
+            RADIO_STATUS["artist"] = None
+            RADIO_STATUS["title"] = lines[0]
+
+        # line 2: mode, position, time, progress
+        mode_match = re.search(r"\[([^\]]+)\]", lines[1])
+        mode = mode_match.group(1).lower() if mode_match else "unknown"
+        RADIO_STATUS["mode"] = mode
+        RADIO_STATUS["is_playing"] = mode == "playing"
+        RADIO_STATUS["is_paused"] = mode == "paused"
+        RADIO_STATUS["is_stopped"] = mode == "stopped"
+
+        pos_match = re.search(r"#(\d+)/(\d+)", lines[1])
+        pos_cur, pos_total = pos_match.groups() if pos_match else ("0", "0")
+        pos_cur, pos_total = int(pos_cur), int(pos_total)
+
+        time_match = re.search(r"(\d+:\d+)/(\d+:\d+)", lines[1])
+        elapsed, total = time_match.groups() if time_match else ("0:00", "0:00")
+
+        progress_match = re.search(r"\((\d+)%\)", lines[1])
+        progress = int(progress_match.group(1)) if progress_match else 0
+
+        elapsed_sec = time_to_seconds(elapsed)
+        total_sec = time_to_seconds(total)
+        remaining_sec = total_sec - elapsed_sec
+        remaining_time = seconds_to_time(remaining_sec)
+
+        progress_ratio = (elapsed_sec / total_sec) if total_sec > 0 else 0.0
+        duration_ratio = (pos_cur / pos_total) if pos_total > 0 else 0.0
+
+        RADIO_STATUS["position"] = {"current": pos_cur, "total": pos_total}
+        RADIO_STATUS["time"] = {
+            "elapsed": elapsed,
+            "total": total,
+            "elapsed_seconds": elapsed_sec,
+            "total_seconds": total_sec,
+            "remaining_seconds": remaining_sec,
+            "remaining_time": remaining_time,
+        }
+        RADIO_STATUS["progress_percent"] = progress
+        RADIO_STATUS["progress_ratio"] = round(progress_ratio, 3)
+        RADIO_STATUS["duration_ratio"] = round(duration_ratio, 3)
+
+        # line 3: volume + flags
+        if len(lines) >= 3:
+            volume_match = re.search(r"volume:\s*(\d+)%", lines[2])
+            RADIO_STATUS["volume"] = (
+                int(volume_match.group(1)) if volume_match else None
+            )
+
+            def extract_flag(name):
+                m = re.search(rf"{name}:\s*(\w+)", lines[2])
+                return to_bool(m.group(1)) if m else False
+
+            RADIO_STATUS["repeat"] = extract_flag("repeat")
+            RADIO_STATUS["random"] = extract_flag("random")
+            RADIO_STATUS["single"] = extract_flag("single")
+            RADIO_STATUS["consume"] = extract_flag("consume")
+        else:
+            RADIO_STATUS.update(
+                {
+                    "volume": None,
+                    "repeat": False,
+                    "random": False,
+                    "single": False,
+                    "consume": False,
+                }
+            )
         RADIO_STATUS.update(
             {
-                "artist": None,
-                "title": None,
-                "mode": "stopped",
-                "is_playing": False,
-                "is_paused": False,
-                "is_stopped": True,
-                "position": {"current": 0, "total": 0},
-                "time": {
-                    "elapsed": "0:00",
-                    "total": "0:00",
-                    "elapsed_seconds": 0,
-                    "total_seconds": 0,
-                    "remaining_seconds": 0,
-                    "remaining_time": "0:00",
-                },
-                "progress_percent": 0,
-                "progress_ratio": 0.0,
-                "duration_ratio": 0.0,
-                "volume": None,
-                "repeat": False,
-                "random": False,
-                "single": False,
-                "consume": False,
-            }
-        )
-        volume_match = re.search(r"volume:\s*(\d+)%", lines[0])
-        RADIO_STATUS["volume"] = int(volume_match.group(1)) if volume_match else None
-
-        return RADIO_STATUS
-
-    # --- Case: playing or paused ---
-    if " - " in lines[0]:
-        artist, title = lines[0].split(" - ", 1)
-        RADIO_STATUS["artist"] = artist
-        RADIO_STATUS["title"] = title
-    else:
-        RADIO_STATUS["artist"] = None
-        RADIO_STATUS["title"] = lines[0]
-
-    # line 2: mode, position, time, progress
-    mode_match = re.search(r"\[([^\]]+)\]", lines[1])
-    mode = mode_match.group(1).lower() if mode_match else "unknown"
-    RADIO_STATUS["mode"] = mode
-    RADIO_STATUS["is_playing"] = mode == "playing"
-    RADIO_STATUS["is_paused"] = mode == "paused"
-    RADIO_STATUS["is_stopped"] = mode == "stopped"
-
-    pos_match = re.search(r"#(\d+)/(\d+)", lines[1])
-    pos_cur, pos_total = pos_match.groups() if pos_match else ("0", "0")
-    pos_cur, pos_total = int(pos_cur), int(pos_total)
-
-    time_match = re.search(r"(\d+:\d+)/(\d+:\d+)", lines[1])
-    elapsed, total = time_match.groups() if time_match else ("0:00", "0:00")
-
-    progress_match = re.search(r"\((\d+)%\)", lines[1])
-    progress = int(progress_match.group(1)) if progress_match else 0
-
-    elapsed_sec = time_to_seconds(elapsed)
-    total_sec = time_to_seconds(total)
-    remaining_sec = total_sec - elapsed_sec
-    remaining_time = seconds_to_time(remaining_sec)
-
-    progress_ratio = (elapsed_sec / total_sec) if total_sec > 0 else 0.0
-    duration_ratio = (pos_cur / pos_total) if pos_total > 0 else 0.0
-
-    RADIO_STATUS["position"] = {"current": pos_cur, "total": pos_total}
-    RADIO_STATUS["time"] = {
-        "elapsed": elapsed,
-        "total": total,
-        "elapsed_seconds": elapsed_sec,
-        "total_seconds": total_sec,
-        "remaining_seconds": remaining_sec,
-        "remaining_time": remaining_time,
-    }
-    RADIO_STATUS["progress_percent"] = progress
-    RADIO_STATUS["progress_ratio"] = round(progress_ratio, 3)
-    RADIO_STATUS["duration_ratio"] = round(duration_ratio, 3)
-
-    # line 3: volume + flags
-    if len(lines) >= 3:
-        volume_match = re.search(r"volume:\s*(\d+)%", lines[2])
-        RADIO_STATUS["volume"] = int(volume_match.group(1)) if volume_match else None
-
-        def extract_flag(name):
-            m = re.search(rf"{name}:\s*(\w+)", lines[2])
-            return to_bool(m.group(1)) if m else False
-
-        RADIO_STATUS["repeat"] = extract_flag("repeat")
-        RADIO_STATUS["random"] = extract_flag("random")
-        RADIO_STATUS["single"] = extract_flag("single")
-        RADIO_STATUS["consume"] = extract_flag("consume")
-    else:
-        RADIO_STATUS.update(
-            {
-                "volume": None,
-                "repeat": False,
-                "random": False,
-                "single": False,
-                "consume": False,
-            }
-        )
-    RADIO_STATUS.update(
-        {
-            "sleeptimer": {
-                "enable": G_VAR["T_ENABLE"],
-                "second_countdown": G_VAR["SECOND_CDOWN"],
-                "countdown": (
-                    seconds_to_time(G_VAR["SECOND_CDOWN"])
-                    if G_VAR["T_ENABLE"]
-                    else "off"
-                ),
-                "auto_stop": {
-                    "enable": G_VAR["AUTOSTOP_COUNT_DOWN"],
-                    "second_countdown": G_VAR["AUTOSTOP_SECOND_CDOWN"],
-                    "second_max": G_VAR["ASSECMX"],
+                "sleeptimer": {
+                    "enable": G_VAR["T_ENABLE"],
+                    "second_countdown": G_VAR["SECOND_CDOWN"],
                     "countdown": (
-                        seconds_to_hms(
-                            G_VAR["ASSECMX"] - G_VAR["AUTOSTOP_SECOND_CDOWN"]
-                        )
-                        if G_VAR["AUTOSTOP_COUNT_DOWN"]
+                        seconds_to_time(G_VAR["SECOND_CDOWN"])
+                        if G_VAR["T_ENABLE"]
                         else "off"
                     ),
-                },
+                    "auto_stop": {
+                        "enable": G_VAR["AUTOSTOP_COUNT_DOWN"],
+                        "second_countdown": G_VAR["AUTOSTOP_SECOND_CDOWN"],
+                        "second_max": G_VAR["ASSECMX"],
+                        "countdown": (
+                            seconds_to_hms(
+                                G_VAR["ASSECMX"] - G_VAR["AUTOSTOP_SECOND_CDOWN"]
+                            )
+                            if G_VAR["AUTOSTOP_COUNT_DOWN"]
+                            else "off"
+                        ),
+                    },
+                }
             }
-        }
-    )
-    return RADIO_STATUS
+        )
+        return RADIO_STATUS
+    except subprocess.TimeoutExpired:
+        return {"artist": "MPD error"}
 
 
 def load_variable():
@@ -833,7 +843,9 @@ def save_config():
 def cmd(cmd):
     rtr = ""
     try:
-        rtr = subprocess.check_output(cmd, shell=True)
+        rtr = subprocess.check_output(cmd, shell=True, timeout=3)
+    except subprocess.TimeoutExpired:
+        print("timeout in cmd: " + cmd)
     except subprocess.CalledProcessError as e:
         rtr = e.output
         # rtr="eror"
@@ -843,8 +855,13 @@ def cmd(cmd):
 
 
 def noReturnSubprocess(cmd):
+
+    lcmd = []
+    lcmd = cmd.split(" ")
     try:
-        subprocess.check_output(cmd, shell=True)
+        subprocess.check_output(lcmd, timeout=3)
+    except subprocess.TimeoutExpired:
+        print("timeout in cmd: " + cmd)
     except subprocess.CalledProcessError as e:
         print("error in cmd: " + cmd)
         print(e.output.decode("utf-8"))
@@ -1999,7 +2016,7 @@ async def tick():  # 100ms pulse
         G_VAR["PULSE_COUNT"] += 1
         if G_VAR["PULSE_COUNT"] > 15:
             G_VAR["PULSE_COUNT"] = 0
-            print(f'second digit = {G_VAR["SECOND_DIGIT"]}')
+            # print(f'second digit = {G_VAR["SECOND_DIGIT"]}')
             if G_VAR["SECOND_DIGIT"] > 0:
                 G_VAR["SECOND_DIGIT"] = int(G_VAR["SECOND_DIGIT"] / 10)
                 os.system("mpc play " + str(G_VAR["SECOND_DIGIT"]))
