@@ -854,10 +854,11 @@ def cmd(cmd):
     return rtr
 
 
+
 def noReturnSubprocess(cmd):
 
-    lcmd = []
-    lcmd = cmd.split(" ")
+    lcmd=[]
+    lcmd=cmd.split(" ")
     try:
         subprocess.check_output(lcmd, timeout=3)
     except subprocess.TimeoutExpired:

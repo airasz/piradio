@@ -168,7 +168,7 @@ function load_status_json() {
 
         var radiostatus =
           (json_radio_status.artist == null ||
-          typeof json_radio_status.artist === "undefined"
+            typeof json_radio_status.artist === "undefined"
             ? ""
             : json_radio_status.artist + " - ") +
           (json_radio_status.title == null ? "" : json_radio_status.title);
