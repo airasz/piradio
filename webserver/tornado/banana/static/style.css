@@ -16,11 +16,36 @@ html {
   height: 100%;
 }
 
+body {
+  height: 100%;
+  margin: 0;
+}
+
 .main {
   display: flex;
+  min-height: 100vh;
   /* box-shadow: 6px 6px 12px #b3b0b0, -2px -2px 12px #fff; */
   /* border-radius: 10px; */
+  /*   position: relative */
 }
+
+.bottom-panel {
+  /*   position:absolute; */
+  bottom: 0;
+  display: flex;
+}
+
+/*.floatbox {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}*/
 
 h1 {
   color: rgb(0, 120, 141);
@@ -241,7 +266,6 @@ div p4 {
   text-align: center;
   justify-content: center;
   align-content: center;
-  color: #e3fc05;
 }
 
 div p6 {
@@ -369,13 +393,13 @@ div p6 {
   transition: 0.4s;
 }
 
-input:checked + .slider {
+input:checked+.slider {
   /* background-color: rgb(95, 248, 215); */
 
   /* background-color: rgb(126, 126, 126); */
 }
 
-input:focus + .slider {
+input:focus+.slider {
   /* box-shadow: 0 0 1px #2196F3; */
 
   box-shadow:
@@ -383,7 +407,7 @@ input:focus + .slider {
     inset -2px -2px 4px rgb(255, 255, 255);
 }
 
-input:checked + .slider:before {
+input:checked+.slider:before {
   -webkit-transform: translateX(26px);
   -ms-transform: translateX(26px);
   transform: translateX(26px);
@@ -430,13 +454,13 @@ input:checked + .slider:before {
   transition: 0.4s;
 }
 
-input:checked + .sslider {
+input:checked+.sslider {
   /* background-color: rgb(95, 248, 215); */
 
   /* background-color: rgb(126, 126, 126); */
 }
 
-input:focus + .sslider {
+input:focus+.sslider {
   /* box-shadow: 0 0 1px #2196F3; */
 
   box-shadow:
@@ -444,7 +468,7 @@ input:focus + .sslider {
     inset -2px -2px 4px rgb(255, 255, 255);
 }
 
-input:checked + .sslider:before {
+input:checked+.sslider:before {
   -webkit-transform: translateX(26px);
   -ms-transform: translateX(26px);
   transform: translateX(26px);
@@ -453,4 +477,20 @@ input:checked + .sslider:before {
 .svg-icon {
   width: 30px;
   height: 30px;
+}
+
+.text-center {
+  text-align: center;
+  position: relative;
+}
+
+#isvol,
+#isprogress {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  margin: 0;
+  z-index: 1;
 }
