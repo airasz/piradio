@@ -13,6 +13,7 @@ function loop() {
   setTimeout(loop, 1000);
 }
 function loadonce() {
+  document.getElementById('loading').style.display = 'flex';
   initWebSocket();
   gethostname();
   loop();
@@ -23,6 +24,7 @@ function loadonce() {
   // load_status();
   load_status_json();
   load_cofig();
+  document.getElementById('loading').style.display = 'none';
   // loadvol();
 }
 var gateway = `ws://${window.location.hostname}:8888/websocket`;
@@ -211,8 +213,10 @@ function load_cofig() {
         console.log("web theme: ", json_config.web.client_web_theme);
         if (json_config.web.client_web_theme == 0) {
           colorscheme.setAttribute("href", "blurry.css");
-        } else {
+        } else if (json_config.web.client_web_theme == 1) {
           colorscheme.setAttribute("href", "bordered.css");
+        } else if (json_config.web.client_web_theme == 2) {
+          colorscheme.setAttribute("href", "neumorphism.css");
         }
       }
     }
