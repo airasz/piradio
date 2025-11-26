@@ -11,15 +11,13 @@
         -12px -12px 20px rgba(255, 255, 255, 0.6);
     --shadow-active: inset 2px 2px 8px 0 rgba(163, 177, 198, 0.7),
         inset -2px -2px 4px 0 rgba(255, 255, 255, 0.8);
-    --curve-convex: linear-gradient(135deg, #ecf4fb, #d9dde1);
-    --curve-sunken: linear-gradient(135deg, #d9dde1, #ecf4fb);
+    --curve-surface: linear-gradient(135deg, #d9dde1, #ecf4fb);
 }
-
 
 body {
     background-color: var(--bg-color);
     color: var(--text-color);
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -57,7 +55,7 @@ div p4 {
 .button1 {
     border: none;
     outline: none;
-    background-color: var(--curve-convex);
+    background-color: var(--curve-surface);
     color: var(--text-color);
     padding: 8px 12px;
     margin: 6px;
@@ -68,15 +66,13 @@ div p4 {
     transition: all 0.3s ease;
     text-transform: uppercase;
     font-size: 0.9rem;
-    background-image: var(--curve-convex);
+    background-image: var(--curve-surface);
 }
 
-
 .bplay {
-    background: #d0e0f8;
-    color: orange;
+    background: #a0ffec;
+    color: rgb(3, 75, 79);
     box-shadow: var(--shadow-active) !important;
-
 }
 
 .button1:hover {
@@ -128,7 +124,6 @@ input[type="text"] {
     transition: 0.4s;
 }
 
-
 .slider::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
@@ -174,8 +169,8 @@ input[type="text"] {
     right: 0;
     bottom: 0;
     background-color: var(--bg-color);
-    -webkit-transition: .4s;
-    transition: .4s;
+    -webkit-transition: 0.4s;
+    transition: 0.4s;
     border-radius: 34px;
     box-shadow: var(--shadow-active);
 }
@@ -189,8 +184,8 @@ input[type="text"] {
     bottom: 0px;
     /* background-color: var(--text-color); */
     background: linear-gradient(145deg, #807f7f, #141414);
-    -webkit-transition: .4s;
-    transition: .4s;
+    -webkit-transition: 0.4s;
+    transition: 0.4s;
     border-radius: 50%;
     box-shadow: var(--shadow-out);
 }

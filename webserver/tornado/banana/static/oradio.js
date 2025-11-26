@@ -168,7 +168,7 @@ function load_status_json() {
 
         var radiostatus =
           (json_radio_status.artist == null ||
-          typeof json_radio_status.artist === "undefined"
+            typeof json_radio_status.artist === "undefined"
             ? ""
             : json_radio_status.artist + " - ") +
           (json_radio_status.title == null ? "" : json_radio_status.title);
@@ -208,13 +208,13 @@ function load_cofig() {
     if (ajax_request.status == 200) {
       if (ajax_request.readyState == 4) {
         var json_config = JSON.parse(ajax_request.responseText);
-
-        console.log("json_config: ", json_config);
         console.log("web theme: ", json_config.web.client_web_theme);
         if (json_config.web.client_web_theme == 0) {
           colorscheme.setAttribute("href", "blurry.css");
-        } else {
+        } else if (json_config.web.client_web_theme == 1) {
           colorscheme.setAttribute("href", "bordered.css");
+        } else if (json_config.web.client_web_theme == 2) {
+          colorscheme.setAttribute("href", "neumorphism.css");
         }
       }
     }
@@ -374,7 +374,7 @@ function gethostname() {
       if (this.responseText.includes("banana")) {
         // colorscheme.setAttribute("href", "blurry.css");
         // spn.style.cssText = 'display:inline-flex !important';
-        document.querySelector("#nav").style.display = "none";
+        document.querySelector("#nav").style.display = "block";
         document.getElementById("title").innerHTML =
           this.responseText + " radio &#x1F34C";
       } else if (this.responseText.includes("orange")) {
@@ -390,7 +390,7 @@ function gethostname() {
   // alert("getdata.php?d=" + dokter);
   ajax_request.send();
 }
-//populate station list to button
+// //populate station list to button
 function polpulatesl() {
   // console.log("refresh playlist button")
   var ajax_request = new XMLHttpRequest();

@@ -1,0 +1,244 @@
+:root {
+  --out_wide: 15px 15px 30px #919191, -15px -15px 30px #ffffff;
+  --out_short: 6px 6px 16px #919191, -6px -6px 10px #ffffff;
+  --ins: inset 2px 2px 4px #8a8a8a, inset -2px -2px 4px rgb(255, 255, 255);
+  --tridi: 2px 2px 6px #000, -2px -2px 6px rgb(43, 40, 40),
+    inset 2px 2px 4px #6abedf, inset -2px -2px 4px #6bc0e2;
+  --tridi-mini: 2px 2px 3px #000, -2px -2px 3px rgb(43, 40, 40),
+    inset 2px 2px 3px #6dc4e6, inset -2px -2px 3px #67b9d9;
+}
+
+.card_switch {
+  background-color: #ee5307 !important;
+}
+.button1 {
+  /*   color: rgb(255, 255, 255); */
+  color: #99f50f;
+  /*   background:transparent !important; */
+  /*   background:rgba(60, 185, 10, 0.5)!important; */
+  border-radius: 20px;
+  background: #006a00 !important;
+  /*   background: linear-gradient(360deg, rgba(18,244,109,1) 0%, rgba(49,189,84,1) 42%, rgba(21,227,110,1) 43%, rgba(42,250,122,1) 100%)!important; */
+  backdrop-filter: blur(8px);
+}
+.button1:active {
+  color: rgb(255, 255, 255);
+  border-radius: 20px;
+  /*   background: linear-gradient(145deg, #5a971e, #76c85b); */
+  background: #00aa00;
+  /*     box-shadow: 5px 5px 8px #8a8a8a, -2px -2px 8px #ffe765 !important; */
+  /*box-shadow:
+    5px 5px 8px #f8ea7d,
+    -2px -2px 8px #ffe765 !important;*/
+}
+
+p4 {
+  color: #000000 !important;
+  font-weight: bold;
+}
+
+input[type="text"] {
+  /* box-sizing: border-box; */
+  border: 1px solid rgb(0, 0, 0) !important;
+  border-radius: 50px !important;
+  /* background-color: rgb(233, 231, 231); */
+  background-color: transparent;
+
+  box-shadow:
+    inset 0px 0px 0px #8a8a8a,
+    inset 0px 0px 0px rgb(255, 255, 255) !important;
+}
+
+.button2 {
+  color: #222222;
+  background: rgba(255, 160, 10, 0.7) !important;
+  border-radius: 20px;
+  backdrop-filter: blur(8px);
+}
+.button2:active {
+  color: rgb(255, 255, 255);
+  border-radius: 20px;
+  background: rgba(220, 120, 10, 0.9) !important;
+}
+
+.media {
+  /*background: rgba(50,100,255, 0.3) !important;*/
+  background: rgb(0, 183, 255) !important;
+}
+
+.contr {
+  margin-top: 5px;
+  margin-bottom: 1px;
+}
+.bplay {
+  background: #ffae21 !important;
+  /*   background: linear-gradient(360deg, rgba(164,207,1,1) 0%, rgba(137,146,17,1) 42%, rgba(208,224,1,1) 43%, rgba(255,231,0,0.9668067055923932) 100%)!important; */
+  color: #872e0b !important;
+  cursor: pointer;
+}
+.card-body {
+  border-radius: 8px 8px 8px 8px !important;
+  background: #000000 !important;
+  margin: 4px !important;
+}
+
+/* The slider */
+.groupboxx {
+  /* box-shadow: 6px 6px 12px #b3b0b0, -2px -2px 12px #fff !important; */
+  /*   background: #ee6d0f; */
+
+  /*   background: linear-gradient(145deg, #b35808, #f08d0e); */
+  border: solid 1px #c4bdbd;
+  margin-top: 26px;
+  position: relative;
+}
+
+input[type="text"] {
+  /* width: 10%; */
+}
+body {
+  background: #6bd9c9;
+}
+.card-body {
+  border-radius: 4px !important;
+  background: #d8faff !important;
+  padding: 0px;
+  box-shadow:
+    5px 5px 8px #333,
+    -2px -2px 8px #2b2a2a !important;
+  /*         margin: 4px !important; */
+}
+.winset {
+  border-radius: 4px !important;
+  background: #ffffff !important;
+  padding: 2px;
+  box-shadow:
+    inset 5px 5px 4px #feffff,
+    inset -2px -2px 4px #d5d3d3 !important;
+}
+.wtitle {
+  border-radius: 4px;
+  margin: 2px !important;
+  color: #9ec5c7 !important;
+  font-size: 32px;
+  /*background: linear-gradient(
+    90deg,
+    rgba(0, 96, 219, 0.98) 0%,
+    rgb(120, 204, 255) 100%
+  ) !important;*/
+  background-image: linear-gradient(to right, #0074ce, #77c9e9);
+  display: flex;
+  padding: 2px;
+}
+.btns {
+  width: 5vh;
+  margin: 4px;
+  box-shadow:
+    2px 2px 3px #3c3a3a,
+    -2px -2px 3px #555,
+    inset 2px 2px 2px #daf5f7,
+    inset -2px -2px 2px #ddf2eb !important;
+  background: #fff;
+  border-radius: 4px;
+  font-size: x-large;
+  border: none;
+  aspect-ratio: 1;
+}
+.button {
+  width: 100%;
+  justify-content: flex-end;
+  display: flex;
+}
+.wcontent {
+  border-radius: 8px 8px 0px 0px;
+  margin-left: 0px !important;
+  color: #9ec5c7 !important;
+  padding: 2px 2px 2px 6px !important;
+  font-size: 32px;
+  padding: 2vh;
+  background: linear-gradient(
+    90deg,
+    rgba(0, 96, 219, 0.98) 0%,
+    rgb(120, 204, 255) 100%
+  ) !important;
+}
+h1 {
+  /*         border-radius: 8px 8px 0px 0px; */
+  /*         margin-left: 0px !important; */
+  color: #ffffff !important;
+  /*         padding: 2px 2px 2px 6px !important; */
+  font-size: 32px;
+  margin: 1px;
+  /*         padding: 0vh; */
+  /* background: linear-gradient(
+          90deg,
+          rgba(0, 96, 219, 0.98) 0%,
+          rgb(120, 204, 255) 100%
+        ) !important;*/
+  padding-left: 6px;
+/*    text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #e60073, 0 0 40px #e60073, 0 0 50px #e60073, 0 0 60px #e60073, 0 0 70px #e60073; */
+   text-shadow: 0 0 4px #000000;
+  }
+}
+h3 {
+  font-size: 18px;
+  margin: 1px;
+  /*   padding: 0vh; */
+  background: white;
+  /*   padding-left: 6px; */
+  position: absolute;
+  top: -14px;
+  left: 10px;
+  padding: 2px 6px 2px 6px;
+  color: #4c584d;
+}
+#radiostatus {
+  font-family: monospace, monospace;
+  color: #000000 !important;
+  margin: 6px 6px 6px 16px !important;
+  text-align: left;
+  padding: 2px 2px 8px 1px !important;
+}
+/* Box aspect */
+[type="checkbox"]:not(:checked) label::before,
+[type="checkbox"]:checked label::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1.4em;
+  height: 1.4em;
+  border: 1px solid #aaa;
+  background: #fff;
+  border-radius: 0.2em;
+  box-shadow:
+    inset 0 1px 3px rgba(0, 0, 0, 0.1),
+    0 0 0 rgba(203, 34, 237, 0.2);
+  transition: all 0.275s;
+}
+
+/* Check aspect */
+[type="checkbox"]:not(:checked) label::after,
+[type="checkbox"]:checked label::after {
+  content: "✕";
+  speak: never; /* To be sure screen reader won't read "times" */
+  position: absolute;
+  top: 0.525em;
+  left: 0.18em;
+  font-size: 1.375em;
+  color: #cb22ed;
+  line-height: 0;
+  transition: all 0.2s; /* Little transition */
+}
+
+/* Unchecked aspect */
+[type="checkbox"]:not(:checked) label::after {
+  opacity: 0;
+  transform: scale(0) rotate(45deg);
+}
+
+/* Checked aspect */
+[type="checkbox"]:checked label::after {
+  opacity: 1;
+  transform: scale(1) rotate(0);
+}

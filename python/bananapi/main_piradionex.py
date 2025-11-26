@@ -53,7 +53,7 @@ PLAYLIST_X = 0
 saved_eval = 0
 
 SCOUNT = 0
-COUNT_ONMENU = 0
+COUNT_ONMENU=0
 
 VOLTO = 0
 CONFIGDATA = {}
@@ -172,14 +172,13 @@ def load_variable():
     except FileNotFoundError:
         pass
 
-
 def load_config():
     global CONFIGDATA
     try:
         with open(config_path, "r") as f:
             CONFIGDATA = json.load(f)
             REMOTES = CONFIGDATA.get("remote", "")
-            PLAY_CURL = CONFIGDATA.get("play_custom", False)
+            PLAY_CURL= CONFIGDATA.get("play_custom", False)
             if CONFIGDATA.get("autoload", "true") is True:
                 os.system("mpc play")
                 print("auto play by config")
@@ -189,7 +188,6 @@ def load_config():
 
 
 load_config()
-
 
 def save_config():
     global CONFIGDATA
@@ -336,12 +334,12 @@ def setVOL(up):
     status = cmd(
         "mpc volume " + ("+5" if up else "-5") + " | grep volume | awk '{print$2}'"
     )
-    vol = status.replace("%", "")
-    intvol = int(vol)
+    vol=status.replace("%", "")
+    intvol=int(vol)
     print("vol " + status)
     interuptDisplay(3, "set volume " + status)
     sleep(0.1)
-    display.sendCommand(f"h0.val={intvol}")
+    display.sendCommand(f'h0.val={intvol}')
 
 
 def trackrepeat():
@@ -419,7 +417,7 @@ def reboot():
 
 
 def playPos(pos):
-    # global TEN
+    #global TEN
     global VOLTO
     global NUM_VOL
     global MIN_SLEEP
@@ -518,34 +516,27 @@ def playPos(pos):
         loadPLAYlists()
         splp = False
     if TO_SET_PLAYMODE:
-        if pos < 5:
-            RADIO_STATUS = module_piradionex.get_mpc_status()
-            value_modes = [
-                RADIO_STATUS["repeat"],
-                RADIO_STATUS["random"],
-                RADIO_STATUS["single"],
-                RADIO_STATUS["consume"],
-            ]
+        if pos<5:
+            RADIO_STATUS=module_piradionex.get_mpc_status()
+            value_modes=[RADIO_STATUS["repeat"], RADIO_STATUS["random"], RADIO_STATUS["single"], RADIO_STATUS["consume"]]
             key_modes = ["repeat", "random", "single", "consume"]
-            value_modes[pos - 1] = not value_modes[pos - 1]
-            reslt = cmd(
-                f'mpc {key_modes[pos-1]} {value_modes[pos-1] and "on" or "off"}'
-            )
+            value_modes[pos-1]= not value_modes[pos-1]
+            reslt= cmd(f'mpc {key_modes[pos-1]} {value_modes[pos-1] and "on" or "off"}')
             print(reslt)
             module_piradionex.get_mpc_status()
             # noReturnSubprocess(f'mpc {key_modes[pos-1]} {value_modes[pos-1] and "on" or "off"}')
-            info = ""
-            info += f'1. repeat {"on" if RADIO_STATUS["repeat"] else "off"}\n'
-            info += f'2. random {"on" if RADIO_STATUS["random"] else "off"}\n'
-            info += f'3. single {"on" if RADIO_STATUS["single"] else "off"}\n'
-            info += f'4. consume {"on" if RADIO_STATUS["consume"] else "off"}\n'
+            info=""
+            info+=f'1. repeat {"on" if RADIO_STATUS["repeat"] else "off"}\n'
+            info+=f'2. random {"on" if RADIO_STATUS["random"] else "off"}\n'
+            info+=f'3. single {"on" if RADIO_STATUS["single"] else "off"}\n'
+            info+=f'4. consume {"on" if RADIO_STATUS["consume"] else "off"}\n'
             interuptDisplay(2, info)
 
 
 def startVol():
     global NUM_VOL
     global COUNT_ONMENU
-    COUNT_ONMENU = 0
+    COUNT_ONMENU=0
     exitset(False)
     NUM_VOL = 1
     interuptDisplay(1, "jump volume to...")
@@ -555,7 +546,7 @@ def startVol():
 def startTenPos():
     global TEN
     global COUNT_ONMENU
-    COUNT_ONMENU = 0
+    COUNT_ONMENU=0
     exitset(False)
     TEN = True
 
@@ -569,7 +560,7 @@ def startsetsleep():
     global MIN_SLEEP
     global STOP_SLEEP
     global COUNT_ONMENU
-    COUNT_ONMENU = 0
+    COUNT_ONMENU=0
     load_variable()
     # display.onmenu(True)
     if TS_ENABLE is True:
@@ -593,7 +584,7 @@ def startPlistTo():
     global splp
     global PLAYlists
     global COUNT_ONMENU
-    COUNT_ONMENU = 0
+    COUNT_ONMENU=0
     exitset(False)
     splp = True
     pls = ""
@@ -612,23 +603,21 @@ def startPlistTo():
     # display.display(f'select.\n{pls}', False)
     interuptDisplay(2, (f"select.\n{pls}"))
 
-
 def startSetPlayMode():
     exitset(False)
     global COUNT_ONMENU
-    COUNT_ONMENU = 0
+    COUNT_ONMENU=0
     global TO_SET_PLAYMODE
     TO_SET_PLAYMODE = True
-    playmode = cmd("mpc status | grep -o 'repeat: \w\+' | awk '{print $2}'")
+    playmode=cmd("mpc status | grep -o 'repeat: \w\+' | awk '{print $2}'")
     get_mpc_status()
-    RADIO_STATUS = module_piradionex.get_mpc_status()
-    info = ""
-    info += f'1. repeat {"on" if RADIO_STATUS["repeat"] else "off"}\n'
-    info += f'2. random {"on" if RADIO_STATUS["random"] else "off"}\n'
-    info += f'3. single {"on" if RADIO_STATUS["single"] else "off"}\n'
-    info += f'4. consume {"on" if RADIO_STATUS["consume"] else "off"}\n'
+    RADIO_STATUS=module_piradionex.get_mpc_status()
+    info=""
+    info+=f'1. repeat {"on" if RADIO_STATUS["repeat"] else "off"}\n'
+    info+=f'2. random {"on" if RADIO_STATUS["random"] else "off"}\n'
+    info+=f'3. single {"on" if RADIO_STATUS["single"] else "off"}\n'
+    info+=f'4. consume {"on" if RADIO_STATUS["consume"] else "off"}\n'
     interuptDisplay(2, info)
-
 
 def ok():
     global MIN_SLEEP
@@ -636,9 +625,7 @@ def ok():
     if MIN_SLEEP > 0:
         # stimer.startcdown(MINUTE_SLEEP_VALUE)
         # os.system("/usr/bin/python3 startsleeper.py "+ str(MINUTE_SLEEP_VALUE))
-        interuptDisplay(
-            5, "sleep timer starting for " + str(MINUTE_SLEEP_VALUE) + " minutes"
-        )
+        interuptDisplay(5, "sleep timer starting for " + str(MINUTE_SLEEP_VALUE) + " minutes")
         MIN_SLEEP = 0
         sleeptimer.startcdown(MINUTE_SLEEP_VALUE)
         exitset(False)
@@ -862,7 +849,7 @@ def processIR(irval):
             seekthrough(True)
         elif irval == 2099273:
             seekthrough(False)
-        elif irval == 2099213:  # EPG
+        elif irval == 2099213: #EPG
             startSetPlayMode()
 
     else:
@@ -1069,6 +1056,28 @@ class MainHandler(tornado.web.RequestHandler):
         self.render("index.html")
 
 
+class SettingHandler(tornado.web.RequestHandler):
+    def get(self):
+        self.render("settings.html")
+
+    def post(self):
+        global CONFIGDATA, REMOTES
+        try:
+            data = json.loads(self.request.body)
+        except json.JSONDecodeError:
+            self.set_status(400)  # Bad Request
+            self.write({"error": "Invalid JSON"})
+            return
+        print("got post jremote")
+        REMOTES = CONFIGDATA.get("remote", "")
+        print("remote array: " + str(REMOTES))
+        CONFIGDATA = data
+        j = json.dumps(data)
+        print(j)
+        with open(config_path, "w") as f:
+            json.dump(CONFIGDATA, f)
+
+
 class shellCmd(tornado.web.RequestHandler):  # scmd
     def get(self, input):
 
@@ -1244,13 +1253,13 @@ def make_app():
             (r"/", MainHandler),
             (r"/scmd/(\w+)", shellCmd),
             (r"/websocket", WSHandler),
+            (r"/settings", SettingHandler),
             (r"/(.*)", tornado.web.StaticFileHandler, {"path": "/root/static"}),
         ],
         **settings,
     )
 
-
-# 100ms tick
+#100ms tick
 async def tick():
     global COUNT_ONMENU
     global pulse_
