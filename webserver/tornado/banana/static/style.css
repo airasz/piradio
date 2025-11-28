@@ -30,10 +30,11 @@ body {
 }
 
 .bottom-panel {
-  /*   position:absolute; */
+  /* position: absolute; */
   bottom: 0;
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
 }
 
 /*.floatbox {
@@ -128,6 +129,7 @@ input[type="submit"]:hover {
 .buttonstation {
   overflow-y: auto;
   max-height: 300px;
+  padding: 6px;
 }
 
 .button1 {
@@ -306,7 +308,6 @@ div p6 {
   justify-content: center;
   align-items: center;
   border-radius: 10px;
-  box-shadow: var(--tridi);
   background: #e8f9ff;
 }
 

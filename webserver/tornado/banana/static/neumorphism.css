@@ -13,6 +13,14 @@
         inset -2px -2px 4px 0 rgba(255, 255, 255, 0.8);
     --curve-convex: linear-gradient(135deg, #ecf4fb, #d9dde1);
     --curve-sunken: linear-gradient(135deg, #d9dde1, #ecf4fb);
+    --curve-convex-long: linear-gradient(135deg,
+            #ecf4fb 0%,
+            #e9f2fb 50%,
+            #d9dde1 100%);
+    --curve-sunken-long: linear-gradient(135deg,
+            rgba(232, 255, 241, 1) 0%,
+            rgba(135, 132, 132, 1) 50%,
+            rgba(247, 249, 250, 1) 1000%);
 }
 
 body {
@@ -72,9 +80,14 @@ div p4 {
 
 .bplay {
     background: #fffbe5;
-    color: rgb(190, 190, 79);
-    background-image: var(--curve-sunken);
-    box-shadow: var(--shadow-out-hover) !important;
+    color: rgb(200, 200, 29);
+    background-image: var(--curve-convex);
+    /* box-shadow: var(--shadow-out-hover) !important; */
+    box-shadow:
+        10px 10px 16px rgba(190, 190, 180, 0.2) inset,
+        -3px -3px 8px rgba(180, 180, 180, 0.8),
+        1px 1px 1px rgb(25, 25, 25, 0.4),
+        3px 4px 9px rgb(255, 255, 255, 0.9) !important;
 }
 
 .button1:hover {
@@ -185,7 +198,7 @@ input[type="text"] {
     left: 0px;
     bottom: 0px;
     /* background-color: var(--text-color); */
-    background: linear-gradient(145deg, #807f7f, #141414);
+    background: linear-gradient(145deg, #adf0e4, #5e9d9d);
     -webkit-transition: 0.4s;
     transition: 0.4s;
     border-radius: 50%;
@@ -196,12 +209,12 @@ input:checked+.slider_switch {
     background-color: var(--bg-color);
 }
 
-input:checked+.slider_switch:before {
+input:checked+.slider_switch::before {
     -webkit-transform: translateX(24px);
     -ms-transform: translateX(24px);
     transform: translateX(24px);
     /* background-color: var(--accent-color); */
-    background: linear-gradient(145deg, #ffffff, #b3b1b1);
+    background: linear-gradient(145deg, #f2e369, #b2912d);
 }
 
 /* Floating Menu */
@@ -263,4 +276,16 @@ p4 {
 
 .groupbox {
     margin-bottom: 15px;
+    background: var(--curve-sunken);
+    box-shadow: var(--shadow-inset-light);
+}
+
+#radiostatus {
+    background: var(--curve-convex);
+    border-radius: 8px;
+    box-shadow: var(--out_wide);
+}
+
+#stations>.button1 {
+    background: var(--curve-convex-long);
 }
