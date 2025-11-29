@@ -251,12 +251,15 @@ function updatevolslider2(txt) {
   // console.log("data json volume: ", json_radio_status.volume);
   // console.log("data json volume: ", json_radio_status);
   var tbl = document.getElementById("svol");
+
   // Extract the volume using RegExp
   const match = txt.match(/volume:\s*(\d+)%/);
 
   if (match) {
     const volume = parseInt(match[1], 10);
     tbl.value = volume;
+    var color = mapColor(volume);
+    tbl.style.setProperty('--slider-thumb-bg', color);
     var ivol = document.querySelector("#isvol");
     ivol.innerHTML = "volume : " + volume;
     // console.log("Volume:", volume); // Output: 39
@@ -268,6 +271,8 @@ function updatevolslider(volume) {
   // console.log("update volume slider: ", volume);
   var tbl = document.getElementById("svol");
   tbl.value = volume;
+  var color = mapColor(volume);
+  tbl.style.setProperty('--slider-thumb-bg', color);
   var ivol = document.querySelector("#isvol");
   ivol.innerHTML = "volume : " + volume;
 }
@@ -488,3 +493,30 @@ function setsleep() {
 //   },
 //   false,
 // );
+
+function mapColor(value) {
+  // Ensure value is within 0-100
+  value = Math.max(0, Math.min(100, value));
+
+  var r, g, b;
+
+  if (value <= 50) {
+    // 0-50: DarkGreen (0, 100, 0) to Yellow (255, 255, 0)
+    r = Math.floor(5.1 * value);
+    g = Math.floor(100 + 3.1 * value);
+    b = 0;
+  } else {
+    // 50-100: Yellow (255, 255, 0) to Orange (255, 165, 0)
+    r = 255;
+    g = Math.floor(255 - 1.8 * (value - 50));
+    b = 0;
+  }
+
+  // Calculate darker color
+  var darker = 0.6;
+  var r2 = Math.floor(r * darker);
+  var g2 = Math.floor(g * darker);
+  var b2 = Math.floor(b * darker);
+
+  return "linear-gradient(135deg, rgb(" + r + "," + g + "," + b + "), rgb(" + r2 + "," + g2 + "," + b2 + "))";
+}
