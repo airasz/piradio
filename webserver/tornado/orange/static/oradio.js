@@ -189,6 +189,7 @@ function load_status_json() {
           json_radio_status.time.total_seconds,
           json_radio_status.time.elapsed,
           json_radio_status.time.total,
+          json_radio_status.progress_percent,
         );
         update_play_mode(
           json_radio_status.repeat,
@@ -296,10 +297,13 @@ function set_play_mode(mode) {
   console.log("set play mode: ", cmd);
 }
 
-function updateauidoprogress(current, total, scurent, stotal) {
+function updateauidoprogress(current, total, scurent, stotal, progress) {
   var slider = document.getElementById("track-progress");
   slider.max = total;
   slider.value = current;
+  var color = mapColor(progress);
+  console.log("update audio progress: ", progress, color);
+  slider.style.setProperty('--slider-thumb-bg-progress', color);
   if (total == 0) {
     document.getElementById("track-progress-container").style.display = "none";
     return;

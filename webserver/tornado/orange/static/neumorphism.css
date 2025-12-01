@@ -22,6 +22,7 @@
             rgba(135, 132, 132, 1) 50%,
             rgba(247, 249, 250, 1) 1000%);
     --slider-thumb-bg: #5f93f7;
+    /* --slider-thumb-bg-progress: #5f93f7; */
 
 }
 
@@ -158,6 +159,19 @@ input[type="text"] {
     background: var(--slider-thumb-bg, #0e2cd7f7);
 }
 
+.slider::-moz-range-thumb+#track-progress {
+    background: var(--slider-thumb-bg-progress, #0e2cd7f7);
+}
+
+#track-progress {
+    --slider-thumb-bg: orangered;
+    --slider-thumb-bg-progress: orangered;
+}
+
+#track-progress::-moz-range-thumb {
+    background: var(--slider-thumb-bg-progress);
+}
+
 /* Toggle Switch */
 .switchbutton {
     position: relative;
@@ -195,7 +209,7 @@ input[type="text"] {
     left: 0px;
     bottom: 0px;
     /* background-color: var(--text-color); */
-    background: linear-gradient(145deg, #f2e369, #b2912d);
+    background: linear-gradient(145deg, #007500, #003300);
     -webkit-transition: 0.4s;
     transition: 0.4s;
     border-radius: 50%;
