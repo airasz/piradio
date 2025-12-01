@@ -13,6 +13,7 @@ function loop() {
   setTimeout(loop, 1000);
 }
 function loadonce() {
+  document.getElementById('loading').style.display = 'flex';
   initWebSocket();
   gethostname();
   loop();
@@ -23,6 +24,7 @@ function loadonce() {
   // load_status();
   load_status_json();
   load_cofig();
+  document.getElementById('loading').style.display = 'none';
   // loadvol();
 }
 var gateway = `ws://${window.location.hostname}:8888/websocket`;
@@ -58,6 +60,10 @@ function onMessage(event) {
   } else if (event.data.startsWith("vol")) {
     var sdata = event.data.substring(4);
     document.getElementById("svol").value = parseInt(sdata);
+    var color = mapColor(parseInt(sdata));
+    tbl.style.setProperty("--slider-thumb-bg", color);
+    var ivol = document.querySelector("#isvol");
+    ivol.innerHTML = "volume : " + volume;
     console.log("updating volume slide");
   } else if (event.data.startsWith("pls")) {
     var sdata = event.data.substring(4);
@@ -249,12 +255,15 @@ function updatevolslider2(txt) {
   // console.log("data json volume: ", json_radio_status.volume);
   // console.log("data json volume: ", json_radio_status);
   var tbl = document.getElementById("svol");
+
   // Extract the volume using RegExp
   const match = txt.match(/volume:\s*(\d+)%/);
 
   if (match) {
     const volume = parseInt(match[1], 10);
     tbl.value = volume;
+    var color = mapColor(volume);
+    tbl.style.setProperty('--slider-thumb-bg', color);
     var ivol = document.querySelector("#isvol");
     ivol.innerHTML = "volume : " + volume;
     // console.log("Volume:", volume); // Output: 39
@@ -266,6 +275,8 @@ function updatevolslider(volume) {
   // console.log("update volume slider: ", volume);
   var tbl = document.getElementById("svol");
   tbl.value = volume;
+  var color = mapColor(volume);
+  tbl.style.setProperty('--slider-thumb-bg', color);
   var ivol = document.querySelector("#isvol");
   ivol.innerHTML = "volume : " + volume;
 }
@@ -374,7 +385,7 @@ function gethostname() {
       if (this.responseText.includes("banana")) {
         // colorscheme.setAttribute("href", "blurry.css");
         // spn.style.cssText = 'display:inline-flex !important';
-        document.querySelector("#nav").style.display = "block";
+        document.querySelector("#nav").style.display = "none";
         document.getElementById("title").innerHTML =
           this.responseText + " radio &#x1F34C";
       } else if (this.responseText.includes("orange")) {
@@ -390,7 +401,7 @@ function gethostname() {
   // alert("getdata.php?d=" + dokter);
   ajax_request.send();
 }
-// //populate station list to button
+//populate station list to button
 function polpulatesl() {
   // console.log("refresh playlist button")
   var ajax_request = new XMLHttpRequest();
@@ -486,3 +497,43 @@ function setsleep() {
 //   },
 //   false,
 // );
+function mapColor(value) {
+  // Ensure value is within 0-100
+  value = Math.max(0, Math.min(100, value));
+
+  var r, g, b;
+
+  if (value <= 50) {
+    // 0-50: Turquoise (173, 240, 228) to Yellow (242, 227, 105)
+    r = Math.floor(173 + 1.38 * value);
+    g = Math.floor(240 - 0.26 * value);
+    b = Math.floor(228 - 2.46 * value);
+  } else {
+    // 50-100: Yellow (242, 227, 105) to Dark Yellow (178, 145, 45)
+    r = Math.floor(242 - 1.28 * (value - 50));
+    g = Math.floor(227 - 1.64 * (value - 50));
+    b = Math.floor(105 - 1.2 * (value - 50));
+  }
+
+  // Calculate darker color
+  var darker = 0.6;
+  var r2 = Math.floor(r * darker);
+  var g2 = Math.floor(g * darker);
+  var b2 = Math.floor(b * darker);
+
+  return (
+    "linear-gradient(135deg, rgb(" +
+    r +
+    "," +
+    g +
+    "," +
+    b +
+    "), rgb(" +
+    r2 +
+    "," +
+    g2 +
+    "," +
+    b2 +
+    "))"
+  );
+}

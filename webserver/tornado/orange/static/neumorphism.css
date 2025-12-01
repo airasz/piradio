@@ -195,7 +195,7 @@ input[type="text"] {
     left: 0px;
     bottom: 0px;
     /* background-color: var(--text-color); */
-    background: linear-gradient(145deg, #169505, #177703);
+    background: linear-gradient(145deg, #f2e369, #b2912d);
     -webkit-transition: 0.4s;
     transition: 0.4s;
     border-radius: 50%;

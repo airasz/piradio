@@ -60,6 +60,10 @@ function onMessage(event) {
   } else if (event.data.startsWith("vol")) {
     var sdata = event.data.substring(4);
     document.getElementById("svol").value = parseInt(sdata);
+    var color = mapColor(parseInt(sdata));
+    tbl.style.setProperty("--slider-thumb-bg", color);
+    var ivol = document.querySelector("#isvol");
+    ivol.innerHTML = "volume : " + volume;
     console.log("updating volume slide");
   } else if (event.data.startsWith("pls")) {
     var sdata = event.data.substring(4);
