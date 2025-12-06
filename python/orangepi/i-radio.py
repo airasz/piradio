@@ -1197,6 +1197,8 @@ def clickNum(pos):
             info += f'4. consume {"on" if RADIO_STATUS["consume"] else "off"}\n'
             interuptDisplay(8, 0, info)
     if G_VAR["TO_SEEK_TO"]:
+        """ seek 100 = seek to second 100th from 0
+        seekthrough 100  seek to SECOND 100th from current position """
         get_mpc_status()
         TRACK_MINUTE=0
         if RADIO_STATUS["time"]["total_seconds"]>0:
@@ -1208,8 +1210,8 @@ def clickNum(pos):
         print("TRACK_MINUTE="+str(TRACK_MINUTE))
         if TRACK_MINUTE<10:
             print("seeking under 10")
-            interuptDisplay(3,15,"seek to\n"+str(G_VAR["MINUTE_SEEK_TO"]))
-            os.system(f'mpc seek {G_VAR["MINUTE_SEEK_TO"]}')
+            interuptDisplay(3,15,"seek to\n"+str(pos))
+            os.system(f'mpc seek {pos*60}')
             G_VAR["TO_SEEK_TO"] = False
             return
         else:
@@ -1221,13 +1223,15 @@ def clickNum(pos):
                     G_VAR["MINUTE_SEEK_TO"] = 0
                     return
                 else:
+                    G_VAR["MINUTE_SEEK_TO"]*=10
+                    G_VAR["MINUTE_SEEK_TO"]+=pos
                     interuptDisplay(3,15,"seek to\n"+str(G_VAR["MINUTE_SEEK_TO"]))
-                    os.system(f'mpc seek {G_VAR["MINUTE_SEEK_TO"]}')
+                    os.system(f'mpc seek {G_VAR["MINUTE_SEEK_TO"]*60}')
                     G_VAR["TO_SEEK_TO"] = False
                 return
             else:
                 interuptDisplay(3,15,"seek to\n"+str(pos)+"_")
-                G_VAR["MINUTE_SEEK_TO"]=pos*10
+                G_VAR["MINUTE_SEEK_TO"]=pos
                 return
 
 

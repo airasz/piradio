@@ -116,6 +116,8 @@ TOQ = 0
 TS_ENABLE = False
 STOP_SLEEP = 0
 drawPlayListMode = 0
+TO_SEEK_TO = False
+MINUTE_SEEK_TO= 0
 
 PLAYlists = []
 splited_playlist = []
@@ -425,11 +427,14 @@ def playPos(pos):
     global splp
     global secondDigit
     global pulse_
+    global TO_SEEK_TO
+    global MINUTE_SEEK_TO
+    # global RADIO_STATUS
     status = ""
 
     pulse_ = 0
     # display.display("volume to "+ str(pos + 10 if TEN else pos))
-    if NUM_VOL == 0 and MIN_SLEEP == 0 and splp is False and TO_SET_PLAYMODE is False:
+    if NUM_VOL == 0 and MIN_SLEEP == 0 and splp is False and TO_SET_PLAYMODE is False and TO_SEEK_TO is False:
         # display.display("play pos "+ str(pos), True)
         # display.frezeeDisplay(3)
         # myoled.displayfs("play pos "+ str(pos),15)
@@ -531,6 +536,46 @@ def playPos(pos):
             info+=f'3. single {"on" if RADIO_STATUS["single"] else "off"}\n'
             info+=f'4. consume {"on" if RADIO_STATUS["consume"] else "off"}\n'
             interuptDisplay(2, info)
+    if TO_SEEK_TO:
+        """ seek 100 > seek to second 100th from 0
+        seekthrough 100 > seek to SECOND 100th from current position """
+        RADIO_STATUS=module_piradionex.get_mpc_status()
+        TRACK_MINUTE=0
+        if RADIO_STATUS["time"]["total_seconds"]>0:
+            TRACK_MINUTE=RADIO_STATUS["time"]["total_seconds"]//60
+        else:
+            interuptDisplay(2, "its stream")
+            TO_SEEK_TO = False
+            return
+        print("TRACK_MINUTE="+str(TRACK_MINUTE))
+        if TRACK_MINUTE<10:
+            print("seeking under 10")
+            interuptDisplay(2,"seek to "+str(pos*60))
+            os.system(f'mpc seek {pos*60}')
+            TO_SEEK_TO = False
+            return
+        else:
+            print("seeking over 10")
+            if MINUTE_SEEK_TO>0:
+                MINUTE_SEEK_TO+=pos
+                if MINUTE_SEEK_TO>TRACK_MINUTE:
+                    interuptDisplay(2,"input out range\n"+str(MINUTE_SEEK_TO))
+                    MINUTE_SEEK_TO = 0
+                    return
+                else:
+                    MINUTE_SEEK_TO*=10
+                    MINUTE_SEEK_TO+=pos
+                    interuptDisplay(2,"seek to "+str(MINUTE_SEEK_TO))
+                    os.system(f'mpc seek {MINUTE_SEEK_TO*60}')
+                    TO_SEEK_TO = False
+                return
+            else:
+                interuptDisplay(2,"seek to "+str(pos)+"_")
+                MINUTE_SEEK_TO=pos
+                return
+
+
+
 
 
 def startVol():
@@ -541,6 +586,15 @@ def startVol():
     NUM_VOL = 1
     interuptDisplay(1, "jump volume to...")
     # display.onmenu(True)
+
+
+def startSeekTo():
+    global TO_SEEK_TO
+    global COUNT_ONMENU
+    COUNT_ONMENU=0  
+    exitset(False)
+    TO_SEEK_TO = True
+    interuptDisplay(2, "start seek to")
 
 
 def startTenPos():
@@ -646,6 +700,10 @@ def exitset(info):
     global GOTOSTATION
     global splited_playlist_pointer
     global TO_SET_PLAYMODE
+    global TO_SEEK_TO
+    global MINUTE_SEEK_TO
+    TO_SEEK_TO = False
+    MINUTE_SEEK_TO = 0
     TO_SET_PLAYMODE = False
     GOTOSTATION = False
     TO_REBOOT = False
@@ -824,9 +882,10 @@ def processIR(irval):
         elif irval == KR_OPT:
             print("opt")  # start vol
             startVol()
-        elif irval == 2099214:  # 10+
+        elif irval == 2099214:  # 10+ > mail
             print("mail")
-            startTenPos()
+            # startTenPos()
+            startSeekTo()
         elif irval == KR_POWER:  # 10+
             print("reboot")
             reboot()
@@ -1264,6 +1323,8 @@ async def tick():
     global COUNT_ONMENU
     global pulse_
     global secondDigit
+    global TO_SEEK_TO
+    global MINUTE_SEEK_TO
     while True:
         COUNT_ONMENU += 1
         if COUNT_ONMENU > 100:
@@ -1279,7 +1340,9 @@ async def tick():
                 os.system("mpc play " + str(secondDigit))
                 secondDigit = 0
             # print("tick")
-
+            elif MINUTE_SEEK_TO > 0:
+                os.system(f'mpc seek {MINUTE_SEEK_TO*60}')
+                MINUTE_SEEK_TO = 0
         await asyncio.sleep(0.1)
 
 
