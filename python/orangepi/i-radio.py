@@ -103,6 +103,10 @@ G_VAR = {
     "STOP_SLEEP": 0,
     "CDOWN": 0,
     "NEXT_PLAYLIST": False,
+    "TO_SEEK_TO": False,
+    "MINUTE_SEEK_TO": 0,
+    "SECOND_DIGIT_SEEK_TO": 0,
+
 }
 CONFIGDATA = {}
 RADIO_STATUS = {}
@@ -246,7 +250,8 @@ def loop():
     old_status = ""
     status = ""
     status = subprocess.check_output("mpc", shell=True).decode("utf-8")
-    if "playing" in status or "paused" in status:
+    # if "playing" in status or "paused" in status:
+    if "playing" in status:
         G_VAR["PLAYING"] = True
     else:
         G_VAR["PLAYING"] = False
@@ -944,7 +949,11 @@ def startsetsleep():
         G_VAR["MINUTE_SLEEP"] = 0
         G_VAR["U_COUNT"] = 20
         loop()
-
+def startSeekTo():
+    exitset(False)
+    G_VAR["TO_SEEK_TO"] = True
+    interuptDisplay(8, 0, "start seek to")
+    # return
 
 def startTenPos():
     interuptDisplay(8, 0, "jump station to\n10 + ...")
@@ -1071,6 +1080,8 @@ def exitset(info):
     G_VAR["STOP_SLEEP"] = False
     G_VAR["MINUTE_SLEEP"] = 0
     G_VAR["TO_SET_PLAYMODE"] = False
+    G_VAR["TO_SEEK_TO"] = False
+    G_VAR["MINUTE_SEEK_TO"] = 0
     if info:
         interuptDisplay(3, 16, "operation\ncanceled")
 
@@ -1085,6 +1096,7 @@ def clickNum(pos):
         and G_VAR["MINUTE_SLEEP"] == 0
         and G_VAR["PICK_PLAYLIST"] is False
         and G_VAR["TO_SET_PLAYMODE"] is False
+        and G_VAR["TO_SEEK_TO"] is False
     ):
         if G_VAR["TOTAL_OF_QUEUE"] < 10:
             interuptDisplay(3, 15, "play pos " + str(pos))
@@ -1184,6 +1196,50 @@ def clickNum(pos):
             info += f'3. single {"on" if RADIO_STATUS["single"] else "off"}\n'
             info += f'4. consume {"on" if RADIO_STATUS["consume"] else "off"}\n'
             interuptDisplay(8, 0, info)
+    if G_VAR["TO_SEEK_TO"]:
+        get_mpc_status()
+        TRACK_MINUTE=0
+        if RADIO_STATUS["time"]["total_seconds"]>0:
+            TRACK_MINUTE=RADIO_STATUS["time"]["total_seconds"]//60
+        else:
+            interuptDisplay(8, 0, "its stream")
+            G_VAR["TO_SEEK_TO"] = False
+            return
+        print("TRACK_MINUTE="+str(TRACK_MINUTE))
+        if TRACK_MINUTE<10:
+            print("seeking under 10")
+            interuptDisplay(3,15,"seek to\n"+str(G_VAR["MINUTE_SEEK_TO"]))
+            os.system(f'mpc seek {G_VAR["MINUTE_SEEK_TO"]}')
+            G_VAR["TO_SEEK_TO"] = False
+            return
+        else:
+            print("seeking over 10")
+            if G_VAR["MINUTE_SEEK_TO"]>0:
+                G_VAR["MINUTE_SEEK_TO"]+=pos
+                if G_VAR["MINUTE_SEEK_TO"]>TRACK_MINUTE:
+                    interuptDisplay(3,15,"input out range\n"+str(G_VAR["MINUTE_SEEK_TO"]))
+                    G_VAR["MINUTE_SEEK_TO"] = 0
+                    return
+                else:
+                    interuptDisplay(3,15,"seek to\n"+str(G_VAR["MINUTE_SEEK_TO"]))
+                    os.system(f'mpc seek {G_VAR["MINUTE_SEEK_TO"]}')
+                    G_VAR["TO_SEEK_TO"] = False
+                return
+            else:
+                interuptDisplay(3,15,"seek to\n"+str(pos)+"_")
+                G_VAR["MINUTE_SEEK_TO"]=pos*10
+                return
+
+
+
+        # if TRACK_MINUTE>9:
+        #     if G_VAR["MINUTE_SEEK_TO"]==0:
+        #         G_VAR["MINUTE_SEEK_TO"] =1
+        #         G_VAR["SECOND_DIGIT_SEEK_TO"] =pos*10
+        #         interuptDisplay(3,15,"seek to\n"+str(G_VAR["MINUTE_SEEK_TO"]))
+
+        # pass
+        # if pos < 
 
 
 def switchPLAYLIST():
@@ -1611,6 +1667,8 @@ def processIRe(irval):
             trackrepeat()
         elif irval == REMOTE_CODES["EVERCROSS"]["KRE_MENU"]:
             startSetPlayMode()
+        elif irval == REMOTE_CODES["EVERCROSS"]["KRE_RECORD"]:
+            startSeekTo()
 
 
 settings = dict(
@@ -2025,6 +2083,9 @@ async def tick():  # 100ms pulse
             elif G_VAR["NEXT_PLAYLIST"] is True:
                 load_playlist()
                 G_VAR["NEXT_PLAYLIST"] = False
+            elif G_VAR["MINUTE_SEEK_TO"]>0:
+                os.system(f'mpc seek {G_VAR["MINUTE_SEEK_TO"]}')
+                G_VAR["MINUTE_SEEK_TO"] = 0
         await asyncio.sleep(0.1)
 
 
