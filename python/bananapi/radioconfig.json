@@ -1,0 +1,34 @@
+{
+    "autoload": true,
+    "curent_pl_id": 2,
+    "play_custom": false,
+    "temporary_playlist": true,
+    "remote": [
+        {
+            "name": "nexmedia",
+            "enable": true
+        },
+        {
+            "name": "putih",
+            "enable": false
+        },
+        {
+            "name": "car",
+            "enable": false
+        },
+        {
+            "name": "evecross",
+            "enable": true
+        }
+    ],
+    "timer": {
+        "enable": false,
+        "startrun": false,
+        "svalue": 0,
+        "seconds": 0
+    },
+    "web": {
+        "client_web_theme": 2,
+        "status_request_interval": 5
+    }
+}
