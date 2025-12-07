@@ -1100,6 +1100,7 @@ class MainHandler(tornado.web.RequestHandler):
         if curlval != "":
             # stimer.resetas()
             global PLAY_CURL
+            global CONFIGDATA
             if PLAY_CURL is False:
                 # status = cmd("mpc clear")
                 noReturnSubprocess("mpc clear")
@@ -1107,9 +1108,12 @@ class MainHandler(tornado.web.RequestHandler):
             noReturnSubprocess("mpc add " + curlval)
             sleep(1)
             status = cmd("mpc play")
+            CONFIGDATA["temporary_playlist"] =True
+            CONFIGDATA["play_custom"] =True
             save_config()
             broadcast_message("info=" + status)
             PLAY_CURL = True
+
             # pass
         # ok()
         self.render("index.html")
@@ -1162,23 +1166,33 @@ class shellCmd(tornado.web.RequestHandler):  # scmd
                     pl[i] = pl[i][pl[i].index("//") + 2 :]
                 if i + 1 == idd:
                     rp += (
-                        '<button id="playing" class="button1 bplay" onclick="sendcmd(\'mpc play '
+                        '<div class="button1 bplay">'
+                        + '<button id="playing" class="no-style" onclick="sendcmd(\'mpc play '
                         + str(i + 1)
                         + "')\"><a>"
                         + str(i + 1)
                         + ". "
                         + pl[i]
-                        + "</a></button>"
+                        + '</a></button>'
+                        + '<button class="no-style bdelete" onclick="sendcmd(\'mpc del '
+                        + str(i + 1)
+                        + "')\">🗑️</button>"
+                        + '</div>'
                     )
                 else:
                     rp += (
-                        '<button class="button1" onclick="sendcmd(\'mpc play '
+                        '<div class="button1">'
+                        + '<button class="no-style" onclick="sendcmd(\'mpc play '
                         + str(i + 1)
                         + "')\"><a>"
                         + str(i + 1)
                         + ". "
                         + pl[i]
-                        + "</a></button>"
+                        + '</a></button>'
+                        + '<button class="no-style bdelete" onclick="sendcmd(\'mpc del '
+                        + str(i + 1)
+                        + "')\">🗑️</button>"
+                        + '</div>'
                     )
             self.write(rp)
         elif input == "iplaylist":
@@ -1189,13 +1203,18 @@ class shellCmd(tornado.web.RequestHandler):  # scmd
             rp = ""
             for i in range(len(pl)):
                 rp += (
-                    '<button class="button1" onclick="sendcmd(\'mpc load '
+                    '<div class="button1">'
+                    + '<button class="no-style" onclick="sendcmd(\'mpc load '
                     + pl[i]
                     + "')\"><a>"
                     + str(i + 1)
                     + ". "
                     + pl[i]
-                    + "</a></button>"
+                    + '</a></button>'
+                    + '<button class="no-style bdelete" onclick="sendcmd(\'mpc rm '
+                    + pl[i]
+                    + "')\">🗑️</button>"
+                    + '</div>'
                 )
             self.write(rp)
         elif input == "status":
@@ -1267,6 +1286,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
         self.clients.remove(self)
 
     def on_message(self, message):
+        global PLAY_CURL
         sleeptimer.resetas()
         print(f"[WS] Incoming message:{message}"), message
         interuptDisplay(1, (f"[WS] Incoming message:\n{message}"))
@@ -1279,6 +1299,10 @@ class WSHandler(tornado.websocket.WebSocketHandler):
                 noReturnSubprocess("mpc clear")
                 noReturnSubprocess(sbmsg)
                 noReturnSubprocess("mpc play")
+                PLAY_CURL=False
+                CONFIGDATA["play_custom"] = False
+
+                save_config()
 
                 # subprocess.check_output("mpc clear", shell=True)
                 # subprocess.check_output(sbmsg, shell=True).decode("utf-8")
