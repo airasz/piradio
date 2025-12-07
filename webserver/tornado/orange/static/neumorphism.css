@@ -287,6 +287,7 @@ p4 {
 
 .groupbox {
     margin-bottom: 15px;
+    box-shadow: var(--shadow-inset-light);
 }
 
 #radiostatus {
