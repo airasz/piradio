@@ -216,6 +216,11 @@ function load_cofig() {
       if (ajax_request.readyState == 4) {
         var json_config = JSON.parse(ajax_request.responseText);
         console.log("web theme: ", json_config.web.client_web_theme);
+        if (json_config.play_custom == true) {
+          document.getElementById("playurl").innerHTML = "add";
+        } else {
+          document.getElementById("playurl").innerHTML = "play";
+        }
         if (json_config.web.client_web_theme == 0) {
           colorscheme.setAttribute("href", "blurry.css");
         } else if (json_config.web.client_web_theme == 1) {

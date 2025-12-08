@@ -64,6 +64,21 @@ div p4 {
     color: var(--accent-color);
 }
 
+.no-style {
+    border: none;
+    outline: none;
+    background: none;
+}
+
+.bdelete {
+    border-radius: 50%;
+    color: var(--accent-color);
+}
+
+.bdelete:hover {
+    box-shadow: var(--shadow-out-hover);
+}
+
 .button1 {
     border: none;
     outline: none;
@@ -79,6 +94,12 @@ div p4 {
     text-transform: uppercase;
     font-size: 0.9rem;
     background-image: var(--curve-convex);
+    display: inline-flex;
+}
+
+.bplay button {
+    color: rgb(8, 123, 131);
+    font-weight: 600;
 }
 
 .bplay {

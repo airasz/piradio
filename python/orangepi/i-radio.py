@@ -62,6 +62,7 @@ device.cleanup = do_nothing
 # Add a global variable to store the serial transport
 serial_transport = None
 
+stationAlternative = {"My Station name": "Hang FM Batam"}
 # Global variable dictionary
 G_VAR = {
     "EN_NEXMEDIA_R": False,
@@ -1735,6 +1736,7 @@ class MainHandler(tornado.web.RequestHandler):
             broadcast_message("info=" + status)
             display.frezeeDisplay(3)
             G_VAR["PLAY_CURL"] = True
+            CONFIGDATA["play_custom"] = True
             save_config()
             self.render("index.html")
 
@@ -1776,14 +1778,48 @@ class shellCmd(tornado.web.RequestHandler):  # scmd
             pl = sr.splitlines(keepends=False)
             rp = ""
             for i in range(len(pl)):
+                if pl[i] in stationAlternative:
+                    pl[i] = stationAlternative[pl[i]]
                 if "://" in pl[i]:
                     pl[i] = pl[i][pl[i].index("//") + 2 :]
-                mark = (
-                    'id="playing" class="button1 bplay"'
-                    if i + 1 == idd
-                    else 'class="button1"'
-                )
-                rp += f"<button {mark} onclick=\"sendcmd('mpc play {i+1}')\"><a>{i+1}. {pl[i]}</a></button>"
+                if i + 1 == idd:
+                    rp += (
+                        '<div class="button1 bplay">'
+                        + '<button id="playing" class="no-style" onclick="sendcmd(\'mpc play '
+                        + str(i + 1)
+                        + "')\"><a>"
+                        + str(i + 1)
+                        + ". "
+                        + pl[i]
+                        + '</a></button>'
+                        + '<button class="no-style bdelete" onclick="sendcmd(\'mpc del '
+                        + str(i + 1)
+                        + "')\">🗑️</button>"
+                        + '</div>'
+                    )
+                else:
+                    rp += (
+                        '<div class="button1">'
+                        + '<button class="no-style" onclick="sendcmd(\'mpc play '
+                        + str(i + 1)
+                        + "')\"><a>"
+                        + str(i + 1)
+                        + ". "
+                        + pl[i]
+                        + '</a></button>'
+                        + '<button class="no-style bdelete" onclick="sendcmd(\'mpc del '
+                        + str(i + 1)
+                        + "')\">🗑️</button>"
+                        + '</div>'
+                    )
+                # if "://" in pl[i]:
+                #     pl[i] = pl[i][pl[i].index("//") + 2 :]
+                # mark = (
+                #     'id="playing" class="button1 bplay"'
+                #     if i + 1 == idd
+                #     else 'class="button1"'
+                # )
+                # rp += f"<button {mark} onclick=\"sendcmd('mpc play {i+1}')\"><a>{i+1}. {pl[i]}</a></button>"
             self.write(rp)
         elif input == "playlistsjson":
             self.set_header("Content-Type", "application/json")
@@ -1910,6 +1946,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
                 subprocess.check_output(sbmsg, shell=True).decode("utf-8")
                 getstationlen()
                 subprocess.check_output("mpc play ", shell=True).decode("utf-8")
+                CONFIGDATA["play_custom"] = False 
                 for i in range(len(PLAYlists)):
                     if PLAYlists[i] in sbmsg:
                         CONFIGDATA["curent_pl_id"] = i + 1

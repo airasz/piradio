@@ -12,6 +12,21 @@
   margin: auto;
 }
 
+.no-style {
+  border: none;
+  outline: none;
+  background: none;
+}
+
+.bdelete {
+  border-radius: 50%;
+}
+
+.bdelete:hover {
+  background: red !important;
+
+}
+
 .button1 {
   /*   color: rgb(255, 255, 255); */
   color: #99f50f;
@@ -21,6 +36,7 @@
   background: #006a00 !important;
   /*   background: linear-gradient(360deg, rgba(18,244,109,1) 0%, rgba(49,189,84,1) 42%, rgba(21,227,110,1) 43%, rgba(42,250,122,1) 100%)!important; */
   backdrop-filter: blur(8px);
+  display: inline-flex;
 }
 
 .button1:active {
@@ -32,6 +48,19 @@
   /*box-shadow:
     5px 5px 8px #f8ea7d,
     -2px -2px 8px #ffe765 !important;*/
+}
+
+.bplay button {
+  color: rgb(8, 123, 131);
+  font-weight: 600;
+}
+
+.bplay {
+  background: #fffbe5;
+  color: rgb(240, 150, 29);
+  background-image: var(--curve-convex);
+  /* box-shadow: var(--shadow-out-hover) !important; */
+  box-shadow: none !important;
 }
 
 p4 {
