@@ -24,6 +24,7 @@
   /*   background: linear-gradient(360deg, rgba(18,244,109,1) 0%, rgba(49,189,84,1) 42%, rgba(21,227,110,1) 43%, rgba(42,250,122,1) 100%)!important; */
   backdrop-filter: blur(8px);
   border: solid 1px #000 !important;
+  display: inline-flex;
 }
 
 .button1:active {
@@ -43,7 +44,7 @@ p4 {
 }
 
 p3 {
-  color: #9c00d0 !important;
+  color: #f2ff03 !important;
 }
 
 .switch_led p4 {
@@ -79,12 +80,41 @@ input[type="text"] {
   opacity: 1;
 }
 
+.no-style {
+  border: none;
+  outline: none;
+  background: none;
+}
+
+.bdelete {
+  border-radius: 50%;
+}
+
+.bdelete:hover {
+  background: red !important;
+  border: solid 1px #000 !important;
+  box-shadow: none !important;
+}
+
+.bplay button {
+  color: rgb(8, 123, 131);
+  font-weight: 600;
+}
+
+.bplay {
+  background: #fffbe5;
+  color: rgb(240, 150, 29);
+  /* box-shadow: var(--shadow-out-hover) !important; */
+  box-shadow: none !important;
+}
+
 .button2 {
   color: #ecfa2d;
   background: rgb(145, 144, 144) !important;
   border-radius: 20px;
   backdrop-filter: blur(8px);
   border: solid 1px #000 !important;
+  display: inline-flex;
 }
 
 .button2:active {
@@ -172,7 +202,6 @@ h1 {
   width: 18px;
   height: 18px;
   background: rgb(6, 121, 4) !important;
-  ;
   cursor: pointer;
   border-radius: 14px;
   /*   background: repeating-radial-gradient(#6b02ff, #aa05d8) !important; */

@@ -1,8 +1,28 @@
+:root {
+
+  --slider-thumb-bg: #5f93f7;
+}
+
 .card_switch {
   background-color: #ee5307 !important;
   background-image: url(../static/mesh_bg.png) !important;
   background-repeat: no-repeat;
   background-size: cover;
+}
+
+.no-style {
+  border: none;
+  outline: none;
+  background: none;
+}
+
+.bdelete {
+  border-radius: 50%;
+}
+
+.bdelete:hover {
+  background: red !important;
+
 }
 
 .button1 {
@@ -14,6 +34,7 @@
   background: #00aa00 !important;
 
   backdrop-filter: blur(8px);
+  display: inline-flex;
 }
 
 .button1:active {
@@ -25,6 +46,19 @@
   /*box-shadow:
     5px 5px 8px #f8ea7d,
     -2px -2px 8px #ffe765 !important;*/
+}
+
+.bplay button {
+  color: rgb(8, 123, 131);
+  font-weight: 600;
+}
+
+.bplay {
+  background: #fffbe5;
+  color: rgb(184, 233, 9);
+  background-image: var(--curve-convex);
+  /* box-shadow: var(--shadow-out-hover) !important; */
+  box-shadow: none !important;
 }
 
 p4 {
@@ -141,10 +175,25 @@ h1 {
   cursor: pointer;
   border: 0px;
   border-radius: 14px;
-  background: repeating-radial-gradient(#ff1da7, #5f00ea) !important;
-  box-shadow:
+  /* background: repeating-radial-gradient(#ff1da7, #5f00ea) !important; */
+
+  background: var(--slider-thumb-bg, #0e2cd7f7);
+  /* box-shadow:
     2px 2px 8px #56e7ee,
-    -2px -2px 8px #61eaf7 !important;
+    -2px -2px 8px #61eaf7 !important; */
+}
+
+.slider::-moz-range-thumb+#track-progress {
+  background: var(--slider-thumb-bg-progress, #0e2cd7f7);
+}
+
+#track-progress {
+  --slider-thumb-bg: orangered;
+  --slider-thumb-bg-progress: orangered;
+}
+
+#track-progress::-moz-range-thumb {
+  background: var(--slider-thumb-bg-progress);
 }
 
 .groupbox {

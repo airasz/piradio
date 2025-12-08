@@ -2,6 +2,7 @@ var bstop = false;
 var count = 0;
 var old_sl = "";
 var json_radio_status;
+var theme = 0;
 function loop() {
   count++;
   if (count > 5) {
@@ -60,7 +61,7 @@ function onMessage(event) {
   } else if (event.data.startsWith("vol")) {
     var sdata = event.data.substring(4);
     document.getElementById("svol").value = parseInt(sdata);
-    var color = mapColor(parseInt(sdata));
+    var color = valueToLinearGradient(parseInt(sdata));
     tbl.style.setProperty("--slider-thumb-bg", color);
     var ivol = document.querySelector("#isvol");
     ivol.innerHTML = "volume : " + volume;
@@ -216,6 +217,7 @@ function load_cofig() {
       if (ajax_request.readyState == 4) {
         var json_config = JSON.parse(ajax_request.responseText);
         console.log("web theme: ", json_config.web.client_web_theme);
+        theme = json_config.web.client_web_theme;
         if (json_config.web.client_web_theme == 0) {
           colorscheme.setAttribute("href", "blurry.css");
         } else if (json_config.web.client_web_theme == 1) {
@@ -263,8 +265,13 @@ function updatevolslider2(txt) {
   if (match) {
     const volume = parseInt(match[1], 10);
     tbl.value = volume;
-    var color = mapColor(volume);
-    tbl.style.setProperty('--slider-thumb-bg', color);
+    if (theme == 2) {
+      var color = valueToLinearGradient(volume);
+      tbl.style.setProperty('--slider-thumb-bg', color);
+    } else if (theme == 0) {
+      var color = valueToRadialGradient(volume);
+      tbl.style.setProperty('--slider-thumb-bg', color);
+    }
     var ivol = document.querySelector("#isvol");
     ivol.innerHTML = "volume : " + volume;
     // console.log("Volume:", volume); // Output: 39
@@ -276,8 +283,13 @@ function updatevolslider(volume) {
   // console.log("update volume slider: ", volume);
   var tbl = document.getElementById("svol");
   tbl.value = volume;
-  var color = mapColor(volume);
-  tbl.style.setProperty('--slider-thumb-bg', color);
+  if (theme == 2) {
+    var color = valueToLinearGradient(volume);
+    tbl.style.setProperty('--slider-thumb-bg', color);
+  } else if (theme == 0) {
+    var color = valueToRadialGradient(volume);
+    tbl.style.setProperty('--slider-thumb-bg', color);
+  }
   var ivol = document.querySelector("#isvol");
   ivol.innerHTML = "volume : " + volume;
 }
@@ -301,9 +313,16 @@ function updateauidoprogress(current, total, scurent, stotal, progress) {
   var slider = document.getElementById("track-progress");
   slider.max = total;
   slider.value = current;
-  var color = mapColor(progress);
-  console.log("update audio progress: ", progress, color);
-  slider.style.setProperty('--slider-thumb-bg-progress', color);
+  if (theme == 2) {
+    var color = valueToLinearGradient(progress);
+    console.log("update audio progress: ", progress, color);
+    slider.style.setProperty('--slider-thumb-bg-progress', color);
+  } else if (theme == 0) {
+
+    var color = valueToRadialGradient(progress);
+    console.log("update audio progress: ", progress, color);
+    slider.style.setProperty('--slider-thumb-bg-progress', color);
+  }
   if (total == 0) {
     document.getElementById("track-progress-container").style.display = "none";
     return;
@@ -389,7 +408,7 @@ function gethostname() {
       if (this.responseText.includes("banana")) {
         // colorscheme.setAttribute("href", "blurry.css");
         // spn.style.cssText = 'display:inline-flex !important';
-        document.querySelector("#nav").style.display = "none";
+        document.querySelector("#nav").style.display = "block";
         document.getElementById("title").innerHTML =
           this.responseText + " radio &#x1F34C";
       } else if (this.responseText.includes("orange")) {
@@ -502,7 +521,7 @@ function setsleep() {
 //   false,
 // );
 
-function mapColor(value) {
+function valueToLinearGradient(value) {
   // Ensure value is within 0-100
   value = Math.max(0, Math.min(100, value));
 
@@ -540,5 +559,34 @@ function mapColor(value) {
     "," +
     b2 +
     "))"
+  );
+}
+
+function valueToRadialGradient(value) {
+  // Ensure value is within 0-100
+  value = Math.max(0, Math.min(100, value));
+
+  // Inner color: yellowish-green
+  var innerColor = "rgba(196, 209, 8, 1)";
+
+  // Outer color: cyan
+  var outerColor = "rgba(2, 214, 214, 1)";
+
+  var innerValue, outerValue;
+
+  if (value <= 50) {
+    // For value 0-50: outervalue goes from 0 to 100
+    innerValue = 0;
+    outerValue = (value / 50) * 100; // Maps 0-50 to 0-100
+  } else {
+    // For value 51-100: innervalue goes from 0 to 100
+    innerValue = ((value - 50) / 50) * 100; // Maps 51-100 to 0-100
+    outerValue = 100;
+  }
+
+  return (
+    "radial-gradient(circle, " +
+    innerColor + " " + innerValue + "%, " +
+    outerColor + " " + outerValue + "%)"
   );
 }
