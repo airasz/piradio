@@ -3,6 +3,7 @@ var count = 0;
 var old_sl = "";
 var json_radio_status;
 var theme = 0;
+var hostname = "";
 function loop() {
   count++;
   if (count > 5) {
@@ -408,11 +409,13 @@ function gethostname() {
       if (this.responseText.includes("banana")) {
         // colorscheme.setAttribute("href", "blurry.css");
         // spn.style.cssText = 'display:inline-flex !important';
+        hostname = this.responseText;
         document.querySelector("#nav").style.display = "block";
         document.getElementById("title").innerHTML =
           this.responseText + " radio &#x1F34C";
       } else if (this.responseText.includes("orange")) {
         // colorscheme.setAttribute("href", "bordered.css");
+        hostname = this.responseText;
         document.querySelector("#nav").style.display = "block";
         document.getElementById("title").innerHTML =
           this.responseText + " radio &#x1F34A";
@@ -529,14 +532,14 @@ function valueToLinearGradient(value) {
 
   if (value <= 50) {
     // 0-50: Turquoise (173, 240, 228) to Yellow (242, 227, 105)
-    r = Math.floor(173 + 1.38 * value);
-    g = Math.floor(240 - 0.26 * value);
-    b = Math.floor(228 - 2.46 * value);
+    r = hostname == "banana" ? Math.floor(173 + 1.38 * value) : Math.floor(5.1 * value);
+    g = hostname == "banana" ? Math.floor(240 - 0.26 * value) : Math.floor(100 + 3.1 * value);
+    b = hostname == "banana" ? Math.floor(228 - 2.46 * value) : 0;
   } else {
     // 50-100: Yellow (242, 227, 105) to Dark Yellow (178, 145, 45)
-    r = Math.floor(242 - 1.28 * (value - 50));
-    g = Math.floor(227 - 1.64 * (value - 50));
-    b = Math.floor(105 - 1.2 * (value - 50));
+    r = hostname == "banana" ? Math.floor(242 - 1.28 * (value - 50)) : 255;
+    g = hostname == "banana" ? Math.floor(227 - 1.64 * (value - 50)) : Math.floor(255 - 1.8 * (value - 50));
+    b = hostname == "banana" ? Math.floor(105 - 1.2 * (value - 50)) : 0;
   }
 
   // Calculate darker color
@@ -567,10 +570,10 @@ function valueToRadialGradient(value) {
   value = Math.max(0, Math.min(100, value));
 
   // Inner color: yellowish-green
-  var innerColor = "rgba(196, 209, 8, 1)";
+  var innerColor = hostname == "banana" ? "rgba(196, 209, 8, 1)" : "rgba(221, 169, 0, 1)";
 
   // Outer color: cyan
-  var outerColor = "rgba(2, 214, 214, 1)";
+  var outerColor = hostname == "banana" ? "rgba(2, 214, 214, 1)" : "rgba(2, 71, 33, 1)";
 
   var innerValue, outerValue;
 

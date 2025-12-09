@@ -1,3 +1,8 @@
+:root {
+
+  --slider-thumb-bg: #5f93f7;
+}
+
 .card_switch {
   background-color: #ee5307 !important;
   background-image: url(../static/mesh_bg.png) !important;
@@ -20,6 +25,8 @@
 
 .bdelete {
   border-radius: 50%;
+  width: 26px;
+  height: 26px;
 }
 
 .bdelete:hover {
@@ -169,43 +176,28 @@ h1 {
   cursor: pointer;
   border: 0px;
   border-radius: 14px;
-  background: repeating-radial-gradient(#1de1ff, #1660d8) !important;
-  box-shadow:
+  /* background: repeating-radial-gradient(#1de1ff, #1660d8) !important; */
+
+  background: var(--slider-thumb-bg, #0e2cd7f7);
+  /* box-shadow:
     2px 2px 8px #56e7ee,
-    -2px -2px 8px #61eaf7 !important;
+    -2px -2px 8px #61eaf7 !important; */
 }
 
 
-/* The slider */
-.slider_switch {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  border-radius: 20px;
-  /* background-color: rgb(230, 34, 34); */
-  /* box-shadow: inset 2px 2px 4px #8a8a8a, inset -2px -2px 4px rgb(255, 255, 255); */
-  -webkit-transition: .4s;
-  transition: .4s;
+
+.slider::-moz-range-thumb+#track-progress {
+  background: var(--slider-thumb-bg-progress, #0e2cd7f7);
 }
 
-
-.slider_switch:before {
-  position: absolute;
-  content: "";
-  height: 26px;
-  width: 26px;
-  left: 0px;
-  /* bottom: 4px; */
-  border-radius: 50%;
-  /* background-color: rgb(230, 22, 22); */
-  /* box-shadow: 5px 5px 8px #8a8a8a, -2px -2px 8px #fff; */
-  -webkit-transition: .4s;
-  transition: .4s;
+#track-progress {
+  --slider-thumb-bg: orangered;
+  --slider-thumb-bg-progress: orangered;
 }
 
+#track-progress::-moz-range-thumb {
+  background: var(--slider-thumb-bg-progress);
+}
 
 .groupbox {
   /* box-shadow: 6px 6px 12px #b3b0b0, -2px -2px 12px #fff !important; */
@@ -217,6 +209,40 @@ h1 {
   backdrop-filter: blur(6px);
 }
 
-input[type="text"] {
-  /* width: 10%; */
+/* Floating pause button */
+.floating-pause-btn {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: none;
+  background: #ffc400;
+  box-shadow: none;
+  cursor: pointer;
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  transition: all 0.3s ease;
+  color: rgb(2, 73, 6);
+}
+
+.floating-pause-btn:hover {
+  box-shadow: none;
+  transform: scale(1.05);
+}
+
+.floating-pause-btn:active {
+  box-shadow: none;
+}
+
+.floating-pause-btn.paused {
+  color: rgb(255, 100, 0);
+}
+
+.floating-pause-btn.paused::before {
+  content: '▶';
 }

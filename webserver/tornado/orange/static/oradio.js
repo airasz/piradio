@@ -2,15 +2,36 @@ var bstop = false;
 var count = 0;
 var old_sl = "";
 var json_radio_status;
+var theme = 0;
+var hostname = "";
+var isPaused = false;
+
 function loop() {
   count++;
-  if (count > 5) {
+  if (count > 5 && !isPaused) {
     // load_status();
     load_status_json();
     polpulatesl();
     // count=0;
   }
   setTimeout(loop, 1000);
+}
+
+function togglePause() {
+  isPaused = !isPaused;
+  var btn = document.getElementById('pauseButton');
+  if (isPaused) {
+    btn.classList.add('paused');
+    btn.innerHTML = '▶';
+    btn.title = 'Resume periodic refresh';
+  } else {
+    btn.classList.remove('paused');
+    btn.innerHTML = '⏸';
+    btn.title = 'Pause periodic refresh';
+    // Reset count to trigger immediate update on resume
+    count = 4;
+  }
+  console.log('Periodic refresh ' + (isPaused ? 'paused' : 'resumed'));
 }
 function loadonce() {
   document.getElementById('loading').style.display = 'flex';
@@ -60,7 +81,7 @@ function onMessage(event) {
   } else if (event.data.startsWith("vol")) {
     var sdata = event.data.substring(4);
     document.getElementById("svol").value = parseInt(sdata);
-    var color = mapColor(parseInt(sdata));
+    var color = valueToLinearGradient(parseInt(sdata));
     tbl.style.setProperty("--slider-thumb-bg", color);
     var ivol = document.querySelector("#isvol");
     ivol.innerHTML = "volume : " + volume;
@@ -216,11 +237,7 @@ function load_cofig() {
       if (ajax_request.readyState == 4) {
         var json_config = JSON.parse(ajax_request.responseText);
         console.log("web theme: ", json_config.web.client_web_theme);
-        if (json_config.play_custom == true) {
-          document.getElementById("playurl").innerHTML = "add";
-        } else {
-          document.getElementById("playurl").innerHTML = "play";
-        }
+        theme = json_config.web.client_web_theme;
         if (json_config.web.client_web_theme == 0) {
           colorscheme.setAttribute("href", "blurry.css");
         } else if (json_config.web.client_web_theme == 1) {
@@ -268,8 +285,13 @@ function updatevolslider2(txt) {
   if (match) {
     const volume = parseInt(match[1], 10);
     tbl.value = volume;
-    var color = mapColor(volume);
-    tbl.style.setProperty('--slider-thumb-bg', color);
+    if (theme == 2) {
+      var color = valueToLinearGradient(volume);
+      tbl.style.setProperty('--slider-thumb-bg', color);
+    } else if (theme == 0) {
+      var color = valueToRadialGradient(volume);
+      tbl.style.setProperty('--slider-thumb-bg', color);
+    }
     var ivol = document.querySelector("#isvol");
     ivol.innerHTML = "volume : " + volume;
     // console.log("Volume:", volume); // Output: 39
@@ -281,8 +303,13 @@ function updatevolslider(volume) {
   // console.log("update volume slider: ", volume);
   var tbl = document.getElementById("svol");
   tbl.value = volume;
-  var color = mapColor(volume);
-  tbl.style.setProperty('--slider-thumb-bg', color);
+  if (theme == 2) {
+    var color = valueToLinearGradient(volume);
+    tbl.style.setProperty('--slider-thumb-bg', color);
+  } else if (theme == 0) {
+    var color = valueToRadialGradient(volume);
+    tbl.style.setProperty('--slider-thumb-bg', color);
+  }
   var ivol = document.querySelector("#isvol");
   ivol.innerHTML = "volume : " + volume;
 }
@@ -306,9 +333,16 @@ function updateauidoprogress(current, total, scurent, stotal, progress) {
   var slider = document.getElementById("track-progress");
   slider.max = total;
   slider.value = current;
-  var color = mapColor(progress);
-  console.log("update audio progress: ", progress, color);
-  slider.style.setProperty('--slider-thumb-bg-progress', color);
+  if (theme == 2) {
+    var color = valueToLinearGradient(progress);
+    console.log("update audio progress: ", progress, color);
+    slider.style.setProperty('--slider-thumb-bg-progress', color);
+  } else if (theme == 0) {
+
+    var color = valueToRadialGradient(progress);
+    console.log("update audio progress: ", progress, color);
+    slider.style.setProperty('--slider-thumb-bg-progress', color);
+  }
   if (total == 0) {
     document.getElementById("track-progress-container").style.display = "none";
     return;
@@ -394,11 +428,13 @@ function gethostname() {
       if (this.responseText.includes("banana")) {
         // colorscheme.setAttribute("href", "blurry.css");
         // spn.style.cssText = 'display:inline-flex !important';
-        document.querySelector("#nav").style.display = "none";
+        hostname = this.responseText;
+        document.querySelector("#nav").style.display = "block";
         document.getElementById("title").innerHTML =
           this.responseText + " radio &#x1F34C";
       } else if (this.responseText.includes("orange")) {
         // colorscheme.setAttribute("href", "bordered.css");
+        hostname = this.responseText;
         document.querySelector("#nav").style.display = "block";
         document.getElementById("title").innerHTML =
           this.responseText + " radio &#x1F34A";
@@ -507,22 +543,22 @@ function setsleep() {
 //   false,
 // );
 
-function mapColor(value) {
+function valueToLinearGradient(value) {
   // Ensure value is within 0-100
   value = Math.max(0, Math.min(100, value));
 
   var r, g, b;
 
   if (value <= 50) {
-    // 0-50: DarkGreen (0, 100, 0) to Yellow (255, 255, 0)
-    r = Math.floor(5.1 * value);
-    g = Math.floor(100 + 3.1 * value);
-    b = 0;
+    // 0-50: Turquoise (173, 240, 228) to Yellow (242, 227, 105)
+    r = hostname == "banana" ? Math.floor(173 + 1.38 * value) : Math.floor(5.1 * value);
+    g = hostname == "banana" ? Math.floor(240 - 0.26 * value) : Math.floor(100 + 3.1 * value);
+    b = hostname == "banana" ? Math.floor(228 - 2.46 * value) : 0;
   } else {
-    // 50-100: Yellow (255, 255, 0) to Orange (255, 165, 0)
-    r = 255;
-    g = Math.floor(255 - 1.8 * (value - 50));
-    b = 0;
+    // 50-100: Yellow (242, 227, 105) to Dark Yellow (178, 145, 45)
+    r = hostname == "banana" ? Math.floor(242 - 1.28 * (value - 50)) : 255;
+    g = hostname == "banana" ? Math.floor(227 - 1.64 * (value - 50)) : Math.floor(255 - 1.8 * (value - 50));
+    b = hostname == "banana" ? Math.floor(105 - 1.2 * (value - 50)) : 0;
   }
 
   // Calculate darker color
@@ -531,5 +567,48 @@ function mapColor(value) {
   var g2 = Math.floor(g * darker);
   var b2 = Math.floor(b * darker);
 
-  return "linear-gradient(135deg, rgb(" + r + "," + g + "," + b + "), rgb(" + r2 + "," + g2 + "," + b2 + "))";
+  return (
+    "linear-gradient(135deg, rgb(" +
+    r +
+    "," +
+    g +
+    "," +
+    b +
+    "), rgb(" +
+    r2 +
+    "," +
+    g2 +
+    "," +
+    b2 +
+    "))"
+  );
+}
+
+function valueToRadialGradient(value) {
+  // Ensure value is within 0-100
+  value = Math.max(0, Math.min(100, value));
+
+  // Inner color: yellowish-green
+  var innerColor = hostname == "banana" ? "rgba(196, 209, 8, 1)" : "rgba(221, 169, 0, 1)";
+
+  // Outer color: cyan
+  var outerColor = hostname == "banana" ? "rgba(2, 214, 214, 1)" : "rgba(2, 71, 33, 1)";
+
+  var innerValue, outerValue;
+
+  if (value <= 50) {
+    // For value 0-50: outervalue goes from 0 to 100
+    innerValue = 0;
+    outerValue = (value / 50) * 100; // Maps 0-50 to 0-100
+  } else {
+    // For value 51-100: innervalue goes from 0 to 100
+    innerValue = ((value - 50) / 50) * 100; // Maps 51-100 to 0-100
+    outerValue = 100;
+  }
+
+  return (
+    "radial-gradient(circle, " +
+    innerColor + " " + innerValue + "%, " +
+    outerColor + " " + outerValue + "%)"
+  );
 }

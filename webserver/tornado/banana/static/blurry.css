@@ -18,6 +18,8 @@
 
 .bdelete {
   border-radius: 50%;
+  width: 26px;
+  height: 26px;
 }
 
 .bdelete:hover {
@@ -204,8 +206,4 @@ h1 {
 
   background: rgba(109, 170, 10, 0.5) !important;
   backdrop-filter: blur(6px);
-}
-
-input[type="text"] {
-  /* width: 10%; */
 }
