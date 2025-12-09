@@ -98,6 +98,13 @@ function loadvol() {
 function setvol() {
   var tbl = document.getElementById("svol");
   var cmd = "mpc volume " + tbl.value;
+  if (theme == 2) {
+    var color = valueToLinearGradient(tbl.value);
+    tbl.style.setProperty('--slider-thumb-bg', color);
+  } else if (theme == 0) {
+    var color = valueToRadialGradient(tbl.value);
+    tbl.style.setProperty('--slider-thumb-bg', color);
+  }
   websocket.send("0>" + cmd);
 }
 
@@ -186,13 +193,18 @@ function load_status_json() {
         // console.log("data json volume: " , json_radio_status.volume);
         // console.log("data json vol: ", json_radio_status.volume);
         updatevolslider(json_radio_status.volume);
-        updateauidoprogress(
-          json_radio_status.time.elapsed_seconds,
-          json_radio_status.time.total_seconds,
-          json_radio_status.time.elapsed,
-          json_radio_status.time.total,
-          json_radio_status.progress_percent,
-        );
+        if (json_radio_status.time.total_seconds > 0) {
+          document.getElementById("track-progress-container").style.display = "block";
+          updateauidoprogress(
+            json_radio_status.time.elapsed_seconds,
+            json_radio_status.time.total_seconds,
+            json_radio_status.time.elapsed,
+            json_radio_status.time.total,
+            json_radio_status.progress_percent,
+          );
+        } else {
+          document.getElementById("track-progress-container").style.display = "none";
+        }
         update_play_mode(
           json_radio_status.repeat,
           json_radio_status.random,
@@ -324,12 +336,6 @@ function updateauidoprogress(current, total, scurent, stotal, progress) {
     console.log("update audio progress: ", progress, color);
     slider.style.setProperty('--slider-thumb-bg-progress', color);
   }
-  if (total == 0) {
-    document.getElementById("track-progress-container").style.display = "none";
-    return;
-  } else {
-    document.getElementById("track-progress-container").style.display = "block";
-  }
   var iprog = document.querySelector("#isprogress");
   iprog.innerHTML = scurent + "/" + stotal;
 }
@@ -420,6 +426,7 @@ function gethostname() {
         document.getElementById("title").innerHTML =
           this.responseText + " radio &#x1F34A";
       }
+      hostname = hostname.replace("\n", "");
     } else {
       // document.getElementById("loadingtbl").style.display = "block";
     }
@@ -529,7 +536,8 @@ function valueToLinearGradient(value) {
   value = Math.max(0, Math.min(100, value));
 
   var r, g, b;
-
+  // console.log(`hostname: -${hostname}-`);
+  // hostname = "orange";
   if (value <= 50) {
     // 0-50: Turquoise (173, 240, 228) to Yellow (242, 227, 105)
     r = hostname == "banana" ? Math.floor(173 + 1.38 * value) : Math.floor(5.1 * value);

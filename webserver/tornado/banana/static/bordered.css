@@ -318,3 +318,41 @@ input:checked+.slider_switch:before {
   backdrop-filter: blur(6px);
   border: solid 1px #000 !important;
 }
+
+/* Floating pause button */
+.floating-pause-btn {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: solid 1px #000 !important;
+  background: #ffc400;
+  box-shadow: none;
+  cursor: pointer;
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  transition: all 0.3s ease;
+  color: rgb(2, 73, 6);
+}
+
+.floating-pause-btn:hover {
+  box-shadow: none;
+  transform: scale(1.05);
+}
+
+.floating-pause-btn:active {
+  box-shadow: none;
+}
+
+.floating-pause-btn.paused {
+  color: rgb(255, 100, 0);
+}
+
+.floating-pause-btn.paused::before {
+  content: '▶';
+}

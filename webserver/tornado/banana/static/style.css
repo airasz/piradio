@@ -395,12 +395,6 @@ div p6 {
   transition: 0.4s;
 }
 
-input:checked+.slider {
-  /* background-color: rgb(95, 248, 215); */
-
-  /* background-color: rgb(126, 126, 126); */
-}
-
 input:focus+.slider {
   /* box-shadow: 0 0 1px #2196F3; */
 
@@ -456,11 +450,6 @@ input:checked+.slider:before {
   transition: 0.4s;
 }
 
-input:checked+.sslider {
-  /* background-color: rgb(95, 248, 215); */
-
-  /* background-color: rgb(126, 126, 126); */
-}
 
 input:focus+.sslider {
   /* box-shadow: 0 0 1px #2196F3; */
@@ -495,4 +484,42 @@ input:checked+.sslider:before {
   pointer-events: none;
   margin: 0;
   z-index: 1;
+}
+
+/* Floating pause button */
+.floating-pause-btn {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: none;
+  background: #dbdbdb;
+  box-shadow: 6px 6px 12px #b3b0b0, -6px -6px 12px #fff;
+  cursor: pointer;
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  transition: all 0.3s ease;
+  color: rgb(95, 95, 95);
+}
+
+.floating-pause-btn:hover {
+  box-shadow: 8px 8px 16px #b3b0b0, -8px -8px 16px #fff;
+  transform: scale(1.05);
+}
+
+.floating-pause-btn:active {
+  box-shadow: inset 2px 2px 4px #8a8a8a, inset -2px -2px 4px rgb(255, 255, 255);
+}
+
+.floating-pause-btn.paused {
+  color: rgb(255, 100, 0);
+}
+
+.floating-pause-btn.paused::before {
+  content: '▶';
 }
