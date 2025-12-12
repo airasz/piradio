@@ -5,7 +5,6 @@ var json_radio_status;
 var theme = 0;
 var hostname = "";
 var isPaused = false;
-
 function loop() {
   count++;
   if (count > 5 && !isPaused) {
@@ -107,7 +106,7 @@ function loadvol() {
     if (ajax_request.status == 200) {
       if (ajax_request.readyState == 4) tbl.value = ajax_request.responseText;
     } else {
-      // document.getElementById("loadingtbl").style.display = "block";
+      tbl.value = 0;
     }
   };
 
@@ -117,6 +116,13 @@ function loadvol() {
 function setvol() {
   var tbl = document.getElementById("svol");
   var cmd = "mpc volume " + tbl.value;
+  if (theme == 2) {
+    var color = valueToLinearGradient(tbl.value);
+    tbl.style.setProperty('--slider-thumb-bg', color);
+  } else if (theme == 0) {
+    var color = valueToRadialGradient(tbl.value);
+    tbl.style.setProperty('--slider-thumb-bg', color);
+  }
   websocket.send("0>" + cmd);
 }
 
@@ -135,8 +141,6 @@ function getsleep() {
           this.responseText === "off" ? "block" : "none";
       }
       sinfo.innerHTML = this.responseText;
-    } else {
-      // document.getElementById("loadingtbl").style.display = "block";
     }
   };
 
@@ -152,15 +156,8 @@ function updatesleep(timetxt) {
 var scrollcount = 0;
 function load_status() {
   var tbl = document.getElementById("radiostatus");
-
   var ajax_request = new XMLHttpRequest();
-
-  // ajax_request.open('POST', 'oradio.php');
   ajax_request.open("GET", "scmd/status", true);
-
-  // ajax_request.send(form_data);
-
-  // new Response(form_data).text().then(console.log)
   ajax_request.onreadystatechange = function () {
     if (ajax_request.status == 200) {
       if (ajax_request.readyState == 4) {
@@ -199,26 +196,26 @@ function load_status_json() {
             ? ""
             : json_radio_status.artist + " - ") +
           (json_radio_status.title == null ? "" : json_radio_status.title);
-        // console.log("artis: ", json_radio_status.artis);
         document.getElementById("radiostatus").innerHTML = radiostatus;
-        // console.log("json data: ", json_radio_status);
-        // console.log("data json volume: " , json_radio_status.volume);
-        // console.log("data json vol: ", json_radio_status.volume);
         updatevolslider(json_radio_status.volume);
-        updateauidoprogress(
-          json_radio_status.time.elapsed_seconds,
-          json_radio_status.time.total_seconds,
-          json_radio_status.time.elapsed,
-          json_radio_status.time.total,
-          json_radio_status.progress_percent,
-        );
+        if (json_radio_status.time.total_seconds > 0) {
+          document.getElementById("track-progress-container").style.display = "block";
+          updateauidoprogress(
+            json_radio_status.time.elapsed_seconds,
+            json_radio_status.time.total_seconds,
+            json_radio_status.time.elapsed,
+            json_radio_status.time.total,
+            json_radio_status.progress_percent,
+          );
+        } else {
+          document.getElementById("track-progress-container").style.display = "none";
+        }
         update_play_mode(
           json_radio_status.repeat,
           json_radio_status.random,
           json_radio_status.single,
           json_radio_status.consume,
         );
-        // console.log("sleep timer countdown: ", json_radio_status.sleeptimer.countdown);
         updatesleep(json_radio_status.sleeptimer.countdown);
         update_control_button(
           json_radio_status.is_stopped,
@@ -275,11 +272,7 @@ function restart() {
   ajax_request.send();
 }
 function updatevolslider2(txt) {
-  // console.log("data json volume: ", json_radio_status.volume);
-  // console.log("data json volume: ", json_radio_status);
   var tbl = document.getElementById("svol");
-
-  // Extract the volume using RegExp
   const match = txt.match(/volume:\s*(\d+)%/);
 
   if (match) {
@@ -308,6 +301,10 @@ function updatevolslider(volume) {
     tbl.style.setProperty('--slider-thumb-bg', color);
   } else if (theme == 0) {
     var color = valueToRadialGradient(volume);
+    tbl.style.setProperty('--slider-thumb-bg', color);
+  } else if (theme == 1) {
+    var gradient = valueToLinearGradient(volume);
+    var color = gradient.match(/rgb\([^)]+\)/)[0];
     tbl.style.setProperty('--slider-thumb-bg', color);
   }
   var ivol = document.querySelector("#isvol");
@@ -338,16 +335,14 @@ function updateauidoprogress(current, total, scurent, stotal, progress) {
     console.log("update audio progress: ", progress, color);
     slider.style.setProperty('--slider-thumb-bg-progress', color);
   } else if (theme == 0) {
-
     var color = valueToRadialGradient(progress);
     console.log("update audio progress: ", progress, color);
     slider.style.setProperty('--slider-thumb-bg-progress', color);
-  }
-  if (total == 0) {
-    document.getElementById("track-progress-container").style.display = "none";
-    return;
-  } else {
-    document.getElementById("track-progress-container").style.display = "block";
+  } else if (theme == 1) {
+    var gradient = valueToLinearGradient(progress);
+    var color = gradient.match(/rgb\([^)]+\)/)[0];
+    console.log("update audio progress: ", progress, color);
+    slider.style.setProperty('--slider-thumb-bg-progress', color);
   }
   var iprog = document.querySelector("#isprogress");
   iprog.innerHTML = scurent + "/" + stotal;
@@ -424,7 +419,8 @@ function gethostname() {
     if (ajax_request.status == 200) {
       if (ajax_request.readyState == 4)
         // alert("hn=" + this.responseText);
-        document.title = this.responseText + " radio";
+        console.log("hostname :" + this.responseText);
+      document.title = this.responseText + " radio";
       if (this.responseText.includes("banana")) {
         // colorscheme.setAttribute("href", "blurry.css");
         // spn.style.cssText = 'display:inline-flex !important';
@@ -439,6 +435,7 @@ function gethostname() {
         document.getElementById("title").innerHTML =
           this.responseText + " radio &#x1F34A";
       }
+      hostname = hostname.replace("\n", "");
     } else {
       // document.getElementById("loadingtbl").style.display = "block";
     }
@@ -476,21 +473,6 @@ function polpulatesl() {
       console.log("failed get playist");
       stations.innerHTML =
         '<button class="button1" onclick="windows.location.reload()"><a>reload page</a></button>';
-    }
-  };
-  ajax_request.send();
-}
-function polpulatesl2() {
-  // console.log("refresh playlist button")
-  var ajax_request = new XMLHttpRequest();
-  var stations = document.getElementById("stations");
-  ajax_request.open("GET", "scmd/playlist", true);
-  ajax_request.onreadystatechange = function () {
-    if (ajax_request.status == 200) {
-      if (ajax_request.readyState == 4) stations.innerHTML = this.responseText;
-    } else {
-      stations.innerHTML =
-        '<button class="button1" onclick="sendcmd(\'mpc status\')"><a>reload page</a></button>';
     }
   };
   ajax_request.send();
@@ -548,7 +530,8 @@ function valueToLinearGradient(value) {
   value = Math.max(0, Math.min(100, value));
 
   var r, g, b;
-
+  // console.log(`hostname: -${hostname}-`);
+  // hostname = "orange";
   if (value <= 50) {
     // 0-50: Turquoise (173, 240, 228) to Yellow (242, 227, 105)
     r = hostname == "banana" ? Math.floor(173 + 1.38 * value) : Math.floor(5.1 * value);

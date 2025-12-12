@@ -1,3 +1,8 @@
+:root {
+
+  --slider-thumb-bg: #5f93f7;
+}
+
 .card_switch {
   background-color: #ffd6be !important;
   /* background-image: url(../static/mesh_bg.png) !important; */
@@ -204,13 +209,26 @@ h1 {
   background: rgb(255, 255, 255);
   cursor: pointer;
   border-radius: 14px;
-  background: repeating-radial-gradient(#1de1ff, #1660d8) !important;
+  background: var(--slider-thumb-bg, #0e2cd7f7);
   border: solid 1px #000 !important;
   /* box-shadow:
     2px 2px 8px #56e7ee,
     -2px -2px 8px #61eaf7 !important; */
 }
 
+
+.slider::-moz-range-thumb+#track-progress {
+  background: var(--slider-thumb-bg-progress, #0e2cd7f7);
+}
+
+#track-progress {
+  --slider-thumb-bg: orangered;
+  --slider-thumb-bg-progress: orangered;
+}
+
+#track-progress::-moz-range-thumb {
+  background: var(--slider-thumb-bg-progress);
+}
 
 .switchbutton {
 
