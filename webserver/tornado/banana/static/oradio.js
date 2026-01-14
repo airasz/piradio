@@ -21,7 +21,7 @@ function togglePause() {
   var btn = document.getElementById('pauseButton');
   if (isPaused) {
     btn.classList.add('paused');
-    btn.innerHTML = '▶';
+    btn.innerHTML = '▶️';
     btn.title = 'Resume periodic refresh';
   } else {
     btn.classList.remove('paused');
@@ -241,6 +241,8 @@ function load_cofig() {
           colorscheme.setAttribute("href", "bordered.css");
         } else if (json_config.web.client_web_theme == 2) {
           colorscheme.setAttribute("href", "neumorphism.css");
+        } else if (json_config.web.client_web_theme == 3) {
+          colorscheme.setAttribute("href", "glass.css");
         }
       }
     }
@@ -421,6 +423,7 @@ function gethostname() {
         // alert("hn=" + this.responseText);
         console.log("hostname :" + this.responseText);
       document.title = this.responseText + " radio";
+      const body = document.body;
       if (this.responseText.includes("banana")) {
         // colorscheme.setAttribute("href", "blurry.css");
         // spn.style.cssText = 'display:inline-flex !important';
@@ -428,12 +431,16 @@ function gethostname() {
         document.querySelector("#nav").style.display = "block";
         document.getElementById("title").innerHTML =
           this.responseText + " radio &#x1F34C";
+        body.style.setProperty('--main-background-color-gradient',
+          'linear-gradient(135deg, #245f93 0%, #327125 25%, #8c851f 50%, #1f5135 75%, #246464 100%)')
       } else if (this.responseText.includes("orange")) {
         // colorscheme.setAttribute("href", "bordered.css");
         hostname = this.responseText;
         document.querySelector("#nav").style.display = "block";
         document.getElementById("title").innerHTML =
           this.responseText + " radio &#x1F34A";
+        body.style.setProperty('--main-background-color-gradient',
+          'linear-gradient(135deg, #248393 0%, #23429e 25%, #7026a0 50%, #a42d69 75%, #912e3e 100%)')
       }
       hostname = hostname.replace("\n", "");
     } else {
