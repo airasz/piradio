@@ -241,6 +241,8 @@ function load_cofig() {
           colorscheme.setAttribute("href", "bordered.css");
         } else if (json_config.web.client_web_theme == 2) {
           colorscheme.setAttribute("href", "neumorphism.css");
+        } else if (json_config.web.client_web_theme == 3) {
+          colorscheme.setAttribute("href", "glass.css");
         }
       }
     }
