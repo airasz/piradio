@@ -18,22 +18,22 @@ function loop() {
 
 function togglePause() {
   isPaused = !isPaused;
-  var btn = document.getElementById('pauseButton');
+  var btn = document.getElementById("pauseButton");
   if (isPaused) {
-    btn.classList.add('paused');
-    btn.innerHTML = '▶';
-    btn.title = 'Resume periodic refresh';
+    btn.classList.add("paused");
+    btn.innerHTML = "▶";
+    btn.title = "Resume periodic refresh";
   } else {
-    btn.classList.remove('paused');
-    btn.innerHTML = '⏸';
-    btn.title = 'Pause periodic refresh';
+    btn.classList.remove("paused");
+    btn.innerHTML = "⏸";
+    btn.title = "Pause periodic refresh";
     // Reset count to trigger immediate update on resume
     count = 4;
   }
-  console.log('Periodic refresh ' + (isPaused ? 'paused' : 'resumed'));
+  console.log("Periodic refresh " + (isPaused ? "paused" : "resumed"));
 }
 function loadonce() {
-  document.getElementById('loading').style.display = 'flex';
+  document.getElementById("loading").style.display = "flex";
   initWebSocket();
   gethostname();
   loop();
@@ -44,7 +44,7 @@ function loadonce() {
   // load_status();
   load_status_json();
   load_cofig();
-  document.getElementById('loading').style.display = 'none';
+  document.getElementById("loading").style.display = "none";
   // loadvol();
 }
 var gateway = `ws://${window.location.hostname}:8888/websocket`;
@@ -118,10 +118,10 @@ function setvol() {
   var cmd = "mpc volume " + tbl.value;
   if (theme == 2) {
     var color = valueToLinearGradient(tbl.value);
-    tbl.style.setProperty('--slider-thumb-bg', color);
+    tbl.style.setProperty("--slider-thumb-bg", color);
   } else if (theme == 0) {
     var color = valueToRadialGradient(tbl.value);
-    tbl.style.setProperty('--slider-thumb-bg', color);
+    tbl.style.setProperty("--slider-thumb-bg", color);
   }
   websocket.send("0>" + cmd);
 }
@@ -199,7 +199,8 @@ function load_status_json() {
         document.getElementById("radiostatus").innerHTML = radiostatus;
         updatevolslider(json_radio_status.volume);
         if (json_radio_status.time.total_seconds > 0) {
-          document.getElementById("track-progress-container").style.display = "block";
+          document.getElementById("track-progress-container").style.display =
+            "block";
           updateauidoprogress(
             json_radio_status.time.elapsed_seconds,
             json_radio_status.time.total_seconds,
@@ -208,7 +209,8 @@ function load_status_json() {
             json_radio_status.progress_percent,
           );
         } else {
-          document.getElementById("track-progress-container").style.display = "none";
+          document.getElementById("track-progress-container").style.display =
+            "none";
         }
         update_play_mode(
           json_radio_status.repeat,
@@ -282,10 +284,10 @@ function updatevolslider2(txt) {
     tbl.value = volume;
     if (theme == 2) {
       var color = valueToLinearGradient(volume);
-      tbl.style.setProperty('--slider-thumb-bg', color);
+      tbl.style.setProperty("--slider-thumb-bg", color);
     } else if (theme == 0) {
       var color = valueToRadialGradient(volume);
-      tbl.style.setProperty('--slider-thumb-bg', color);
+      tbl.style.setProperty("--slider-thumb-bg", color);
     }
     var ivol = document.querySelector("#isvol");
     ivol.innerHTML = "volume : " + volume;
@@ -300,14 +302,14 @@ function updatevolslider(volume) {
   tbl.value = volume;
   if (theme == 2) {
     var color = valueToLinearGradient(volume);
-    tbl.style.setProperty('--slider-thumb-bg', color);
+    tbl.style.setProperty("--slider-thumb-bg", color);
   } else if (theme == 0) {
     var color = valueToRadialGradient(volume);
-    tbl.style.setProperty('--slider-thumb-bg', color);
+    tbl.style.setProperty("--slider-thumb-bg", color);
   } else if (theme == 1) {
     var gradient = valueToLinearGradient(volume);
     var color = gradient.match(/rgb\([^)]+\)/)[0];
-    tbl.style.setProperty('--slider-thumb-bg', color);
+    tbl.style.setProperty("--slider-thumb-bg", color);
   }
   var ivol = document.querySelector("#isvol");
   ivol.innerHTML = "volume : " + volume;
@@ -335,16 +337,16 @@ function updateauidoprogress(current, total, scurent, stotal, progress) {
   if (theme == 2) {
     var color = valueToLinearGradient(progress);
     console.log("update audio progress: ", progress, color);
-    slider.style.setProperty('--slider-thumb-bg-progress', color);
+    slider.style.setProperty("--slider-thumb-bg-progress", color);
   } else if (theme == 0) {
     var color = valueToRadialGradient(progress);
     console.log("update audio progress: ", progress, color);
-    slider.style.setProperty('--slider-thumb-bg-progress', color);
+    slider.style.setProperty("--slider-thumb-bg-progress", color);
   } else if (theme == 1) {
     var gradient = valueToLinearGradient(progress);
     var color = gradient.match(/rgb\([^)]+\)/)[0];
     console.log("update audio progress: ", progress, color);
-    slider.style.setProperty('--slider-thumb-bg-progress', color);
+    slider.style.setProperty("--slider-thumb-bg-progress", color);
   }
   var iprog = document.querySelector("#isprogress");
   iprog.innerHTML = scurent + "/" + stotal;
@@ -431,16 +433,20 @@ function gethostname() {
         document.querySelector("#nav").style.display = "block";
         document.getElementById("title").innerHTML =
           this.responseText + " radio &#x1F34C";
-        body.style.setProperty('--main-background-color-gradient',
-          'linear-gradient(135deg, #245f93 0%, #327125 25%, #8c851f 50%, #1f5135 75%, #246464 100%)')
+        body.style.setProperty(
+          "--main-background-color-gradient",
+          "linear-gradient(135deg, #245f93 0%, #327125 25%, #8c851f 50%, #1f5135 75%, #246464 100%)",
+        );
       } else if (this.responseText.includes("orange")) {
         // colorscheme.setAttribute("href", "bordered.css");
         hostname = this.responseText;
         document.querySelector("#nav").style.display = "block";
         document.getElementById("title").innerHTML =
           this.responseText + " radio &#x1F34A";
-        body.style.setProperty('--main-background-color-gradient',
-          'linear-gradient(135deg, #248393 0%, #23429e 25%, #7026a0 50%, #a42d69 75%, #912e3e 100%)')
+        body.style.setProperty(
+          "--main-background-color-gradient",
+          "linear-gradient(135deg, #248393 0%, #2f59d5 25%, #7620ae 50%, #a42d69 75%, #a3343c 100%);",
+        );
       }
       hostname = hostname.replace("\n", "");
     } else {
@@ -541,13 +547,22 @@ function valueToLinearGradient(value) {
   // hostname = "orange";
   if (value <= 50) {
     // 0-50: Turquoise (173, 240, 228) to Yellow (242, 227, 105)
-    r = hostname == "banana" ? Math.floor(173 + 1.38 * value) : Math.floor(5.1 * value);
-    g = hostname == "banana" ? Math.floor(240 - 0.26 * value) : Math.floor(100 + 3.1 * value);
+    r =
+      hostname == "banana"
+        ? Math.floor(173 + 1.38 * value)
+        : Math.floor(5.1 * value);
+    g =
+      hostname == "banana"
+        ? Math.floor(240 - 0.26 * value)
+        : Math.floor(100 + 3.1 * value);
     b = hostname == "banana" ? Math.floor(228 - 2.46 * value) : 0;
   } else {
     // 50-100: Yellow (242, 227, 105) to Dark Yellow (178, 145, 45)
     r = hostname == "banana" ? Math.floor(242 - 1.28 * (value - 50)) : 255;
-    g = hostname == "banana" ? Math.floor(227 - 1.64 * (value - 50)) : Math.floor(255 - 1.8 * (value - 50));
+    g =
+      hostname == "banana"
+        ? Math.floor(227 - 1.64 * (value - 50))
+        : Math.floor(255 - 1.8 * (value - 50));
     b = hostname == "banana" ? Math.floor(105 - 1.2 * (value - 50)) : 0;
   }
 
@@ -579,10 +594,12 @@ function valueToRadialGradient(value) {
   value = Math.max(0, Math.min(100, value));
 
   // Inner color: yellowish-green
-  var innerColor = hostname == "banana" ? "rgba(196, 209, 8, 1)" : "rgba(221, 169, 0, 1)";
+  var innerColor =
+    hostname == "banana" ? "rgba(196, 209, 8, 1)" : "rgba(221, 169, 0, 1)";
 
   // Outer color: cyan
-  var outerColor = hostname == "banana" ? "rgba(2, 214, 214, 1)" : "rgba(2, 71, 33, 1)";
+  var outerColor =
+    hostname == "banana" ? "rgba(2, 214, 214, 1)" : "rgba(2, 71, 33, 1)";
 
   var innerValue, outerValue;
 
@@ -598,7 +615,13 @@ function valueToRadialGradient(value) {
 
   return (
     "radial-gradient(circle, " +
-    innerColor + " " + innerValue + "%, " +
-    outerColor + " " + outerValue + "%)"
+    innerColor +
+    " " +
+    innerValue +
+    "%, " +
+    outerColor +
+    " " +
+    outerValue +
+    "%)"
   );
 }
