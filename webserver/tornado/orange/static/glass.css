@@ -9,7 +9,10 @@
     --border-top-glass: rgba(194, 194, 194, 0.19);
     --border-side-glass: rgba(151, 150, 150, 0.14);
     --main-background-color-gradient: linear-gradient(135deg, #248393 0%, #23429e 25%, #7026a0 50%, #a42d69 75%, #912e3e 100%);
-    --glass-background: linear-gradient(180deg, rgba(14, 14, 14, 0.2) 0%, rgba(0, 0, 0, 0) 10%, rgba(0, 0, 0, 0) 94%, rgba(176, 176, 174, 0.47) 100%);
+    --glass-background: linear-gradient(180deg, rgba(14, 14, 14, 0.4) 0%,
+            rgba(0, 0, 0, 0) 8px,
+            rgba(0, 0, 0, 0) 94%,
+            rgba(176, 176, 174, 0.47) 100%);
     --text-color-glass: #9ec5c7 !important;
 }
 
@@ -133,6 +136,10 @@ body {
 }
 
 .bplay button {}
+
+.no-style a {
+    color: var(--text-color-glass);
+}
 
 .bplay {
     /*     background: #fffbe5; */
@@ -313,19 +320,22 @@ h1 {
 
 .text-center #isprogress,
 .text-center #svol {
-    z-index: -1 ! important;
+    margin-bottom: 8px;
+    margin-top: 4px
 }
 
-.text-center #isvol {
+.text-center #isvol,
+.text-center #isprogress {
     z-index: -1;
+    top: 40%;
 }
 
 .slider {
-    backdrop-filter: blur(1px) saturate(130%) brightness(1.18) contrast(1.4);
-    -webkit-backdrop-filter: blur(16px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    /*! backdrop-filter: saturate(110%) brightness(1.18) contrast(1.4); */
+    /*! -webkit-backdrop-filter: blur(16px) saturate(180%); */
+    /*! border: 1px solid rgba(255, 255, 255, 0.2); */
     border-radius: 12px;
-    background: linear-gradient(180deg, rgba(221, 221, 221, 0.11) 0%, rgba(176, 176, 174, 0.27) 80%, rgba(255, 255, 255, 0.2) 100%);
+    background: linear-gradient(180deg, rgba(13, 13, 13, 0.15) 0%, rgba(106, 106, 105, 0.13) 80%, rgba(255, 255, 255, 0.36) 100%);
 
     box-shadow: 2px 2px 6px rgba(255, 255, 255, 0.14) inset,
         -2px -2px 8px rgba(255, 255, 255, 0.14) inset,
@@ -333,6 +343,14 @@ h1 {
         0px 8px 6px -4px rgba(0, 0, 0, 0.8),
         0px 21px 18px -4px rgba(0, 0, 0, 0.3) !important;
     cursor: pointer;
+
+    box-shadow:
+        4px -4px 3px rgba(255, 255, 255, 0.14) inset,
+        -4px -4px 3px rgba(255, 255, 255, 0.14) inset,
+        0px 16px 14px -2px rgba(0, 0, 0, 0.45),
+        0px 16px 5px -6px rgba(227, 222, 255, 0.5),
+        0px 16px 4px -8px rgba(227, 222, 255, 0.2),
+        0px 16px 1px -9px rgba(255, 255, 255, 1) !important;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     user-select: none;
     /*! border: solid 1px #b9b7b7; */
@@ -354,10 +372,12 @@ h1 {
     border-image-source: none;
     border-image-width: 1;
     height: 24px; */
+    /*! background: transparent; */
+    height: 22px;
 }
 
 .slider:before {
-    /* position: absolute; */
+    /*! position: absolute; */
     content: "";
     height: 24px !important;
     width: 24px !important;
@@ -369,21 +389,37 @@ h1 {
     box-shadow:
         2px 2px 8px #ffaa00,
         -2px -2px 8px #ffaa00 !important;
+
     /* box-shadow: 5px 5px 8px #8a8a8a, -2px -2px 8px #fff; */
     -webkit-transition: 0.4s;
     transition: 0.4s;
 }
 
 .slider::-moz-range-thumb {
-    width: 22px;
-    height: 22px;
-    background: linear-gradient(180deg, rgba(221, 221, 221, 0.11) 0%, rgba(176, 176, 174, 0.27) 80%, rgba(255, 255, 255, 0.2) 100%) !important;
-
-
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(180deg,
+            rgba(221, 221, 221, 0.11) 0%,
+            rgba(176, 176, 174, 0.27) 80%,
+            rgba(255, 255, 255, 0.3) 100%) !important;
+    box-shadow:
+        0px 8px 6px -2px rgba(0, 0, 0, 0.35),
+        0px 8px 5px -6px rgba(227, 222, 255, 0.5),
+        0px 8px 4px -5px rgba(227, 222, 255, 0.2),
+        0px 8px 1px -3px rgba(255, 255, 255, 1) !important;
+    box-shadow:
+        2px -2px 3px rgba(255, 255, 255, 0.14) inset,
+        -2px -2px 3px rgba(255, 255, 255, 0.14) inset,
+        0px 18px 5px 0px rgba(0, 0, 0, 0.2),
+        0px 8px 5px 0px rgba(0, 0, 0, 0.6),
+        0px 14px 2px -1px rgba(227, 222, 255, 0.0),
+        0px 14px 3px -1px rgba(255, 255, 255, 0.6) !important;
+    backdrop-filter: blur(1px) saturate(110%) brightness(1.01) contrast(1.4);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
     cursor: pointer;
     border: 0px;
-    border-radius: 14px;
-    /* background: repeating-radial-gradient(#1de1ff, #1660d8) !important; */
+    border-radius: 4px;
+    /*     background: repeating-radial-gradient(#1de1ff, #1660d8) !important; */
 
     /*     background: var(--slider-thumb-bg, #0e2cd7f7); */
     /* box-shadow:
@@ -489,6 +525,15 @@ input:checked+.slider_switch {
         0px 6px 2px -2px rgba(227, 222, 255, 0.01),
         0px 6px 2px -2px rgba(227, 222, 255, 0.01),
         0px 16px 14px -4px rgba(225, 250, 253, 0.5) !important;
+    box-shadow:
+        4px -4px 3px rgba(255, 255, 255, 0.14) inset,
+        -4px -4px 3px rgba(255, 255, 255, 0.14) inset,
+        0px 18px 18px 0px rgba(0, 0, 0, 0.4),
+        0px 18px 5px -8px rgba(227, 222, 255, 0.5),
+        0px 18px 2px -6px rgba(227, 222, 255, 0.01),
+        0px 18px 1px -12px rgba(255, 255, 255, 1) !important;
+
+
 
 
 }
