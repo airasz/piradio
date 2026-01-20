@@ -110,6 +110,7 @@ def nexinit():
     # MyNextion.send_command('page page2')#sukses
     MyNextion.send_command("page 4")  # sukses
     MyNextion.send_command("dim=30")  # sukses
+    nextion_page = 4
     # MyNextion.send_command('t1.bco=BLUE')# sukses
     result = subprocess.check_output("hostname", shell=True).decode("utf-8")
     if "\n" in result:
@@ -187,16 +188,14 @@ class sleeptimer:
     # auto stop reset counting
     def resetas(self):
         global ASSECCD
-        # print("auto stop timer resetted")
         global nextion_page
         global BLANK_SCREEN
         ASSECCD = 0
         BLANK_SCREEN = 0
-        if nextion_page==0:
-            print("dim up screen")
+        if nextion_page == 0:
             nextion_page = 4
             MyNextion.send_command("page 4")
-            MyNextion.send_command("dim=50")
+            MyNextion.send_command("dim=30")
 
     # get auto stop second running
     def getsecac(self):
@@ -226,13 +225,8 @@ class sleeptimer:
         global BLANK_SCREEN
         global TOBLANKSCREEN
         global nextion_page
-        # BLANK_SCREEN = 0
-        print("to blank screen up ")
-        print("PLAYING = " + str(RADIO_STATUS["is_playing"]))
-        # print("TOBLANKSCREEN = " + str(TOBLANKSCREEN))
         if TOBLANKSCREEN is True :
             BLANK_SCREEN += 1
-            print("to blank screen " + str(BLANK_SCREEN))
             if BLANK_SCREEN == 300:
                 MyNextion.send_command("page 0")
                 nextion_page = 0
@@ -242,14 +236,13 @@ class sleeptimer:
                 BLANK_SCREEN = 301
         if RADIO_STATUS["is_playing"] is False:
             BLANK_SCREEN += 1
-            print("to blank screen count = " + str(BLANK_SCREEN))
-            if BLANK_SCREEN == 30:
+            if BLANK_SCREEN == 300:
                 MyNextion.send_command("page 0")
                 nextion_page = 0
                 MyNextion.send_command("dim=0")
                 TOBLANKSCREEN = False
-            elif BLANK_SCREEN > 30:
-                BLANK_SCREEN = 31
+            elif BLANK_SCREEN > 300:
+                BLANK_SCREEN = 301
 
     def loopy(self):
         # self.cekStart()
@@ -619,6 +612,7 @@ def loop():
     global SCREEN_SLEEP
     global PLAYING
     global nextion_page
+    global BLANK_SCREEN
     old_status = ""
     status = ""
     sent, recv = getnspeed()
@@ -647,7 +641,7 @@ def loop():
         else:
             PLAYING = False
         if U_COUNT == 20:
-            if nextion_page != 4:
+            if nextion_page != 4 and BLANK_SCREEN ==0:
                 nextion_page = 4
                 MyNextion.send_command("page 4")  # sukses
                 MyNextion.send_command('t0.txt="banana radio"')
