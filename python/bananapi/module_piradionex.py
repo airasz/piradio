@@ -35,6 +35,8 @@ PLAYING = True
 ASSECMX = 3600
 nextion_page = 4
 RADIO_STATUS = {}
+BLANK_SCREEN = 0
+TOBLANKSCREEN = False
 
 stationAlternative = {"My Station name": "Hang FM Batam"}
 
@@ -186,7 +188,15 @@ class sleeptimer:
     def resetas(self):
         global ASSECCD
         # print("auto stop timer resetted")
+        global nextion_page
+        global BLANK_SCREEN
         ASSECCD = 0
+        BLANK_SCREEN = 0
+        if nextion_page==0:
+            print("dim up screen")
+            nextion_page = 4
+            MyNextion.send_command("page 4")
+            MyNextion.send_command("dim=50")
 
     # get auto stop second running
     def getsecac(self):
@@ -194,6 +204,9 @@ class sleeptimer:
 
     def autostop(self):
         global ASSECCD#, ASCDOWN, ASSECMX
+        global BLANK_SCREEN, TOBLANKSCREEN
+        # BLANK_SCREEN = 0
+        TOBLANKSCREEN = False
         if ASCDOWN is True and PLAYING is True:
             ASSECCD += 1
             # print("serial display auto stop  "+str(ASSECCD))
@@ -203,15 +216,47 @@ class sleeptimer:
                 MyNextion.send_command(
                     't2.txt="auto stop due a 1 hour no user activity!"'
                 )
+                TOBLANKSCREEN = True
                 os.system("mpc stop")
             elif ASSECCD > (ASSECMX + 1):
                 ASSECCD = ASSECMX + 1
+
+
+    def toblank(self):
+        global BLANK_SCREEN
+        global TOBLANKSCREEN
+        global nextion_page
+        # BLANK_SCREEN = 0
+        print("to blank screen up ")
+        print("PLAYING = " + str(RADIO_STATUS["is_playing"]))
+        # print("TOBLANKSCREEN = " + str(TOBLANKSCREEN))
+        if TOBLANKSCREEN is True :
+            BLANK_SCREEN += 1
+            print("to blank screen " + str(BLANK_SCREEN))
+            if BLANK_SCREEN == 300:
+                MyNextion.send_command("page 0")
+                nextion_page = 0
+                MyNextion.send_command("dim=0")
+                TOBLANKSCREEN = False
+            elif BLANK_SCREEN > 300:
+                BLANK_SCREEN = 301
+        if RADIO_STATUS["is_playing"] is False:
+            BLANK_SCREEN += 1
+            print("to blank screen count = " + str(BLANK_SCREEN))
+            if BLANK_SCREEN == 30:
+                MyNextion.send_command("page 0")
+                nextion_page = 0
+                MyNextion.send_command("dim=0")
+                TOBLANKSCREEN = False
+            elif BLANK_SCREEN > 30:
+                BLANK_SCREEN = 31
 
     def loopy(self):
         # self.cekStart()
         # self.cekStop()
         self.countdown()
         self.autostop()
+        self.toblank()
         # threading.Timer(1, loopy).start()  # Schedule the function to run again in 1 second
 
     def isrunning(self):
@@ -374,6 +419,18 @@ def displaytooled(status):
     rv = GreenYellowRed(intvol)
     MyNextion.send_command(f"h0.bco1={rv}")  # cpu temp
     MyNextion.send_command(f"h0.val={intvol}")  # vol
+    get_mpc_status()
+    if RADIO_STATUS["time"]["total_seconds"] > 0:
+        MyNextion.send_command(f"h1.val={RADIO_STATUS['progress_percent']}")
+    else:
+        MyNextion.send_command(f"h1.val={RADIO_STATUS['progress_percent']}")
+
+    MyNextion.send_command(f"c0.val={'0' if not RADIO_STATUS['repeat'] else '1'}")
+    MyNextion.send_command(f"c1.val={'0' if not RADIO_STATUS['random'] else '1'}")
+    MyNextion.send_command(f"c2.val={'0' if not RADIO_STATUS['single'] else '1'}")
+    MyNextion.send_command(f"c3.val={'0' if not RADIO_STATUS['consume'] else '1'}")
+
+    # crop station index
     # print("state = " + state)
     STIDX = status[status.index("#") + 1 :]
 
