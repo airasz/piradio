@@ -118,6 +118,8 @@ STOP_SLEEP = 0
 drawPlayListMode = 0
 TO_SEEK_TO = False
 MINUTE_SEEK_TO= 0
+SCREEN_BRIGHTNESS = 100
+TO_SET_SCREEN_BRIGHTNESS = False
 
 PLAYlists = []
 splited_playlist = []
@@ -184,6 +186,8 @@ def load_config():
             if CONFIGDATA.get("autoload", "true") is True:
                 os.system("mpc play")
                 print("auto play by config")
+            SCREEN_BRIGHTNESS = CONFIGDATA.get("screen_brightness", 100)
+            display.sendCommand(f'dim={SCREEN_BRIGHTNESS}')
     except FileNotFoundError:
         pass
     print("configdata=" + str(CONFIGDATA))
@@ -591,7 +595,7 @@ def startVol():
 def startSeekTo():
     global TO_SEEK_TO
     global COUNT_ONMENU
-    COUNT_ONMENU=0  
+    COUNT_ONMENU=0
     exitset(False)
     TO_SEEK_TO = True
     interuptDisplay(2, "start seek to")
@@ -657,6 +661,15 @@ def startPlistTo():
     # display.display(f'select.\n{pls}', False)
     interuptDisplay(2, (f"select.\n{pls}"))
 
+def startSetScreenBrightness():
+    global TO_SET_SCREEN_BRIGHTNESS
+    global COUNT_ONMENU
+    COUNT_ONMENU=0
+    exitset(False)
+    TO_SET_SCREEN_BRIGHTNESS = True
+    interuptDisplay(2, "set screen brightness...")
+
+
 def startSetPlayMode():
     exitset(False)
     global COUNT_ONMENU
@@ -702,6 +715,8 @@ def exitset(info):
     global TO_SET_PLAYMODE
     global TO_SEEK_TO
     global MINUTE_SEEK_TO
+    global TO_SET_SCREEN_BRIGHTNESS
+    TO_SET_SCREEN_BRIGHTNESS = False
     TO_SEEK_TO = False
     MINUTE_SEEK_TO = 0
     TO_SET_PLAYMODE = False
@@ -715,7 +730,7 @@ def exitset(info):
     # display.onmenu(False)
     if splited_playlist_pointer > 0:
         splited_playlist_pointer = 0
-        display.sendCommand("page page4")
+        display.sendCommand("page page9")
         display.sendCommand('t0.txt="banana radio"')
         display.resettimer()
 
@@ -800,17 +815,19 @@ def drawPlayList():
     else:
         splited_playlist_pointer = 0
         display.setPage(1)
-        display.sendCommand("page page4")
+        display.sendCommand("page page9")
         display.sendCommand('t0.txt="banana radio"')
 
 
 # elif drawPlayListMode> 0:
 #         drawPlayListMode=0
-#         display.sendCommand('page page4')
+#         display.sendCommand('page page9')
 
 
 def processIR(irval):
     global EN_NEXMEDIA_R
+    global TO_SET_SCREEN_BRIGHTNESS
+    global SCREEN_BRIGHTNESS
     print(irval)
     # display.resettimer()
     # hexval = hex(irval)
@@ -846,9 +863,23 @@ def processIR(irval):
             setSTATION(False)
         elif irval == 2099222:
             print("right")
+            if TO_SET_SCREEN_BRIGHTNESS:
+                SCREEN_BRIGHTNESS += 5
+                CONFIGDATA['SCREEN_BRIGHTNESS'] = SCREEN_BRIGHTNESS
+                display.sendCommand(f'dim={SCREEN_BRIGHTNESS}')
+                interuptDisplay(3, "brightness set to " + str(SCREEN_BRIGHTNESS))
+                save_config()
+                return
             setVOL(True)
         elif irval == 2099220:
             print("left")
+            if TO_SET_SCREEN_BRIGHTNESS:
+                SCREEN_BRIGHTNESS -= 5
+                CONFIGDATA['SCREEN_BRIGHTNESS'] = SCREEN_BRIGHTNESS
+                display.sendCommand(f'dim={SCREEN_BRIGHTNESS}')
+                interuptDisplay(3, "brightness set to " + str(SCREEN_BRIGHTNESS))
+                save_config()
+                return
             setVOL(False)
         elif irval == KR_VOLUP:
             print("volume up")
@@ -910,6 +941,8 @@ def processIR(irval):
             seekthrough(False)
         elif irval == 2099213: #EPG
             startSetPlayMode()
+        elif irval == 2099276: #record
+            startSetScreenBrightness()
 
     else:
         if irval > 2000000:
@@ -1100,7 +1133,6 @@ class MainHandler(tornado.web.RequestHandler):
         if curlval != "":
             # stimer.resetas()
             global PLAY_CURL
-            global CONFIGDATA
             if PLAY_CURL is False:
                 # status = cmd("mpc clear")
                 noReturnSubprocess("mpc clear")
@@ -1108,12 +1140,9 @@ class MainHandler(tornado.web.RequestHandler):
             noReturnSubprocess("mpc add " + curlval)
             sleep(1)
             status = cmd("mpc play")
-            CONFIGDATA["temporary_playlist"] =True
-            CONFIGDATA["play_custom"] =True
             save_config()
             broadcast_message("info=" + status)
             PLAY_CURL = True
-
             # pass
         # ok()
         self.render("index.html")
@@ -1286,7 +1315,6 @@ class WSHandler(tornado.websocket.WebSocketHandler):
         self.clients.remove(self)
 
     def on_message(self, message):
-        global PLAY_CURL
         sleeptimer.resetas()
         print(f"[WS] Incoming message:{message}"), message
         interuptDisplay(1, (f"[WS] Incoming message:\n{message}"))
@@ -1299,10 +1327,6 @@ class WSHandler(tornado.websocket.WebSocketHandler):
                 noReturnSubprocess("mpc clear")
                 noReturnSubprocess(sbmsg)
                 noReturnSubprocess("mpc play")
-                PLAY_CURL=False
-                CONFIGDATA["play_custom"] = False
-
-                save_config()
 
                 # subprocess.check_output("mpc clear", shell=True)
                 # subprocess.check_output(sbmsg, shell=True).decode("utf-8")

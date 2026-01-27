@@ -109,7 +109,7 @@ def nexinit():
     MyNextion.set_port("/dev/ttyS1")
     # MyNextion.send_command('page page2')#sukses
     MyNextion.send_command("page 4")  # sukses
-    MyNextion.send_command("dim=30")  # sukses
+    MyNextion.send_command("dim=10")  # sukses
     nextion_page = 4
     # MyNextion.send_command('t1.bco=BLUE')# sukses
     result = subprocess.check_output("hostname", shell=True).decode("utf-8")
