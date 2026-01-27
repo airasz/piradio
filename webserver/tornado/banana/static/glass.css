@@ -1,28 +1,25 @@
 :root {
+
     --slider-thumb-bg: #5f93f7;
     --box-shadow-glass: 2px 2px 6px rgba(255, 255, 255, 0.14) inset,
         -2px -2px 8px rgba(255, 255, 255, 0.14) inset,
         0px 6px 6px -4px rgba(255, 255, 255, 0.7),
-        0px 8px 6px -4px rgba(0, 0, 0, 0.8), 0px 21px 18px -4px rgba(0, 0, 0, 0.3) !important;
+        0px 8px 6px -4px rgba(0, 0, 0, 0.8),
+        0px 21px 18px -4px rgba(0, 0, 0, 0.3) !important;
     --border-top-glass: rgba(194, 194, 194, 0.19);
     --border-side-glass: rgba(151, 150, 150, 0.14);
-    --main-background-color-gradient: linear-gradient(135deg,
-            #248393 0%,
-            #23429e 25%,
-            #7026a0 50%,
-            #a42d69 75%,
-            #912e3e 100%);
-    --glass-background: linear-gradient(180deg,
-            rgba(14, 14, 14, 0.4) 0%,
+    --main-background-color-gradient: linear-gradient(135deg, #248393 0%, #23429e 25%, #7026a0 50%, #a42d69 75%, #912e3e 100%);
+    --glass-background: linear-gradient(180deg, rgba(14, 14, 14, 0.4) 0%,
             rgba(0, 0, 0, 0) 8px,
             rgba(0, 0, 0, 0) 94%,
             rgba(176, 176, 174, 0.47) 100%);
     --text-color-glass: #9ec5c7 !important;
+    --glass-brightness: 0.93;
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
-        Ubuntu, Cantarell, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        Oxygen, Ubuntu, Cantarell, sans-serif;
     background: var(--main-background-color-gradient);
     min-height: 100vh;
     padding: 20px;
@@ -31,8 +28,8 @@ body {
 }
 
 .card_switch {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
-        Ubuntu, Cantarell, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        Oxygen, Ubuntu, Cantarell, sans-serif;
     /*! background: linear-gradient(135deg, #248393 0%, #23429e 25%, #7026a0 50%, #a42d69 75%, #912e3e 100%); */
     min-height: 100vh;
     padding: 20px;
@@ -62,6 +59,7 @@ body {
 
 .bdelete:hover {
     background: red !important;
+
 }
 
 .no-style a {
@@ -75,19 +73,11 @@ body {
 .button1 {
     color: var(--text-color-glass);
     display: inline-flex;
-    background: linear-gradient(135deg,
-            rgba(221, 221, 221, 0.02) 0%,
+    background: linear-gradient(135deg, rgba(221, 221, 221, 0.02) 0%,
             rgba(176, 176, 174, 0.27) 80%,
             rgba(255, 255, 255, 0.31) 100%);
-    background: linear-gradient(180deg,
-            transparent 0%,
-            transparent 0%,
-            rgba(0, 0, 0, 0.2) 4%,
-            transparent 20%,
-            rgba(176, 176, 174, 0.37) 98%,
-            rgba(255, 255, 255, 0.31) 99%,
-            rgba(255, 255, 255, 0.91) 100%);
-    backdrop-filter: blur(1px) saturate(110%) brightness(1.1) contrast(1.4);
+    background: linear-gradient(180deg, transparent 0%, transparent 0%, rgba(0, 0, 0, 0.2) 4%, transparent 20%, rgba(176, 176, 174, 0.37) 98%, rgba(255, 255, 255, 0.31) 99%, rgba(255, 255, 255, 0.91) 100%);
+    backdrop-filter: blur(1px) saturate(110%) brightness(var(--glass-brightness)) contrast(1.4);
     -webkit-backdrop-filter: blur(16px) saturate(180%);
     /*! border: 1px solid rgba(255, 255, 255, 0.2); */
     border-radius: 12px;
@@ -125,12 +115,7 @@ body {
     transform: scale(0.98);
     /*             background: rgba(255, 255, 255, 0.25); */
     /*     background: linear-gradient(180deg, rgba(221, 221, 221, 0.05) 0%, rgba(190, 190, 180, 0.44) 80%, rgba(255, 255, 255, 0.31) 100%); */
-    box-shadow:
-        10px -18px 12px rgba(255, 255, 255, 0.14) inset,
-        -10px -10px 38px rgba(255, 255, 255, 0.14) inset,
-        0px 1px 1px rgba(212, 197, 138, 0.4),
-        -2px 6px 12px rgba(107, 222, 255, 0.3),
-        2px 6px 12px rgba(205, 220, 213, 0.28) !important;
+    box-shadow: 10px -18px 12px rgba(255, 255, 255, 0.14) inset, -10px -10px 38px rgba(255, 255, 255, 0.14) inset, 0px 1px 1px rgba(212, 197, 138, 0.4), -2px 6px 12px rgba(107, 222, 255, 0.3), 2px 6px 12px rgba(205, 220, 213, 0.28) !important;
     /*     border: solid 1px #b9b7b7; */
     /*     border-top-width: 1px; */
     /*     border-top-style: solid;
@@ -173,29 +158,30 @@ body {
     /*         background: linear-gradient(180deg, rgba(221, 221, 221, 0.05) 0%, rgba(190, 190, 180, 0.44) 80%, rgba(255, 255, 255, 0.31) 100%); */
 
     background: linear-gradient(180deg,
-            rgba(0, 0, 0, 0.2) 0%,
-            rgba(0, 0, 0, 0.2) 12%,
+            rgba(0, 0, 0, 0.2)0%,
+            rgba(0, 0, 0, 0.2)12%,
             transparent 50%,
             rgba(176, 176, 174, 0.17) 98%,
             rgba(255, 255, 255, 0.16) 99%,
             rgba(255, 255, 255, 0.15) 100%);
 
+
     /*  bright luminance only  */
-    box-shadow:
-        4px -2px 12px rgba(255, 255, 255, 0.14) inset,
+    box-shadow: 4px -2px 12px rgba(255, 255, 255, 0.14) inset,
         -4px -2px 12px rgba(255, 255, 255, 0.14) inset,
         2px 1px 6px rgba(212, 197, 138, 0.4),
         -1px 6px 6px rgba(107, 222, 255, 0.5),
         2px 16px 16px rgba(205, 220, 213, 0.18) !important;
 
+
     /*  bright before dark shadow    */
-    box-shadow:
-        2px 2px 6px rgba(255, 255, 255, 0.14) inset,
+    box-shadow: 2px 2px 6px rgba(255, 255, 255, 0.14) inset,
         -2px -2px 8px rgba(255, 255, 255, 0.14) inset,
         0px 3px 6px rgba(255, 255, 255, 0.6),
         -1px 5px 6px rgba(0, 0, 0, 0.03),
         0px 12px 8px rgba(0, 0, 0, 0.01) !important;
     box-shadow: none !important;
+    ;
     /*     border: solid 1px #b9b7b7; */
     /*     border-top-width: 1px; */
     /*     border-top-style: solid;
@@ -215,6 +201,7 @@ body {
     border-image-source: none;
     border-image-width: 1; */
     color: yellow !important;
+
 }
 
 p4 {
@@ -224,8 +211,10 @@ p4 {
 #playlists .button1,
 .ceditbox .button2 {
     background: none !important;
+    ;
     border: none;
     box-shadow: none !important;
+
 }
 
 input[type="text"] {
@@ -284,13 +273,13 @@ h1 {
     /*! background: #000000 !important; */
     margin: 4px !important;
     /*! background: linear-gradient(180deg, rgba(221, 221, 221, 0.11) 0%, rgba(176, 176, 174, 0.27) 80%, rgba(255, 255, 255, 0.31) 100%); */
-    backdrop-filter: blur(1px) saturate(130%) brightness(1.18) contrast(1.4);
+    backdrop-filter: blur(1px) saturate(130%) brightness(var(--glass-brightness)) contrast(1.4);
     -webkit-backdrop-filter: blur(16px) saturate(180%);
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 12px;
-    box-shadow: var(--box-shadow-glass) !important;
     box-shadow:
-        2px 2px 6px rgba(255, 255, 255, 0.14) inset,
+        var(--box-shadow-glass) !important;
+    box-shadow: 2px 2px 6px rgba(255, 255, 255, 0.14) inset,
         -2px -2px 8px rgba(255, 255, 255, 0.14) inset,
         0px 8px 6px -6px rgba(255, 255, 255, 0.86),
         0px 8px 6px -4px rgba(0, 0, 0, 0.8),
@@ -333,7 +322,7 @@ h1 {
 .text-center #isprogress,
 .text-center #svol {
     margin-bottom: 8px;
-    margin-top: 4px;
+    margin-top: 4px
 }
 
 .text-center #isvol,
@@ -347,13 +336,9 @@ h1 {
     /*! -webkit-backdrop-filter: blur(16px) saturate(180%); */
     /*! border: 1px solid rgba(255, 255, 255, 0.2); */
     border-radius: 12px;
-    background: linear-gradient(180deg,
-            rgba(13, 13, 13, 0.15) 0%,
-            rgba(106, 106, 105, 0.13) 80%,
-            rgba(255, 255, 255, 0.36) 100%);
+    background: linear-gradient(180deg, rgba(13, 13, 13, 0.15) 0%, rgba(106, 106, 105, 0.13) 80%, rgba(255, 255, 255, 0.36) 100%);
 
-    box-shadow:
-        2px 2px 6px rgba(255, 255, 255, 0.14) inset,
+    box-shadow: 2px 2px 6px rgba(255, 255, 255, 0.14) inset,
         -2px -2px 8px rgba(255, 255, 255, 0.14) inset,
         0px 8px 6px -6px rgba(255, 255, 255, 0.86),
         0px 8px 6px -4px rgba(0, 0, 0, 0.8),
@@ -428,9 +413,9 @@ h1 {
         -2px -2px 3px rgba(255, 255, 255, 0.14) inset,
         0px 18px 5px 0px rgba(0, 0, 0, 0.2),
         0px 8px 5px 0px rgba(0, 0, 0, 0.6),
-        0px 14px 2px -1px rgba(227, 222, 255, 0),
+        0px 14px 2px -1px rgba(227, 222, 255, 0.0),
         0px 14px 3px -1px rgba(255, 255, 255, 0.6) !important;
-    backdrop-filter: blur(1px) saturate(110%) brightness(1.01) contrast(1.4);
+    backdrop-filter: blur(1px) saturate(110%) brightness(var(--glass-brightness)) contrast(1.4);
     -webkit-backdrop-filter: blur(16px) saturate(180%);
     cursor: pointer;
     border: 0px;
@@ -442,6 +427,8 @@ h1 {
      *   2px 2px 8px #56e7ee,
      *   -2px -2px 8px #61eaf7 !important; */
 }
+
+
 
 .slider::-moz-range-thumb+#track-progress {
     background: var(--slider-thumb-bg-progress, #0e2cd7f7);
@@ -456,9 +443,10 @@ h1 {
     background: var(--slider-thumb-bg-progress);
 }
 
+
 /* Toggle Switch */
 .switch_button {
-    position: relative;
+    position: relative
 }
 
 .switch_button p4 {
@@ -498,14 +486,9 @@ h1 {
     transition: 0.4s;
     border-radius: 34px;
     box-shadow:
-        6px 0px 12px rgba(255, 255, 255, 0.09) inset,
-        -6px 0px 12px rgba(255, 255, 255, 0.05) inset,
-        -16px -6px 26px rgba(255, 255, 255, 0.09) inset,
-        16px -6px 26px rgba(255, 255, 255, 0.05) inset,
-        6px 6px 14px rgba(0, 0, 0, 0.08),
-        -6px 6px 14px rgba(0, 0, 0, 0.14) !important;
+        6px 0px 12px rgba(255, 255, 255, 0.09) inset, -6px 0px 12px rgba(255, 255, 255, 0.05) inset, -16px -6px 26px rgba(255, 255, 255, 0.09) inset, 16px -6px 26px rgba(255, 255, 255, 0.05) inset, 6px 6px 14px rgba(0, 0, 0, 0.08), -6px 6px 14px rgba(0, 0, 0, 0.14) !important;
 
-    backdrop-filter: blur(1px) saturate(90%) brightness(1.12) contrast(1.2);
+    backdrop-filter: blur(1px) saturate(90%) brightness(var(--glass-brightness)) contrast(1.2);
     -webkit-backdrop-filter: blur(16px) saturate(180%);
 }
 
@@ -526,17 +509,16 @@ h1 {
 
     /*     backdrop-filter: blur(0px) saturate(140%) brightness(1.32) contrast(1.2);
      *    -webkit-backdrop-filter: blur(16px) saturate(180%); */
+
 }
 
 input:checked+.slider_switch {
     /*     base checked */
     background-color: yellow;
-    background: linear-gradient(180deg,
-            rgba(221, 221, 221, 0.11) 0%,
-            rgba(176, 176, 174, 0.27) 90%,
-            rgba(255, 255, 255, 0.2) 100%);
+    background: linear-gradient(180deg, rgba(221, 221, 221, 0.11) 0%, rgba(176, 176, 174, 0.27) 90%, rgba(255, 255, 255, 0.2) 100%);
+    background: linear-gradient(180deg, rgba(13, 13, 13, 0.15) 0%, rgba(106, 106, 105, 0.13) 80%, rgba(255, 255, 255, 0.36) 100%);
 
-    backdrop-filter: blur(0px) saturate(140%) brightness(1.32) contrast(1.2);
+    backdrop-filter: blur(0px) saturate(140%) brightness(var(--glass-brightness)) contrast(1.2);
     -webkit-backdrop-filter: blur(16px) saturate(180%);
     box-shadow:
         4px -4px 3px rgba(255, 255, 255, 0.14) inset,
@@ -552,6 +534,10 @@ input:checked+.slider_switch {
         0px 18px 5px -8px rgba(227, 222, 255, 0.5),
         0px 18px 2px -6px rgba(227, 222, 255, 0.01),
         0px 18px 1px -12px rgba(255, 255, 255, 1) !important;
+
+
+
+
 }
 
 input:checked+.slider_switch::before {
@@ -561,10 +547,11 @@ input:checked+.slider_switch::before {
     transform: translateX(24px);
     /* background-color: var(--accent-color); */
     /*     background:linear-gradient(180deg, rgba(221, 221, 221, 0.11) 0%, rgba(176, 176, 174, 0.27) 80%, rgba(255, 255, 255, 0.2) 100%); */
+
 }
 
 .groupbox {
-    backdrop-filter: blur(2px) saturate(130%) brightness(1.1) contrast(1.4);
+    backdrop-filter: blur(2px) saturate(130%) brightness(var(--glass-brightness)) contrast(1.4);
     -webkit-backdrop-filter: blur(16px) saturate(180%);
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 12px;
@@ -618,10 +605,7 @@ input:checked+.slider_switch::before {
     height: 50px;
     border-radius: 50%;
     border: none;
-    background: linear-gradient(180deg,
-            rgba(221, 221, 221, 0.11) 0%,
-            rgba(176, 176, 174, 0.27) 80%,
-            rgba(255, 255, 255, 0.31) 100%);
+    background: linear-gradient(180deg, rgba(221, 221, 221, 0.11) 0%, rgba(176, 176, 174, 0.27) 80%, rgba(255, 255, 255, 0.31) 100%);
     backdrop-filter: blur(2px) saturate(130%) brightness(1.08) contrast(1.4);
 
     box-shadow: none;
@@ -649,5 +633,5 @@ input:checked+.slider_switch::before {
 }
 
 .floating-pause-btn.paused::before {
-    content: "";
+    content: '';
 }

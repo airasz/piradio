@@ -435,7 +435,7 @@ function gethostname() {
           this.responseText + " radio &#x1F34C";
         body.style.setProperty(
           "--main-background-color-gradient",
-          "linear-gradient(135deg, #245f93 0%, #327125 25%, #8c851f 50%, #1f5135 75%, #246464 100%)",
+          "linear-gradient(135deg, #256aa8 0%, #3b9328 25%, #8c851f 50%, #1b683d 75%, #246464 100%);",
         );
       } else if (this.responseText.includes("orange")) {
         // colorscheme.setAttribute("href", "bordered.css");
