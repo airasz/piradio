@@ -1140,6 +1140,9 @@ class MainHandler(tornado.web.RequestHandler):
             noReturnSubprocess("mpc add " + curlval)
             sleep(1)
             status = cmd("mpc play")
+            global PLAY_CUSTOM
+            PLAY_CUSTOM = True
+            CONFIGDATA["play_custom"] = True
             save_config()
             broadcast_message("info=" + status)
             PLAY_CURL = True
@@ -1328,11 +1331,13 @@ class WSHandler(tornado.websocket.WebSocketHandler):
                 noReturnSubprocess(sbmsg)
                 noReturnSubprocess("mpc play")
 
+                CONFIGDATA["play_custom"] = False 
                 # subprocess.check_output("mpc clear", shell=True)
                 # subprocess.check_output(sbmsg, shell=True).decode("utf-8")
                 # subprocess.check_output("mpc play   ", shell=True).decode("utf-8")
                 global PLAY_CURL
                 PLAY_CURL = False
+                save_config()
                 interuptDisplay(1, "switcing PLAYlists")
             elif sbmsg.startswith("mpc volume"):
                 out = subprocess.check_output(
