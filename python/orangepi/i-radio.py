@@ -829,6 +829,7 @@ def load_config():
             G_VAR["TS_ENABLE"] = CONFIGDATA.get("timer", {}).get("enable", False)
             G_VAR["SECOND_CDOWN"] = CONFIGDATA.get("timer", {}).get("seconds", 120)
             G_VAR["PLAY_CURL"] = CONFIGDATA.get("play_custom", False)
+            G_VAR["PLAYLIST_POINTER"] = CONFIGDATA.get("curent_pl_id", 1)
             if CONFIGDATA.get("autoload", "true") is True:
                 os.system("mpc play")
                 print("auto play by config")
@@ -1698,6 +1699,7 @@ class MainHandler(tornado.web.RequestHandler):
     def post(self):
         value = ""
         curlval = ""
+        atplval = ""
         try:
             value = self.get_argument("sleep")
             print("set sleep " + value)
@@ -1708,6 +1710,11 @@ class MainHandler(tornado.web.RequestHandler):
             print("play c url " + curlval)
         except:
             print("skiping cause argument not contain " + curlval)
+        try:
+            atplval = self.get_argument("addtoplaylist")
+            print("add to playlist " + atplval)
+        except:
+            print("skiping cause argument not contain " + atplval)
         if value != "":
             G_VAR["MIN_SLEEP_VALUE"] = int(value)
             sleeptimer.startcdown(G_VAR["MIN_SLEEP_VALUE"])
@@ -1738,6 +1745,10 @@ class MainHandler(tornado.web.RequestHandler):
             G_VAR["PLAY_CURL"] = True
             CONFIGDATA["play_custom"] = True
             save_config()
+            self.render("index.html")
+        if atplval != "":
+            noReturnSubprocess("mpc addplaylist " + PLAYlists[G_VAR["playlist"]] + " " + atplval)
+            interuptDisplay(2, 16, "added to playlist")
             self.render("index.html")
 
 
@@ -1849,8 +1860,12 @@ class shellCmd(tornado.web.RequestHandler):  # scmd
             pl.sort()
             rp = ""
             for i in range(len(pl)):
+                print(f'playlist: {pl[i]}')
+                print(f'playlist pointer: {G_VAR["PLAYLIST_POINTER"]}')
+                print(f'playlists by pointer: {PLAYlists[G_VAR["PLAYLIST_POINTER"] - 1]}')
+                classs = "bplay" if pl[i] == PLAYlists[G_VAR["PLAYLIST_POINTER"] - 1] else ""
                 rp += (
-                    '<button class="button1" onclick="sendcmd(\'mpc load '
+                    '<button class="button1 ' + classs + '" onclick="sendcmd(\'mpc load '
                     + pl[i]
                     + "')\"><a>"
                     + str(i + 1)
