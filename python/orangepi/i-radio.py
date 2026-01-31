@@ -1747,7 +1747,7 @@ class MainHandler(tornado.web.RequestHandler):
             save_config()
             self.render("index.html")
         if atplval != "":
-            noReturnSubprocess("mpc addplaylist " + PLAYlists[G_VAR["playlist"]] + " " + atplval)
+            noReturnSubprocess("mpc addplaylist " + PLAYlists[G_VAR["PLAYLIST_POINTER"]-1] + " " + atplval)
             interuptDisplay(2, 16, "added to playlist")
             self.render("index.html")
 
