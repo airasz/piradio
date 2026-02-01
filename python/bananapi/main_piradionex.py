@@ -1,5 +1,6 @@
 #!usr/bin/env python
 # import RPi.GPIO as GPIO
+from pickle import FALSE
 import time
 import evdev
 from evdev import InputDevice, categorize, ecodes
@@ -120,6 +121,7 @@ TO_SEEK_TO = False
 MINUTE_SEEK_TO= 0
 SCREEN_BRIGHTNESS = 100
 TO_SET_SCREEN_BRIGHTNESS = False
+PLAYLIST_POINTER = 0
 
 PLAYlists = []
 splited_playlist = []
@@ -177,12 +179,13 @@ def load_variable():
         pass
 
 def load_config():
-    global CONFIGDATA
+    global CONFIGDATA, PLAYLIST_POINTER
     try:
         with open(config_path, "r") as f:
             CONFIGDATA = json.load(f)
             REMOTES = CONFIGDATA.get("remote", "")
             PLAY_CURL= CONFIGDATA.get("play_custom", False)
+            PLAYLIST_POINTER = CONFIGDATA.get("curent_pl_id", 1)
             if CONFIGDATA.get("autoload", "true") is True:
                 os.system("mpc play")
                 print("auto play by config")
@@ -221,6 +224,9 @@ def noReturnSubprocess(cmd):
         print(e.output.decode("utf-8"))
 
 
+# PLAYlists = cmd("mpc lsplaylists").splitlines(keepends=False)
+# PLAYlists = sorted(PLAYlists, key=str.lower)
+
 def dividePlayList():
     global splited_playlist
     # display.frezeeDisplay(50)
@@ -242,6 +248,8 @@ def loadPLAYlists():
     # PLAYlists = status.split()
     sr = subprocess.check_output("mpc lsplaylists", shell=True).decode("utf-8")
     PLAYlists = sr.splitlines(keepends=False)
+    PLAYlists = sorted(PLAYlists, key=str.lower)    
+    print(f'playlists group = {PLAYlists}') 
     dividePlayList()
     # print(f'playlist no 2:{PLAYlists[1]}')
 
@@ -511,7 +519,10 @@ def playPos(pos):
         sleep(0.1)
         if pos < len(PLAYlists) + 1:
             status = cmd("mpc load " + PLAYlists[pos - 1])
+            PLAY_CURL=False
             getstationlen()
+            CONFIGDATA["curent_pl_id"] = pos
+            PLAYLIST_POINTER = pos
             status = status.replace(" ", "\n")
             interuptDisplay(1, status)
             sleep(0.6)
@@ -522,6 +533,7 @@ def playPos(pos):
             if status in stationAlternative:
                 status = stationAlternative[status]
             interuptDisplay(1, status)
+            saveConfig()
         loadPLAYlists()
         splp = False
     if TO_SET_PLAYMODE:
@@ -766,6 +778,9 @@ def switchPLAYLIST():
         SWITCH_PLAYLIST = True
 
     print("SWITCH_PLAYLIST=" + str(SWITCH_PLAYLIST))
+    PLAYLIST_POINTER += 1
+    if PLAYLIST_POINTER - 1 == len(PLAYlists):
+        PLAYLIST_POINTER = 1
     # import os
 
     # status = os.popen("ls /var/lib/mpd/playlists/").read()
@@ -1112,6 +1127,7 @@ class MainHandler(tornado.web.RequestHandler):
     def post(self):
         value = ""
         curlval = ""
+        atplval = ""
         try:
             value = self.get_argument("sleep")
             print("set sleep " + value)
@@ -1122,6 +1138,11 @@ class MainHandler(tornado.web.RequestHandler):
             print("play c url " + curlval)
         except:
             print("skiping cause argument not contain " + curlval)
+        try:
+            atplval = self.get_argument("addtoplaylist")
+            print("add to playlist " + atplval)
+        except:
+            print("skiping cause argument not contain " + atplval)
         if value != "":
             global MINUTE_SLEEP_VALUE
             MINUTE_SLEEP_VALUE = int(value)
@@ -1146,6 +1167,12 @@ class MainHandler(tornado.web.RequestHandler):
             save_config()
             broadcast_message("info=" + status)
             PLAY_CURL = True
+
+        if atplval != "":
+            # noReturnSubprocess("mpc addplaylist " + PLAYlists[G_VAR["PLAYLIST_POINTER"]-1] + " " + atplval)
+            noReturnSubprocess("mpc add " + atplval)
+            interuptDisplay(2, "added to playlist")
+            self.render("index.html")
             # pass
         # ok()
         self.render("index.html")
@@ -1231,22 +1258,21 @@ class shellCmd(tornado.web.RequestHandler):  # scmd
             sr = subprocess.check_output("mpc lsplaylists", shell=True).decode("utf-8")
             pl = sr.splitlines(keepends=False)
             pl.sort()
-            PLAYlists = pl
             rp = ""
+            global PLAYLIST_POINTER
             for i in range(len(pl)):
+                # print(f'playlist: {pl[i]}')
+                # print(f'playlist pointer: {PLAYLIST_POINTER}')
+                # print(f'playlists by pointer: {PLAYlists[PLAYLIST_POINTER - 1]}')
+                classs = "bplay" if pl[i] == PLAYlists[PLAYLIST_POINTER - 1] else ""
                 rp += (
-                    '<div class="button1">'
-                    + '<button class="no-style" onclick="sendcmd(\'mpc load '
+                    '<button class="button1 ' + classs + '" onclick="sendcmd(\'mpc load '
                     + pl[i]
                     + "')\"><a>"
                     + str(i + 1)
                     + ". "
                     + pl[i]
-                    + '</a></button>'
-                    + '<button class="no-style bdelete" onclick="sendcmd(\'mpc rm '
-                    + pl[i]
-                    + "')\">🗑️</button>"
-                    + '</div>'
+                    + "</a></button>"
                 )
             self.write(rp)
         elif input == "status":
@@ -1285,6 +1311,11 @@ class shellCmd(tornado.web.RequestHandler):  # scmd
             self.write(rp)
             time.sleep(1.5)
             os.execv(sys.executable, ["python"] + sys.argv)
+        elif input == "savepermanenttoplaylist":
+            print("playlist saved to " + PLAYlists[PLAYLIST_POINTER-1])
+            noReturnSubprocess("mpc rm " + PLAYlists[PLAYLIST_POINTER-1])
+            noReturnSubprocess("mpc save " + PLAYlists[PLAYLIST_POINTER-1])
+            self.write("playlist saved to " + PLAYlists[PLAYLIST_POINTER-1])
         else:
             self.write("command not recognized")
 
@@ -1332,6 +1363,17 @@ class WSHandler(tornado.websocket.WebSocketHandler):
                 noReturnSubprocess("mpc play")
 
                 CONFIGDATA["play_custom"] = False 
+                global PLAYlists
+                for i in range(len(PLAYlists)):
+                    print(f"compare {PLAYlists[i]} with {sbmsg}")
+                    if PLAYlists[i] in sbmsg:
+                        print(f"playlist found {PLAYlists[i]} {i}")
+                        CONFIGDATA["curent_pl_id"] = i + 1
+                        global PLAYLIST_POINTER
+                        PLAYLIST_POINTER = i + 1
+                        print(f"change PLAYLIST_POINTER to {PLAYLIST_POINTER}")
+                        save_config()
+                        break
                 # subprocess.check_output("mpc clear", shell=True)
                 # subprocess.check_output(sbmsg, shell=True).decode("utf-8")
                 # subprocess.check_output("mpc play   ", shell=True).decode("utf-8")
