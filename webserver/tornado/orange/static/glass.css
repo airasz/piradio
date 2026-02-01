@@ -18,6 +18,7 @@
             rgba(0, 0, 0, 0) 94%,
             rgba(176, 176, 174, 0.47) 100%);
     --text-color-glass: #9ec5c7 !important;
+    --glass-brightness: 0.89;
 }
 
 body {
@@ -87,7 +88,7 @@ body {
             rgba(176, 176, 174, 0.37) 98%,
             rgba(255, 255, 255, 0.31) 99%,
             rgba(255, 255, 255, 0.91) 100%);
-    backdrop-filter: blur(1px) saturate(110%) brightness(1.1) contrast(1.4);
+    backdrop-filter: blur(1px) saturate(110%) brightness(var(--glass-brightness)) contrast(1);
     -webkit-backdrop-filter: blur(16px) saturate(180%);
     /*! border: 1px solid rgba(255, 255, 255, 0.2); */
     border-radius: 12px;
@@ -284,7 +285,7 @@ h1 {
     /*! background: #000000 !important; */
     margin: 4px !important;
     /*! background: linear-gradient(180deg, rgba(221, 221, 221, 0.11) 0%, rgba(176, 176, 174, 0.27) 80%, rgba(255, 255, 255, 0.31) 100%); */
-    backdrop-filter: blur(1px) saturate(130%) brightness(1.18) contrast(1.4);
+    backdrop-filter: blur(1px) saturate(130%) brightness(var(--glass-brightness)) contrast(1);
     -webkit-backdrop-filter: blur(16px) saturate(180%);
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 12px;
@@ -430,7 +431,7 @@ h1 {
         0px 8px 5px 0px rgba(0, 0, 0, 0.6),
         0px 14px 2px -1px rgba(227, 222, 255, 0),
         0px 14px 3px -1px rgba(255, 255, 255, 0.6) !important;
-    backdrop-filter: blur(1px) saturate(110%) brightness(1.01) contrast(1.4);
+    backdrop-filter: blur(1px) saturate(110%) brightness(var(--glass-brightness)) contrast(1);
     -webkit-backdrop-filter: blur(16px) saturate(180%);
     cursor: pointer;
     border: 0px;
@@ -505,7 +506,7 @@ h1 {
         6px 6px 14px rgba(0, 0, 0, 0.08),
         -6px 6px 14px rgba(0, 0, 0, 0.14) !important;
 
-    backdrop-filter: blur(1px) saturate(90%) brightness(1.12) contrast(1.2);
+    backdrop-filter: blur(1px) saturate(90%) brightness(var(--glass-brightness)) contrast(1);
     -webkit-backdrop-filter: blur(16px) saturate(180%);
 }
 
@@ -535,8 +536,12 @@ input:checked+.slider_switch {
             rgba(221, 221, 221, 0.11) 0%,
             rgba(176, 176, 174, 0.27) 90%,
             rgba(255, 255, 255, 0.2) 100%);
+    background: linear-gradient(180deg,
+            rgba(13, 13, 13, 0.15) 0%,
+            rgba(106, 106, 105, 0.13) 80%,
+            rgba(255, 255, 255, 0.36) 100%);
 
-    backdrop-filter: blur(0px) saturate(140%) brightness(1.32) contrast(1.2);
+    backdrop-filter: blur(0px) saturate(140%) brightness(var(--glass-brightness)) contrast(1);
     -webkit-backdrop-filter: blur(16px) saturate(180%);
     box-shadow:
         4px -4px 3px rgba(255, 255, 255, 0.14) inset,
@@ -564,8 +569,8 @@ input:checked+.slider_switch::before {
 }
 
 .groupbox {
-    backdrop-filter: blur(2px) saturate(130%) brightness(1.1) contrast(1.4);
-    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    backdrop-filter: blur(2px) saturate(100%) brightness(var(--glass-brightness)) contrast(1);
+    -webkit-backdrop-filter: blur(1px) saturate(100%);
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 12px;
     /*     box-shadow:
@@ -622,7 +627,7 @@ input:checked+.slider_switch::before {
             rgba(221, 221, 221, 0.11) 0%,
             rgba(176, 176, 174, 0.27) 80%,
             rgba(255, 255, 255, 0.31) 100%);
-    backdrop-filter: blur(2px) saturate(130%) brightness(1.08) contrast(1.4);
+    backdrop-filter: blur(2px) saturate(130%) brightness(var(--glass-brightness)) contrast(1);
 
     box-shadow: none;
     cursor: pointer;

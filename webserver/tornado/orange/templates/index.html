@@ -125,7 +125,23 @@ design by airasz
       </div>
 
       <p></p>
-      <div class="buttonstation" id="stations"></div>
+
+      <div>
+        <div class="buttonstation" id="stations"></div>
+        <button class="button1 button2" onclick="savepermanenttoplaylist()">save permanent to playlist</button>
+        <div class="groupbox">
+          <form id="addtoplaylistform" method="post">
+            <div class="ceditbox" id="cedit1">
+              <p4>add to current playlist : </p4>
+              <input class="form_data" type="text" id="addtoplaylist" name="addtoplaylist" placeholder="http://.."
+                onfocus="this.value=''" style="color: darkslategray; align-content: flex-start" /><br />
+              <button id="playurll" type="submit" name="submit" class="button1 button2">
+                add
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
       <div class="bottom-panel" id="bottompanel">
         <div class="groupbox">
           <p4>Playlist Group</p4>
@@ -144,18 +160,7 @@ design by airasz
               </div>
             </form>
           </div>
-          <div class="groupbox">
-            <form id="addtoplaylistform" method="post">
-              <div class="ceditbox" id="cedit1">
-                <p4>add to current playlist : </p4>
-                <input class="form_data" type="text" id="addtoplaylist" name="addtoplaylist" placeholder="http://.."
-                  onfocus="this.value=''" style="color: darkslategray; align-content: flex-start" /><br />
-                <button id="playurll" type="submit" name="submit" class="button1 button2">
-                  add
-                </button>
-              </div>
-            </form>
-          </div>
+
           <div class="groupbox">
             <div id="sleepinfo">
               <div id="timerinfo" style="color: black"></div>

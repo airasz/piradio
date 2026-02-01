@@ -480,7 +480,9 @@ function polpulatesl() {
           scrollcount = 0;
         }
         count = 0;
+        polpulatepl();
       }
+
       // setTimeout(polpulatesl, 15000); //repeat call this function
     } else {
       console.log("failed get playist");
@@ -490,7 +492,7 @@ function polpulatesl() {
   };
   ajax_request.send();
 }
-//populate playlist to button
+//get all playlists populate playlist to button
 function polpulatepl() {
   var ajax_request = new XMLHttpRequest();
   var stations = document.getElementById("playlists");
@@ -527,6 +529,21 @@ function setsleep() {
     };
     ajax_request.send();
   }
+}
+function savepermanenttoplaylist() {
+  var ajax_request = new XMLHttpRequest();
+  var stations = document.getElementById("radiostatus");
+  ajax_request.open("GET", "scmd/savepermanenttoplaylist", true);
+  ajax_request.onreadystatechange = function () {
+    if (ajax_request.status == 200) {
+      if (ajax_request.readyState == 4) {
+        stations.innerHTML = this.responseText;
+      }
+    } else {
+      stations.innerHTML = "save permanent to playlist failed";
+    }
+  };
+  ajax_request.send();
 }
 // var vol = document.querySelector("#isvol");
 // var _range = document.querySelector("#svol");

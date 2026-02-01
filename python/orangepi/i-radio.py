@@ -1747,7 +1747,8 @@ class MainHandler(tornado.web.RequestHandler):
             save_config()
             self.render("index.html")
         if atplval != "":
-            noReturnSubprocess("mpc addplaylist " + PLAYlists[G_VAR["PLAYLIST_POINTER"]-1] + " " + atplval)
+            # noReturnSubprocess("mpc addplaylist " + PLAYlists[G_VAR["PLAYLIST_POINTER"]-1] + " " + atplval)
+            noReturnSubprocess("mpc add " + atplval)
             interuptDisplay(2, 16, "added to playlist")
             self.render("index.html")
 
@@ -1860,9 +1861,9 @@ class shellCmd(tornado.web.RequestHandler):  # scmd
             pl.sort()
             rp = ""
             for i in range(len(pl)):
-                print(f'playlist: {pl[i]}')
-                print(f'playlist pointer: {G_VAR["PLAYLIST_POINTER"]}')
-                print(f'playlists by pointer: {PLAYlists[G_VAR["PLAYLIST_POINTER"] - 1]}')
+                # print(f'playlist: {pl[i]}')
+                # print(f'playlist pointer: {G_VAR["PLAYLIST_POINTER"]}')
+                # print(f'playlists by pointer: {PLAYlists[G_VAR["PLAYLIST_POINTER"] - 1]}')
                 classs = "bplay" if pl[i] == PLAYlists[G_VAR["PLAYLIST_POINTER"] - 1] else ""
                 rp += (
                     '<button class="button1 ' + classs + '" onclick="sendcmd(\'mpc load '
@@ -1923,6 +1924,11 @@ class shellCmd(tornado.web.RequestHandler):  # scmd
             self.write(rp)
             time.sleep(1.5)
             os.execv(sys.executable, ["python"] + sys.argv)
+        elif input == "savepermanenttoplaylist":
+            print("playlist saved to " + PLAYlists[G_VAR["PLAYLIST_POINTER"]-1])
+            noReturnSubprocess("mpc rm " + PLAYlists[G_VAR["PLAYLIST_POINTER"]-1])
+            noReturnSubprocess("mpc save " + PLAYlists[G_VAR["PLAYLIST_POINTER"]-1])
+            self.write("playlist saved to " + PLAYlists[G_VAR["PLAYLIST_POINTER"]-1])
         else:
             self.write("command not recognized")
 
