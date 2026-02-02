@@ -123,9 +123,9 @@ SCREEN_BRIGHTNESS = 100
 TO_SET_SCREEN_BRIGHTNESS = False
 PLAYLIST_POINTER = 0
 
-PLAYlists = []
-splited_playlist = []
-splited_playlist_pointer = 0
+PLAYlists = [] #list of playlists
+splited_playlist = [] #splited list of stations/tracks
+splited_playlist_pointer = 0 #pointer of splited list
 splp = False
 
 
@@ -179,7 +179,7 @@ def load_variable():
         pass
 
 def load_config():
-    global CONFIGDATA, PLAYLIST_POINTER
+    global CONFIGDATA, PLAYLIST_POINTER,SCREEN_BRIGHTNESS
     try:
         with open(config_path, "r") as f:
             CONFIGDATA = json.load(f)
@@ -227,6 +227,7 @@ def noReturnSubprocess(cmd):
 # PLAYlists = cmd("mpc lsplaylists").splitlines(keepends=False)
 # PLAYlists = sorted(PLAYlists, key=str.lower)
 
+#convert playlist to string of stations/tracks split by new line
 def dividePlayList():
     global splited_playlist
     # display.frezeeDisplay(50)
@@ -742,10 +743,10 @@ def exitset(info):
     # display.onmenu(False)
     if splited_playlist_pointer > 0:
         splited_playlist_pointer = 0
-        display.sendCommand("page page9")
+        display.sendCommand("page page4")
         display.sendCommand('t0.txt="banana radio"')
         display.resettimer()
-
+        display.reinit()
     if info:
         interuptDisplay(2, "start set resetted")
 
@@ -806,6 +807,9 @@ def switchPLAYLIST():
 
 
 def drawPlayList():
+    global COUNT_ONMENU
+    COUNT_ONMENU=0
+    dividePlayList()
     global splited_playlist
     global splited_playlist_pointer
     display.frezeeDisplay(50)
@@ -821,16 +825,18 @@ def drawPlayList():
         print(rp)
         rp = rp.replace("https://", "").replace("http://", "")
         if splited_playlist_pointer == 1:
-            display.sendCommand("page page6")
-        display.setPage(1)
+            display.sendCommand("page page9")
+        # display.setPage(1)
+        # display.sendCommand('t0.lenth=40') 
         display.sendCommand(f't0.txt="playlist ({prange}) {TOQ}"')
         display.sendCommand(f't1.txt="{rp}"')
         # for item in splited_playlist[splited_playlist_pointer]:
         # rp
     else:
         splited_playlist_pointer = 0
-        display.setPage(1)
-        display.sendCommand("page page9")
+        # display.setPage(1)
+        display.reinit()
+        display.sendCommand("page page4")
         display.sendCommand('t0.txt="banana radio"')
 
 
@@ -878,9 +884,13 @@ def processIR(irval):
             setSTATION(False)
         elif irval == 2099222:
             print("right")
+            global COUNT_ONMENU
             if TO_SET_SCREEN_BRIGHTNESS:
                 SCREEN_BRIGHTNESS += 5
-                CONFIGDATA['SCREEN_BRIGHTNESS'] = SCREEN_BRIGHTNESS
+                if SCREEN_BRIGHTNESS > 100:
+                    SCREEN_BRIGHTNESS = 100
+                COUNT_ONMENU=0
+                CONFIGDATA['screen_brightness'] = SCREEN_BRIGHTNESS
                 display.sendCommand(f'dim={SCREEN_BRIGHTNESS}')
                 interuptDisplay(3, "brightness set to " + str(SCREEN_BRIGHTNESS))
                 save_config()
@@ -889,8 +899,14 @@ def processIR(irval):
         elif irval == 2099220:
             print("left")
             if TO_SET_SCREEN_BRIGHTNESS:
-                SCREEN_BRIGHTNESS -= 5
-                CONFIGDATA['SCREEN_BRIGHTNESS'] = SCREEN_BRIGHTNESS
+                if SCREEN_BRIGHTNESS>10:
+                    SCREEN_BRIGHTNESS -= 5
+                else:
+                    SCREEN_BRIGHTNESS -=2
+                if SCREEN_BRIGHTNESS < 1:
+                    SCREEN_BRIGHTNESS = 1
+                COUNT_ONMENU=0
+                CONFIGDATA['screen_brightness'] = SCREEN_BRIGHTNESS
                 display.sendCommand(f'dim={SCREEN_BRIGHTNESS}')
                 interuptDisplay(3, "brightness set to " + str(SCREEN_BRIGHTNESS))
                 save_config()
@@ -1386,6 +1402,11 @@ class WSHandler(tornado.websocket.WebSocketHandler):
                     sbmsg + " | grep volume | awk '{print$2}'", shell=True
                 ).decode("utf-8")
                 interuptDisplay(1, "set volume " + out)
+            elif sbmsg.startswith("mpc del"):
+                out = subprocess.check_output(
+                    sbmsg + " | grep volume | awk '{print$2}'", shell=True
+                ).decode("utf-8")
+                interuptDisplay(1, "set playlist " + out)
             else:
                 sr = subprocess.check_output(sbmsg, shell=True).decode("utf-8")
         elif message.startswith("1>"):

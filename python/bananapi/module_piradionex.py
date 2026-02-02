@@ -109,7 +109,7 @@ def nexinit():
     MyNextion.set_port("/dev/ttyS1")
     # MyNextion.send_command('page page2')#sukses
     MyNextion.send_command("page 4")  # sukses
-    MyNextion.send_command("dim=10")  # sukses
+    # MyNextion.send_command("dim=10")  # sukses
     nextion_page = 4
     # MyNextion.send_command('t1.bco=BLUE')# sukses
     result = subprocess.check_output("hostname", shell=True).decode("utf-8")
@@ -195,7 +195,7 @@ class sleeptimer:
         if nextion_page == 0:
             nextion_page = 4
             MyNextion.send_command("page 4")
-            MyNextion.send_command("dim=30")
+            # MyNextion.send_command("dim=30")
             MyNextion.send_command("t1.isbr=1")  # sukses 1=true 0=false
             MyNextion.send_command("t1.xcen=Center")
 
@@ -796,7 +796,10 @@ class display:
     def getmenu(self):
         global ON_MENU
         return ON_MENU
-
+    def reinit(self):
+        nexinit()
+        return
+ 
 
 # class mpc_status():
 def to_bool(value: str) -> bool:
