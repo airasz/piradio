@@ -37,6 +37,9 @@ nextion_page = 4
 RADIO_STATUS = {}
 BLANK_SCREEN = 0
 TOBLANKSCREEN = False
+OLD_SCREEN_BRIGHTNESS = 30
+SCREEN_BRIGHTNESS = 30
+MAXCOUNT_TOBLANK = 30
 
 stationAlternative = {"My Station name": "Hang FM Batam"}
 
@@ -190,12 +193,15 @@ class sleeptimer:
         global ASSECCD
         global nextion_page
         global BLANK_SCREEN
+        global SCREEN_BRIGHTNESS
         ASSECCD = 0
         BLANK_SCREEN = 0
         if nextion_page == 0:
             nextion_page = 4
             MyNextion.send_command("page 4")
-            # MyNextion.send_command("dim=30")
+            # if OLD_SCREEN_BRIGHTNESS != SCREEN_BRIGHTNESS:
+            MyNextion.send_command(f'dim={SCREEN_BRIGHTNESS}')
+                # OLD_SCREEN_BRIGHTNESS = SCREEN_BRIGHTNESS
             MyNextion.send_command("t1.isbr=1")  # sukses 1=true 0=false
             MyNextion.send_command("t1.xcen=Center")
 
@@ -229,22 +235,22 @@ class sleeptimer:
         global nextion_page
         if TOBLANKSCREEN is True :
             BLANK_SCREEN += 1
-            if BLANK_SCREEN == 300:
+            if BLANK_SCREEN == MAXCOUNT_TOBLANK:
                 MyNextion.send_command("page 0")
                 nextion_page = 0
                 MyNextion.send_command("dim=0")
                 TOBLANKSCREEN = False
-            elif BLANK_SCREEN > 300:
-                BLANK_SCREEN = 301
+            elif BLANK_SCREEN > MAXCOUNT_TOBLANK:
+                BLANK_SCREEN = MAXCOUNT_TOBLANK + 1
         if RADIO_STATUS["is_playing"] is False:
             BLANK_SCREEN += 1
-            if BLANK_SCREEN == 300:
+            if BLANK_SCREEN == MAXCOUNT_TOBLANK:
                 MyNextion.send_command("page 0")
                 nextion_page = 0
                 MyNextion.send_command("dim=0")
                 TOBLANKSCREEN = False
-            elif BLANK_SCREEN > 300:
-                BLANK_SCREEN = 301
+            elif BLANK_SCREEN > MAXCOUNT_TOBLANK:
+                BLANK_SCREEN = MAXCOUNT_TOBLANK + 1
 
     def loopy(self):
         # self.cekStart()

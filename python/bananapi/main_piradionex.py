@@ -190,6 +190,7 @@ def load_config():
                 os.system("mpc play")
                 print("auto play by config")
             SCREEN_BRIGHTNESS = CONFIGDATA.get("screen_brightness", 100)
+            module_piradionex.SCREEN_BRIGHTNESS = SCREEN_BRIGHTNESS
             display.sendCommand(f'dim={SCREEN_BRIGHTNESS}')
     except FileNotFoundError:
         pass
@@ -892,6 +893,7 @@ def processIR(irval):
                 COUNT_ONMENU=0
                 CONFIGDATA['screen_brightness'] = SCREEN_BRIGHTNESS
                 display.sendCommand(f'dim={SCREEN_BRIGHTNESS}')
+                module_piradionex.SCREEN_BRIGHTNESS = SCREEN_BRIGHTNESS
                 interuptDisplay(3, "brightness set to " + str(SCREEN_BRIGHTNESS))
                 save_config()
                 return
@@ -908,6 +910,7 @@ def processIR(irval):
                 COUNT_ONMENU=0
                 CONFIGDATA['screen_brightness'] = SCREEN_BRIGHTNESS
                 display.sendCommand(f'dim={SCREEN_BRIGHTNESS}')
+                module_piradionex.SCREEN_BRIGHTNESS = SCREEN_BRIGHTNESS
                 interuptDisplay(3, "brightness set to " + str(SCREEN_BRIGHTNESS))
                 save_config()
                 return
