@@ -13,10 +13,10 @@
             #a42d69 75%,
             #912e3e 100%);
     --glass-background: linear-gradient(180deg,
-            rgba(14, 14, 14, 0.4) 0%,
+            rgba(14, 14, 14, 0.3) 0%,
             rgba(0, 0, 0, 0) 8px,
-            rgba(0, 0, 0, 0) 94%,
-            rgba(176, 176, 174, 0.47) 100%);
+            rgba(0, 0, 0, 0) 96%,
+            rgba(176, 176, 174, 0.27) 100%);
     --text-color-glass: #9ec5c7 !important;
     --glass-brightness: 0.89;
 }
@@ -285,7 +285,7 @@ h1 {
     /*! background: #000000 !important; */
     margin: 4px !important;
     /*! background: linear-gradient(180deg, rgba(221, 221, 221, 0.11) 0%, rgba(176, 176, 174, 0.27) 80%, rgba(255, 255, 255, 0.31) 100%); */
-    backdrop-filter: blur(1px) saturate(130%) brightness(var(--glass-brightness)) contrast(1);
+    backdrop-filter: blur(1px) saturate(100%) brightness(var(--glass-brightness)) contrast(1);
     -webkit-backdrop-filter: blur(16px) saturate(180%);
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 12px;
@@ -295,7 +295,7 @@ h1 {
         -2px -2px 8px rgba(255, 255, 255, 0.14) inset,
         0px 8px 6px -6px rgba(255, 255, 255, 0.86),
         0px 8px 6px -4px rgba(0, 0, 0, 0.8),
-        0px 21px 18px -4px rgba(0, 0, 0, 0.3) !important;
+        0px 21px 18px -4px rgba(0, 0, 0, 0.4) !important;
     cursor: pointer;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     user-select: none;
