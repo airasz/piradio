@@ -524,6 +524,7 @@ def playPos(pos):
             PLAY_CURL=False
             getstationlen()
             CONFIGDATA["curent_pl_id"] = pos
+            global PLAYLIST_POINTER
             PLAYLIST_POINTER = pos
             status = status.replace(" ", "\n")
             interuptDisplay(1, status)
@@ -535,7 +536,7 @@ def playPos(pos):
             if status in stationAlternative:
                 status = stationAlternative[status]
             interuptDisplay(1, status)
-            saveConfig()
+            save_config()
         loadPLAYlists()
         splp = False
     if TO_SET_PLAYMODE:

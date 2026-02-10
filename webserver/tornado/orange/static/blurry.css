@@ -53,8 +53,8 @@
   background: #00aa00;
   /*     box-shadow: 5px 5px 8px #8a8a8a, -2px -2px 8px #ffe765 !important; */
   /*box-shadow:
-    5px 5px 8px #f8ea7d,
-    -2px -2px 8px #ffe765 !important;*/
+   *   5px 5px 8px #f8ea7d,
+   *   -2px -2px 8px #ffe765 !important;*/
 }
 
 .bplay button {
@@ -88,7 +88,7 @@ input[type="text"] {
 
 .button2 {
   color: #222222;
-  background: rgba(255, 160, 10, 0.7) !important;
+  background: rgba(255, 10, 10, 0.7) !important;
   border-radius: 20px;
   backdrop-filter: blur(8px);
 }
@@ -120,7 +120,7 @@ h1 {
 }
 
 .bplay {
-  background: #ffae21 !important;
+  background: #ff9321 !important;
   /*   background: linear-gradient(360deg, rgba(164,207,1,1) 0%, rgba(137,146,17,1) 42%, rgba(208,224,1,1) 43%, rgba(255,231,0,0.9668067055923932) 100%)!important; */
   color: #872e0b !important;
   cursor: pointer;
@@ -180,8 +180,8 @@ h1 {
 
   background: var(--slider-thumb-bg, #0e2cd7f7);
   /* box-shadow:
-    2px 2px 8px #56e7ee,
-    -2px -2px 8px #61eaf7 !important; */
+   *   2px 2px 8px #56e7ee,
+   *   -2px -2px 8px #61eaf7 !important; */
 }
 
 
