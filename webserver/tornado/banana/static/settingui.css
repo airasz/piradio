@@ -1,0 +1,212 @@
+/* Modern UI for oradio - Design by airasz Refined */
+:root {
+  --primary-bg: #f0f4f8;
+/*   --card-bg: rgba(255, 255, 255, 0.9); */
+  --card-bg: blanchedalmond;
+  --accent-color: #47b0bb;
+  --text-main: #2d3436;
+  --text-muted: #636e72;
+  --shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  --border-radius: 16px;
+  --transition: all 0.3s ease;
+}
+
+body {
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--primary-bg);
+  background-image: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  color: var(--text-main);
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.main {
+  width: 100%;
+  /*! max-width: 480px; */
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Glassmorphism Card Style */
+.winform {
+  background: var(--card-bg);
+  backdrop-filter: blur(10px);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  transition: var(--transition);
+}
+
+.winform:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+}
+
+/* Header Styling */
+.panel-title {
+  background: var(--accent-color);
+  padding: 12px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: white !important;
+}
+
+.panel-title h1 {
+  font-size: 1.1rem;
+  margin: 0;
+  text-transform: capitalize;
+  letter-spacing: 0.5px;
+}
+
+.panel-title .button {
+  display: flex;
+  gap: 8px;
+}
+
+#radiostatus{
+  background: blanchedalmond;
+  display:block;
+}
+.btns {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  font-size: 10px;
+  transition: var(--transition);
+}
+
+.btns:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+/* Groupbox and Content */
+.groupboxx {
+  padding: 15px;
+}
+
+.gbheader {
+  display: none; /* Hidden because titles are in panel-title */
+}
+
+/* Modern Switches */
+.switch_led {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px !important;
+  border-bottom: 1px solid #eee;
+}
+
+.switch_led:last-child {
+  border-bottom: none;
+}
+
+p4 {
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+/* Custom Select Dropdown */
+select {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  background: white;
+  color: var(--text-main);
+  outline: none;
+  cursor: pointer;
+}
+
+/* Toggle Slider Styling */
+.switchled {
+  position: relative;
+  display: inline-block;
+  width: 46px;
+  height: 24px;
+}
+
+.switchled input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: .4s;
+  border-radius: 34px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 24px;
+  width: 24px;
+  left: 0px;
+  bottom: 0px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: var(--accent-color);
+}
+
+input:checked + .slider:before {
+  transform: translateX(22px);
+}
+
+/* Bottom Navigation Card */
+.card_switch {
+  background: var(--card-bg) !important;
+  border-radius: var(--border-radius);
+  padding: 20px;
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+
+.menu {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 15px 0;
+}
+
+.menu a {
+  text-decoration: none;
+  color: var(--accent-color);
+  font-weight: bold;
+  padding: 8px 20px;
+  border: 2px solid var(--accent-color);
+  border-radius: 30px;
+  transition: var(--transition);
+}
+
+.menu a:hover {
+  background: var(--accent-color);
+  color: white;
+}
+
+#cname {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-weight: normal;
+  margin-top: 15px;
+}

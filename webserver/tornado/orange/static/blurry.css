@@ -21,6 +21,8 @@
   border: none;
   outline: none;
   background: none;
+  color: orange;
+  font-weight: bold;
 }
 
 .bdelete {
@@ -30,8 +32,8 @@
 }
 
 .bdelete:hover {
-  background: red !important;
-
+  background: yellow !important;
+  border: none;
 }
 
 .button1 {
@@ -76,7 +78,7 @@ p4 {
 
 input[type="text"] {
   /* box-sizing: border-box; */
-  border: 1px solid rgb(0, 0, 0) !important;
+  border: 3px solid rgb(255, 255, 25) !important;
   border-radius: 50px !important;
   /* background-color: rgb(233, 231, 231); */
   background-color: transparent;
@@ -90,6 +92,7 @@ input[type="text"] {
   color: #222222;
   background: rgba(255, 10, 10, 0.7) !important;
   border-radius: 20px;
+  color: white;
   backdrop-filter: blur(8px);
 }
 
