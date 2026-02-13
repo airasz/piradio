@@ -1,5 +1,4 @@
 :root {
-
   --slider-thumb-bg: #5f93f7;
 }
 
@@ -119,11 +118,13 @@ h1 {
 
 .bplay {
   /*   background: #c7ff10 !important; */
-  background: linear-gradient(90deg,
-      rgba(0, 152, 0, 1) 0%,
-      rgba(15, 179, 0, 0.9724090319721639) 8%,
-      rgba(114, 210, 1, 1) 15%,
-      rgba(247, 255, 53, 1) 100%) !important;
+  background: linear-gradient(
+    90deg,
+    rgba(0, 152, 0, 1) 0%,
+    rgba(15, 179, 0, 0.9724090319721639) 8%,
+    rgba(114, 210, 1, 1) 15%,
+    rgba(247, 255, 53, 1) 100%
+  ) !important;
   color: #1d5304 !important;
   cursor: pointer;
 }
@@ -151,7 +152,11 @@ h1 {
 
 .slider {
   background: rgb(6, 121, 4) !important;
-  background: linear-gradient(90deg, rgba(56, 179, 12, 0.98) 0%, rgb(21, 225, 168) 100%) !important;
+  background: linear-gradient(
+    90deg,
+    rgba(56, 179, 12, 0.98) 0%,
+    rgb(21, 225, 168) 100%
+  ) !important;
   box-shadow:
     inset 0px 0px 0px #8a8a8a,
     inset 0px 0px 0px rgb(255, 255, 255) !important;
@@ -190,7 +195,7 @@ h1 {
     -2px -2px 8px #61eaf7 !important; */
 }
 
-.slider::-moz-range-thumb+#track-progress {
+.slider::-moz-range-thumb + #track-progress {
   background: var(--slider-thumb-bg-progress, #0e2cd7f7);
 }
 
@@ -248,5 +253,5 @@ h1 {
 }
 
 .floating-pause-btn.paused::before {
-  content: '▶';
+  content: "▶";
 }
