@@ -14,27 +14,43 @@ html {
   margin: 0px auto;
   text-align: center;
   height: 100%;
+  /* prevent page from growing beyond the viewport */
+  overflow: hidden;
 }
 
 body {
-  /*   height: 100%; */
+  height: 100vh;
   margin: 0;
+  overflow: hidden;
 }
 
 .main {
   display: flex;
-  min-height: 100vh;
+  height: 100vh;
+  /* fill exactly the viewport */
+  overflow: hidden;
   /* box-shadow: 6px 6px 12px #b3b0b0, -2px -2px 12px #fff; */
   /* border-radius: 10px; */
   /*   position: relative */
 }
 
 .bottom-panel {
-  /* position: absolute; */
-  bottom: 0;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
+  flex-shrink: 0;
+  /* never shrink — always full size */
+  margin-top: auto;
+  /* push to the bottom of the flex column */
+}
+
+/* wrapper div around #stations — takes all spare vertical space */
+.stations-section {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 /*.floatbox {
@@ -132,6 +148,16 @@ input[type="submit"]:hover {
   padding: 6px;
 }
 
+/* #stations is the flexible element — it absorbs all remaining vertical space */
+#stations {
+  flex: 1 1 0;
+  min-height: 0;
+  /* required for flex children to shrink below content size */
+  max-height: none;
+  /* override .buttonstation fixed cap */
+  overflow-y: auto;
+}
+
 .button1 {
   /*   color: rgb(78, 75, 75); */
   padding: 8px;
@@ -186,30 +212,18 @@ input[type="submit"]:hover {
 
 .card_switch {
   /* Add shadows to create the "card" effect */
-  /* flex-wrap: inherit; */
   transition: 0.3s;
   color: rgb(95, 95, 95);
   margin-top: 0mm;
-  display: block;
   border-radius: 10px;
-  /*   margin-right: 5mm; */
-  /* padding-bottom: 5mm; */
   min-width: 9cm;
-  align-items: left;
-  justify-content: left;
-  /* display: flex; */
-  justify-items: left;
-  /* position: relative; */
-  flex-flow: row wrap;
-  /* flex-wrap: inherit; */
+
+  /* flex column so #stations can flex-grow to fill remaining height */
+  display: flex;
   flex-direction: column;
-  display: inline-block;
-  /* box-shadow: 12px 12px 12px #b3b0b0, -4px -4px 12px #fff; */
-  /*centering card
-    /* flex-wrap: wrap; */
-  /* position: relative; */
-  /* flex-direction: row; */
-  /* word-wrap: break-word; */
+  height: 100%;
+  overflow: hidden;
+
   /* banana */
 }
 
@@ -522,4 +536,12 @@ input:checked+.sslider:before {
 
 .floating-pause-btn.paused::before {
   content: '▶';
+}
+
+.media-controls,
+.playlist-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
 }

@@ -105,31 +105,33 @@ design by airasz
         <div id="radiostatus" style="color: black"></div>
       </div>
       <!-- and class card-body-->
-      <button class="button1 media" onclick="sendcmd('mpc volume +5')">
-        <a>vol UP</a>
-      </button>
-      <button class="button1 media" onclick="sendcmd('mpc volume -5')">
-        <a>Vol down</a>
-      </button>
-      <button class="button1 media" onclick="sendcmd('mpc prev')">
-        <a>prev</a>
-      </button>
-      <button class="button1 media" onclick="sendcmd('mpc next')">
-        <a>Next</a>
-      </button>
-      <button class="button1 media" id="bplay" onclick="sendcmd('mpc toggle')">
-        <a>play/pause</a>
-      </button>
-      <button class="button1 media" id="bstop" onclick="sendcmd('mpc stop')">
-        <a>Stop</a>
-      </button>
-      <button class="button1 media" onclick="sendcmd('mpc volume 0')">
-        <a>Mute</a>
-      </button>
+      <div class="media-controls">
+        <button class="button1 media" onclick="sendcmd('mpc volume +5')">
+          <a>vol UP</a>
+        </button>
+        <button class="button1 media" onclick="sendcmd('mpc volume -5')">
+          <a>Vol down</a>
+        </button>
+        <button class="button1 media" onclick="sendcmd('mpc prev')">
+          <a>prev</a>
+        </button>
+        <button class="button1 media" onclick="sendcmd('mpc next')">
+          <a>Next</a>
+        </button>
+        <button class="button1 media" id="bplay" onclick="sendcmd('mpc toggle')">
+          <a>play/pause</a>
+        </button>
+        <button class="button1 media" id="bstop" onclick="sendcmd('mpc stop')">
+          <a>Stop</a>
+        </button>
+        <button class="button1 media" onclick="sendcmd('mpc volume 0')">
+          <a>Mute</a>
+        </button>
 
-      <button class="button1" onclick="restart()" id="restart">
-        restart app
-      </button>
+        <button class="button1" onclick="restart()" id="restart">
+          restart app
+        </button>
+      </div>
       <br />
       <div class="playmode">
         <div class="switch_button">
@@ -180,10 +182,13 @@ design by airasz
 
       <p></p>
 
-      <div>
+      <div class="stations-section">
         <div class="buttonstation" id="stations"></div>
-        <button class="button1 button2" onclick="savepermanenttoplaylist()">save permanent to playlist</button>
-        <button class="button1 button2" onclick="savetonewplaylist()">save to new playlist</button>
+        <div class="playlist-section">
+          <button class="button1 button2" onclick="savepermanenttoplaylist()">save permanent to playlist</button>
+          <button class="button1 button2" onclick="savetonewplaylist()">save to new playlist</button>
+        </div>
+
         <div class="groupbox">
           <form id="addtoplaylistform" method="post">
             <div class="ceditbox" id="cedit1">

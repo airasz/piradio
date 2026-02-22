@@ -1336,6 +1336,16 @@ class shellCmd(tornado.web.RequestHandler):  # scmd
             noReturnSubprocess("mpc rm " + PLAYlists[PLAYLIST_POINTER-1])
             noReturnSubprocess("mpc save " + PLAYlists[PLAYLIST_POINTER-1])
             self.write("playlist saved to " + PLAYlists[PLAYLIST_POINTER-1])
+        elif input == "savetonewplaylist":
+            plname = self.get_argument("name")
+            try:
+                noReturnSubprocess("mpc save " + plname)
+                PLAYlists.append(plname)
+                PLAYLIST_POINTER = len(PLAYlists)
+                self.write("playlist saved to " + plname)
+            except:
+                self.write("playlist not saved")
+            
         else:
             self.write("command not recognized")
 
