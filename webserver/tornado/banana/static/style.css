@@ -13,22 +13,22 @@ html {
   display: inline-block;
   margin: 0px auto;
   text-align: center;
-  height: 100%;
+  /*   height: 100%; */
   /* prevent page from growing beyond the viewport */
-  overflow: hidden;
+  /*   overflow: hidden; */
 }
 
 body {
-  height: 100vh;
+  /*   height: 100vh; */
   margin: 0;
-  overflow: hidden;
+  /*   overflow: hidden; */
 }
 
 .main {
   display: flex;
-  height: 100vh;
+  /*   height: 100vh; */
   /* fill exactly the viewport */
-  overflow: hidden;
+  /*   overflow: hidden; */
   /* box-shadow: 6px 6px 12px #b3b0b0, -2px -2px 12px #fff; */
   /* border-radius: 10px; */
   /*   position: relative */
@@ -46,10 +46,10 @@ body {
 
 /* wrapper div around #stations — takes all spare vertical space */
 .stations-section {
-  flex: 1;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
+  /*   flex: 1; */
+  /*   min-height: 0; */
+  /*   display: flex; */
+  /*   flex-direction: column; */
   overflow: hidden;
 }
 
@@ -153,7 +153,7 @@ input[type="submit"]:hover {
   flex: 1 1 0;
   min-height: 0;
   /* required for flex children to shrink below content size */
-  max-height: none;
+  /*   max-height: none; */
   /* override .buttonstation fixed cap */
   overflow-y: auto;
 }
@@ -464,7 +464,6 @@ input:checked+.slider:before {
   transition: 0.4s;
 }
 
-
 input:focus+.sslider {
   /* box-shadow: 0 0 1px #2196F3; */
 
@@ -510,7 +509,9 @@ input:checked+.sslider:before {
   border-radius: 50%;
   border: none;
   background: #dbdbdb;
-  box-shadow: 6px 6px 12px #b3b0b0, -6px -6px 12px #fff;
+  box-shadow:
+    6px 6px 12px #b3b0b0,
+    -6px -6px 12px #fff;
   cursor: pointer;
   font-size: 24px;
   display: flex;
@@ -522,12 +523,16 @@ input:checked+.sslider:before {
 }
 
 .floating-pause-btn:hover {
-  box-shadow: 8px 8px 16px #b3b0b0, -8px -8px 16px #fff;
+  box-shadow:
+    8px 8px 16px #b3b0b0,
+    -8px -8px 16px #fff;
   transform: scale(1.05);
 }
 
 .floating-pause-btn:active {
-  box-shadow: inset 2px 2px 4px #8a8a8a, inset -2px -2px 4px rgb(255, 255, 255);
+  box-shadow:
+    inset 2px 2px 4px #8a8a8a,
+    inset -2px -2px 4px rgb(255, 255, 255);
 }
 
 .floating-pause-btn.paused {
@@ -535,7 +540,7 @@ input:checked+.sslider:before {
 }
 
 .floating-pause-btn.paused::before {
-  content: '▶';
+  content: "▶";
 }
 
 .media-controls,
