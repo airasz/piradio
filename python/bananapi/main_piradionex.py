@@ -431,7 +431,17 @@ def reboot():
         sleep(1)
         os.system("reboot")
 
-
+RESTART_APP=False
+def restart_app():
+    global RESTART_APP
+    if RESTART_APP is False:
+        RESTART_APP=True
+        interuptDisplay(1, "press again to restart")
+    else:
+        interuptDisplay(1, "restarting app")
+        time.sleep(1)
+        os.execv(sys.executable, [sys.executable] + sys.argv)
+    
 def playPos(pos):
     #global TEN
     global VOLTO
@@ -953,8 +963,8 @@ def processIR(irval):
             # startTenPos()
             startSeekTo()
         elif irval == KR_POWER:  # 10+
-            print("reboot")
-            reboot()
+            # print("reboot")
+            restart_app()
         elif irval == KR_SLEEP:
             # msleep(20)
             startsetsleep()
