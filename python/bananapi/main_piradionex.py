@@ -191,6 +191,7 @@ def load_config():
                 print("auto play by config")
             SCREEN_BRIGHTNESS = CONFIGDATA.get("screen_brightness", 100)
             module_piradionex.SCREEN_BRIGHTNESS = SCREEN_BRIGHTNESS
+            module_piradionex.MAX_AUTOSTOP_COUNTDOWN = CONFIGDATA.get("max_autostop_countdown", 0)
             display.sendCommand(f'dim={SCREEN_BRIGHTNESS}')
     except FileNotFoundError:
         pass
@@ -250,8 +251,8 @@ def loadPLAYlists():
     # PLAYlists = status.split()
     sr = subprocess.check_output("mpc lsplaylists", shell=True).decode("utf-8")
     PLAYlists = sr.splitlines(keepends=False)
-    PLAYlists = sorted(PLAYlists, key=str.lower)    
-    print(f'playlists group = {PLAYlists}') 
+    PLAYlists = sorted(PLAYlists, key=str.lower)
+    print(f'playlists group = {PLAYlists}')
     dividePlayList()
     # print(f'playlist no 2:{PLAYlists[1]}')
 
@@ -441,7 +442,7 @@ def restart_app():
         interuptDisplay(1, "restarting app")
         time.sleep(1)
         os.execv(sys.executable, [sys.executable] + sys.argv)
-    
+
 def playPos(pos):
     #global TEN
     global VOLTO
@@ -839,7 +840,7 @@ def drawPlayList():
         if splited_playlist_pointer == 1:
             display.sendCommand("page page9")
         # display.setPage(1)
-        # display.sendCommand('t0.lenth=40') 
+        # display.sendCommand('t0.lenth=40')
         display.sendCommand(f't0.txt="playlist ({prange}) {TOQ}"')
         display.sendCommand(f't1.txt="{rp}"')
         # for item in splited_playlist[splited_playlist_pointer]:
@@ -1355,7 +1356,7 @@ class shellCmd(tornado.web.RequestHandler):  # scmd
                 self.write("playlist saved to " + plname)
             except:
                 self.write("playlist not saved")
-            
+
         else:
             self.write("command not recognized")
 
@@ -1402,7 +1403,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
                 noReturnSubprocess(sbmsg)
                 noReturnSubprocess("mpc play")
 
-                CONFIGDATA["play_custom"] = False 
+                CONFIGDATA["play_custom"] = False
                 global PLAYlists
                 for i in range(len(PLAYlists)):
                     print(f"compare {PLAYlists[i]} with {sbmsg}")

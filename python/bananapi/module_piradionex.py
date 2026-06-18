@@ -26,13 +26,13 @@ NETSTAT = ""
 cputemp = ""
 
 CDOWN = False
-T_ENABLE = False
-SEC_CD = 0
+TIMER_ENABLE = False
+SECOND_COUNTDOWN = 0
 ON_MENU = False
-ASCDOWN = True
-ASSECCD = 0
+AUTOSTOP_COUNTDOWN_MAX = True
+AUTOSTOP_COUNT_DOWN = 0
 PLAYING = True
-ASSECMX = 3600
+AUTOSTOP_COUNTDOWN_MAX = 3600
 nextion_page = 4
 RADIO_STATUS = {}
 BLANK_SCREEN = 0
@@ -155,46 +155,46 @@ nexinit()  # setup nextion
 
 class sleeptimer:
     def startcdown(self, minutes):
-        global T_ENABLE, SEC_CD
-        T_ENABLE = True
-        SEC_CD = minutes * 60
+        global TIMER_ENABLE, SECOND_COUNTDOWN
+        TIMER_ENABLE = True
+        SECOND_COUNTDOWN = minutes * 60
         print("sleep timer just started")
         return
 
     def stopcdown(self):
-        global T_ENABLE, SEC_CD
-        T_ENABLE = False
-        SEC_CD = 0
+        global TIMER_ENABLE, SECOND_COUNTDOWN
+        TIMER_ENABLE = False
+        SECOND_COUNTDOWN = 0
         MyNextion.send_command("sleep timer stopped by user")
         print("sleep timer stopped by user")
         return
 
     def countdown(self):
-        global T_ENABLE
-        global SEC_CD
-        # print("sec cd = "+str(SEC_CD))
-        if T_ENABLE is True and PLAYING is True:
-            mins, secs = divmod(SEC_CD, 60)
+        global TIMER_ENABLE
+        global SECOND_COUNTDOWN
+        # print("sec cd = "+str(SECOND_COUNTDOWN))
+        if TIMER_ENABLE is True and PLAYING is True:
+            mins, secs = divmod(SECOND_COUNTDOWN, 60)
             timer = f"{mins:02d}:{secs:02d}"
             # print(f'Time left: {timer}', end='\r')
-            SEC_CD -= 1
-            # print(SEC_CD)
-            if SEC_CD == 0:
+            SECOND_COUNTDOWN -= 1
+            # print(SECOND_COUNTDOWN)
+            if SECOND_COUNTDOWN == 0:
                 print("\nTime's up!")
                 os.system("mpc stop")
                 MyNextion.send_command(
                     't2.txt="player stopped due timer defined by user"'
                 )
-                T_ENABLE = False
+                TIMER_ENABLE = False
                 # quit()
 
     # auto stop reset counting
     def resetas(self):
-        global ASSECCD
+        global AUTOSTOP_COUNT_DOWN
         global nextion_page
         global BLANK_SCREEN
         global SCREEN_BRIGHTNESS
-        ASSECCD = 0
+        AUTOSTOP_COUNT_DOWN = 0
         BLANK_SCREEN = 0
         if nextion_page == 0:
             nextion_page = 4
@@ -207,17 +207,17 @@ class sleeptimer:
 
     # get auto stop second running
     def getsecac(self):
-        return str(ASSECCD)
+        return str(AUTOSTOP_COUNT_DOWN)
 
     def autostop(self):
-        global ASSECCD#, ASCDOWN, ASSECMX
+        global AUTOSTOP_COUNT_DOWN#, AUTOSTOP_COUNTDOWN_MAX, AUTOSTOP_COUNTDOWN_MAX
         global BLANK_SCREEN, TOBLANKSCREEN
         # BLANK_SCREEN = 0
         TOBLANKSCREEN = False
-        if ASCDOWN is True and PLAYING is True:
-            ASSECCD += 1
-            # print("serial display auto stop  "+str(ASSECCD))
-            if ASSECCD == ASSECMX:
+        if AUTOSTOP_COUNTDOWN_MAX is True and PLAYING is True:
+            AUTOSTOP_COUNT_DOWN += 1
+            # print("serial display auto stop  "+str(AUTOSTOP_COUNT_DOWN))
+            if AUTOSTOP_COUNT_DOWN == AUTOSTOP_COUNTDOWN_MAX:
                 print("\nauto stop due a 1 hour no user activity!")
                 send_wall_message("mpc stopped due 1 hour without user control")
                 MyNextion.send_command(
@@ -225,8 +225,8 @@ class sleeptimer:
                 )
                 TOBLANKSCREEN = True
                 os.system("mpc stop")
-            elif ASSECCD > (ASSECMX + 1):
-                ASSECCD = ASSECMX + 1
+            elif AUTOSTOP_COUNT_DOWN > (AUTOSTOP_COUNTDOWN_MAX + 1):
+                AUTOSTOP_COUNT_DOWN = AUTOSTOP_COUNTDOWN_MAX + 1
 
 
     def toblank(self):
@@ -261,15 +261,15 @@ class sleeptimer:
         # threading.Timer(1, loopy).start()  # Schedule the function to run again in 1 second
 
     def isrunning(self):
-        global T_ENABLE
-        return T_ENABLE
+        global TIMER_ENABLE
+        return TIMER_ENABLE
 
     def update(self):
-        #global T_ENABLE
-        #global SEC_CD
-        # print("sec cd = "+str(SEC_CD))
-        if T_ENABLE is True:
-            mins, secs = divmod(SEC_CD, 60)
+        #global TIMER_ENABLE
+        #global SECOND_COUNTDOWN
+        # print("sec cd = "+str(SECOND_COUNTDOWN))
+        if TIMER_ENABLE is True:
+            mins, secs = divmod(SECOND_COUNTDOWN, 60)
             hours, mins = divmod(mins, 60)
             timer = f"{hours:02d}:{mins:02d}:{secs:02d}"
             return "sleep in > " + str(timer)
@@ -281,13 +281,13 @@ msleeptimer = sleeptimer()
 
 
 def load_variable():
-    global SEC_CD
-    global T_ENABLE
+    global SECOND_COUNTDOWN
+    global TIMER_ENABLE
     try:
         with open("/home/timer.json", "r") as f:
             data = json.load(f)
-            T_ENABLE = data.get("enable", False)
-            SEC_CD = data.get("seconds", 120)
+            TIMER_ENABLE = data.get("enable", False)
+            SECOND_COUNTDOWN = data.get("seconds", 120)
     except FileNotFoundError:
         pass
 
@@ -452,9 +452,9 @@ def displaytooled(status):
     status = status.replace("(volume", "\nvolume")
 
     # load_variable()
-    if T_ENABLE is True:
+    if TIMER_ENABLE is True:
         # if stimer.isrunning() is True:
-        mins, secs = divmod(SEC_CD, 60)
+        mins, secs = divmod(SECOND_COUNTDOWN, 60)
         hours, mins = divmod(mins, 60)
         timer = f"{hours:02d}:{mins:02d}:{secs:02d}"
         sst = "sleep in : " + timer
@@ -805,7 +805,7 @@ class display:
     def reinit(self):
         nexinit()
         return
- 
+
 
 # class mpc_status():
 def to_bool(value: str) -> bool:
@@ -839,9 +839,9 @@ def seconds_to_hms(sec: int) -> str:
 
 
 def get_mpc_status():
-    #global ASSECCD
-    #global ASCDOWN
-    #global SEC_CD, T_ENABLE
+    #global AUTOSTOP_COUNT_DOWN
+    #global AUTOSTOP_COUNTDOWN_MAX
+    #global SECOND_COUNTDOWN, TIMER_ENABLE
     result = subprocess.run(["mpc", "status"], capture_output=True, text=True)
     lines = result.stdout.strip().splitlines()
 
@@ -958,15 +958,15 @@ def get_mpc_status():
     RADIO_STATUS.update(
         {
             "sleeptimer": {
-                "enable": T_ENABLE,
-                "second_countdown": SEC_CD,
-                "countdown": (seconds_to_time(SEC_CD) if T_ENABLE else "off"),
+                "enable": TIMER_ENABLE,
+                "second_countdown": SECOND_COUNTDOWN,
+                "countdown": (seconds_to_time(SECOND_COUNTDOWN) if TIMER_ENABLE else "off"),
                 "auto_stop": {
-                    "enable": ASCDOWN,
-                    "second_countdown": ASSECCD,
-                    "second_max": ASSECMX,
+                    "enable": AUTOSTOP_COUNTDOWN_MAX,
+                    "second_countdown": AUTOSTOP_COUNT_DOWN,
+                    "second_max": AUTOSTOP_COUNTDOWN_MAX,
                     "countdown": (
-                        seconds_to_hms(ASSECMX - ASSECCD) if ASCDOWN else "off"
+                        seconds_to_hms(AUTOSTOP_COUNTDOWN_MAX - AUTOSTOP_COUNT_DOWN) if AUTOSTOP_COUNTDOWN_MAX else "off"
                     ),
                 },
             }
