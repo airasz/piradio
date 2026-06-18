@@ -244,6 +244,7 @@ class sleeptimer:
                 BLANK_SCREEN = MAXCOUNT_TOBLANK + 1
         if RADIO_STATUS["is_playing"] is False:
             BLANK_SCREEN += 1
+            print(f'to blank screen: {BLANK_SCREEN}')
             if BLANK_SCREEN == MAXCOUNT_TOBLANK:
                 MyNextion.send_command("page 0")
                 nextion_page = 0
