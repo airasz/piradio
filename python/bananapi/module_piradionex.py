@@ -29,10 +29,10 @@ CDOWN = False
 TIMER_ENABLE = False
 SECOND_COUNTDOWN = 0
 ON_MENU = False
-AUTOSTOP_COUNTDOWN_MAX = True
+AUTOSTOP_COUNTDOWN_ENABLE = True
 AUTOSTOP_COUNT_DOWN = 0
 PLAYING = True
-AUTOSTOP_COUNTDOWN_MAX = 3600
+AUTOSTOPCOUNTDOWNMAX = 3600
 nextion_page = 4
 RADIO_STATUS = {}
 BLANK_SCREEN = 0
@@ -193,9 +193,11 @@ class sleeptimer:
         global AUTOSTOP_COUNT_DOWN
         global nextion_page
         global BLANK_SCREEN
-        global SCREEN_BRIGHTNESS
+        global SCREEN_BRIGHTNESS, AUTOSTOP_COUNTDOWN_ENABLE
         AUTOSTOP_COUNT_DOWN = 0
         BLANK_SCREEN = 0
+        if AUTOSTOP_COUNTDOWN_ENABLE is False:
+            AUTOSTOP_COUNTDOWN_ENABLE = True
         if nextion_page == 0:
             nextion_page = 4
             MyNextion.send_command("page 4")
@@ -210,23 +212,25 @@ class sleeptimer:
         return str(AUTOSTOP_COUNT_DOWN)
 
     def autostop(self):
-        global AUTOSTOP_COUNT_DOWN#, AUTOSTOP_COUNTDOWN_MAX, AUTOSTOP_COUNTDOWN_MAX
+        global AUTOSTOP_COUNT_DOWN, AUTOSTOPCOUNTDOWNMAX, AUTOSTOPCOUNTDOWNMAX
         global BLANK_SCREEN, TOBLANKSCREEN
         # BLANK_SCREEN = 0
-        TOBLANKSCREEN = False
-        if AUTOSTOP_COUNTDOWN_MAX is True and PLAYING is True:
+        # TOBLANKSCREEN = False
+        if AUTOSTOP_COUNTDOWN_ENABLE is True and PLAYING is True:
             AUTOSTOP_COUNT_DOWN += 1
+            if AUTOSTOP_COUNT_DOWN % 10 == 0:
+                print(f'autostop countdown: {AUTOSTOP_COUNT_DOWN} - {AUTOSTOPCOUNTDOWNMAX}')
             # print("serial display auto stop  "+str(AUTOSTOP_COUNT_DOWN))
-            if AUTOSTOP_COUNT_DOWN == AUTOSTOP_COUNTDOWN_MAX:
+            if AUTOSTOP_COUNT_DOWN == AUTOSTOPCOUNTDOWNMAX:
                 print("\nauto stop due a 1 hour no user activity!")
                 send_wall_message("mpc stopped due 1 hour without user control")
                 MyNextion.send_command(
-                    't2.txt="auto stop due a 1 hour no user activity!"'
+                    f't2.txt="auto stop due a {seconds_to_time(AUTOSTOPCOUNTDOWNMAX)} minutes no user activity!"'
                 )
                 TOBLANKSCREEN = True
                 os.system("mpc stop")
-            elif AUTOSTOP_COUNT_DOWN > (AUTOSTOP_COUNTDOWN_MAX + 1):
-                AUTOSTOP_COUNT_DOWN = AUTOSTOP_COUNTDOWN_MAX + 1
+            elif AUTOSTOP_COUNT_DOWN > (AUTOSTOPCOUNTDOWNMAX + 1):
+                AUTOSTOP_COUNT_DOWN = AUTOSTOPCOUNTDOWNMAX + 1
 
 
     def toblank(self):
@@ -840,9 +844,9 @@ def seconds_to_hms(sec: int) -> str:
 
 
 def get_mpc_status():
-    #global AUTOSTOP_COUNT_DOWN
-    #global AUTOSTOP_COUNTDOWN_MAX
-    #global SECOND_COUNTDOWN, TIMER_ENABLE
+    global AUTOSTOP_COUNT_DOWN, AUTOSTOP_COUNTDOWN_ENABLE
+    global AUTOSTOPCOUNTDOWNMAX
+    global SECOND_COUNTDOWN, TIMER_ENABLE
     result = subprocess.run(["mpc", "status"], capture_output=True, text=True)
     lines = result.stdout.strip().splitlines()
 
@@ -956,6 +960,12 @@ def get_mpc_status():
                 "consume": False,
             }
         )
+    if AUTOSTOP_COUNTDOWN_ENABLE is True:
+        timeleft= AUTOSTOPCOUNTDOWNMAX - AUTOSTOP_COUNT_DOWN
+        stl=seconds_to_hms(timeleft)
+    else:
+        stl="off"
+
     RADIO_STATUS.update(
         {
             "sleeptimer": {
@@ -963,12 +973,10 @@ def get_mpc_status():
                 "second_countdown": SECOND_COUNTDOWN,
                 "countdown": (seconds_to_time(SECOND_COUNTDOWN) if TIMER_ENABLE else "off"),
                 "auto_stop": {
-                    "enable": AUTOSTOP_COUNTDOWN_MAX,
+                    "enable": AUTOSTOP_COUNTDOWN_ENABLE,
                     "second_countdown": AUTOSTOP_COUNT_DOWN,
-                    "second_max": AUTOSTOP_COUNTDOWN_MAX,
-                    "countdown": (
-                        seconds_to_hms(AUTOSTOP_COUNTDOWN_MAX - AUTOSTOP_COUNT_DOWN) if AUTOSTOP_COUNTDOWN_MAX else "off"
-                    ),
+                    "second_max": AUTOSTOPCOUNTDOWNMAX,
+                    "countdown": stl,
                 },
             }
         }

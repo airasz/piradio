@@ -1,5 +1,6 @@
 #!usr/bin/env python
 # import RPi.GPIO as GPIO
+from python.bananapi import module_piradionex
 from pickle import FALSE
 import time
 import evdev
@@ -191,7 +192,7 @@ def load_config():
                 print("auto play by config")
             SCREEN_BRIGHTNESS = CONFIGDATA.get("screen_brightness", 100)
             module_piradionex.SCREEN_BRIGHTNESS = SCREEN_BRIGHTNESS
-            module_piradionex.MAX_AUTOSTOP_COUNTDOWN = CONFIGDATA.get("max_autostop_countdown", 0)
+            module_piradionex.AUTOSTOPCOUNTDOWNMAX = CONFIGDATA.get("max_autostop", 3600)
             display.sendCommand(f'dim={SCREEN_BRIGHTNESS}')
     except FileNotFoundError:
         pass
@@ -721,6 +722,7 @@ def ok():
         interuptDisplay(5, "sleep timer starting for " + str(MINUTE_SLEEP_VALUE) + " minutes")
         MIN_SLEEP = 0
         sleeptimer.startcdown(MINUTE_SLEEP_VALUE)
+        module_piradionex.AUTOSTOP_COUNTDOWN_ENABLE=False
         exitset(False)
     else:
         noReturnSubprocess("mpc toggle")
@@ -1178,6 +1180,7 @@ class MainHandler(tornado.web.RequestHandler):
             global MINUTE_SLEEP_VALUE
             MINUTE_SLEEP_VALUE = int(value)
             sleeptimer.startcdown(MINUTE_SLEEP_VALUE)
+            module_piradionex.AUTOSTOP_COUNTDOWN_ENABLE=False
             # os.system("/usr/bin/python startsleeper.py "+ str(MINUTE_SLEEP_VALUE))
             # display.display("starting sleep timer\n", True)
             # display.frezeeDisplay(3)
@@ -1225,6 +1228,7 @@ class SettingHandler(tornado.web.RequestHandler):
         REMOTES = CONFIGDATA.get("remote", "")
         print("remote array: " + str(REMOTES))
         CONFIGDATA = data
+        module_piradionex.AUTOSTOPCOUNTDOWNMAX=CONFIGDATA.get("max_autostop", 3600)
         j = json.dumps(data)
         print(j)
         with open(config_path, "w") as f:
