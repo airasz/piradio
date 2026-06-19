@@ -434,6 +434,9 @@ class sleeptimer:
     def autostop(self):
         if G_VAR["AUTOSTOP_COUNT_DOWN"] is True and G_VAR["PLAYING"] is True:
             G_VAR["AUTOSTOP_SECOND_CDOWN"] += 1
+            if G_VAR["AUTOSTOP_SECOND_CDOWN"] % 10 == 0:
+                print("auto stop second: " + str(G_VAR["AUTOSTOP_SECOND_CDOWN"]))
+                print("ASSECMX: " + str(G_VAR["ASSECMX"]))
             # print("iradio_oled auto stop  "+str(G_VAR["AUTOSTOP_SECOND_CDOWN"]))
             if G_VAR["AUTOSTOP_SECOND_CDOWN"] == G_VAR["ASSECMX"]:
                 print("\nauto stop due a 1 hour no user activity!")
@@ -830,6 +833,7 @@ def load_config():
             G_VAR["SECOND_CDOWN"] = CONFIGDATA.get("timer", {}).get("seconds", 120)
             G_VAR["PLAY_CURL"] = CONFIGDATA.get("play_custom", False)
             G_VAR["PLAYLIST_POINTER"] = CONFIGDATA.get("curent_pl_id", 1)
+            G_VAR["ASSECMX"] = CONFIGDATA.get("max_autostop", 3600)
             if CONFIGDATA.get("autoload", "true") is True:
                 os.system("mpc play")
                 print("auto play by config")
@@ -928,29 +932,49 @@ stimerStop = 0
 
 
 def startsetsleep():
-    if G_VAR["MINUTE_SLEEP"] > 0:
-        exitset(False)
-        global stimerStop
-        G_VAR["MINUTE_SLEEP"] = 1
+    print("start set sleep")
+    print("MINUTE_SLEEP =" + str(G_VAR["MINUTE_SLEEP"]))
 
-        # load_variable()
-        if sleeptimer.isrunning() is True:
-            if stimerStop == 0:
-                interuptDisplay(3, 0, "timer is running\npress again to stop")
-                stimerStop += 1
-            elif stimerStop == 1:
-                display.frezeeDisplay(3)
-                sleeptimer.stopcdown()
-                interuptDisplay(3, 0, "timer is stopped")
-                stimerStop = 0
-        else:
-            interuptDisplay(8, 0, "set sleep...")
-            G_VAR["MINUTE_SLEEP"] = 1
+    exitset(False)
+    global stimerStop
+    G_VAR["MINUTE_SLEEP"] = 1
+
+    # load_variable()
+    if sleeptimer.isrunning() is True:
+        if stimerStop == 0:
+            interuptDisplay(3, 0, "timer is running\npress again to stop")
+            stimerStop += 1
+        elif stimerStop == 1:
+            display.frezeeDisplay(3)
+            sleeptimer.stopcdown()
+            interuptDisplay(3, 0, "timer is stopped")
+            stimerStop = 0
     else:
-        exitset(False)
-        G_VAR["MINUTE_SLEEP"] = 0
-        G_VAR["U_COUNT"] = 20
-        loop()
+        interuptDisplay(8, 0, "set sleep...")
+        G_VAR["MINUTE_SLEEP"] = 1
+    # if G_VAR["MINUTE_SLEEP"] > 0:
+    #     exitset(False)
+    #     global stimerStop
+    #     G_VAR["MINUTE_SLEEP"] = 1
+
+    #     # load_variable()
+    #     if sleeptimer.isrunning() is True:
+    #         if stimerStop == 0:
+    #             interuptDisplay(3, 0, "timer is running\npress again to stop")
+    #             stimerStop += 1
+    #         elif stimerStop == 1:
+    #             display.frezeeDisplay(3)
+    #             sleeptimer.stopcdown()
+    #             interuptDisplay(3, 0, "timer is stopped")
+    #             stimerStop = 0
+    #     else:
+    #         interuptDisplay(8, 0, "set sleep...")
+    #         G_VAR["MINUTE_SLEEP"] = 1
+    # else:
+    #     exitset(False)
+    #     G_VAR["MINUTE_SLEEP"] = 0
+    #     G_VAR["U_COUNT"] = 20
+    #     loop()
 def startSeekTo():
     exitset(False)
     G_VAR["TO_SEEK_TO"] = True
@@ -1769,6 +1793,7 @@ class SettingHandler(tornado.web.RequestHandler):
         REMOTES = CONFIGDATA.get("remote", "")
         print("remote array: " + str(REMOTES))
         CONFIGDATA = data
+        G_VAR["ASSECMX"] = CONFIGDATA.get("max_autostop", 3600)
         j = json.dumps(data)
         print(j)
         with open(config_path, "w") as f:
