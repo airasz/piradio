@@ -15,12 +15,13 @@ design by airasz
   <!--     <link rel="stylesheet" type="text/css" href="style.css" /> -->
   <!--     <link rel="stylesheet" type="text/css" id="colorscheme"> -->
   <!--     <link rel="stylesheet" type="text/css" id="colorscheme" href="orange.css" /> -->
-  <link rel="stylesheet" type="text/css" id="colorscheme" href="w95.css" />
+  <link rel="stylesheet" type="text/css" id="colorscheme" href="settingui.css" />
   <!-- <link rel="script" type="text/js" href="app.js"> -->
   <!-- <script type="text/javascript" src="https://unpkg.com/xlsx@0.15.1/dist/xlsx.full.min.js"></script> -->
   <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.min.js"></script> -->
   <!-- <script type="text/javascript" src="xlsx.full.js"></script> -->
   <!-- <script type="text/javascript" src="xlsx.min.js"></script> -->
+  <script src="numberPicker.js"></script>
 </head>
 
 <body onload="loadonce()">
@@ -76,6 +77,22 @@ design by airasz
       <div id="radiostatus">
         <div class="groupboxx" id="cedit1">
           <h3 class="gbheader">player</h3>
+          <div>
+            <div class="bg-teal-950 border border-slate-800 rounded-2xl p-5 space-y-4">
+              <div>
+                <h3 class="text-sm font-bold text-slate-300">Inactivity Timeout</h3>
+                <p class="text-xs text-yellow text-slate-500">Timeout before player stop and screen off</p>
+              </div>
+              <div class="flex items-baseline gap-1">
+                <span id="timeout-display" class="text-3xl font-black text-indigo-400">15</span>
+                <span class="text-slate-400 text-xs font-medium">minutes</span>
+              </div>
+              <button id="open-timeout-btn"
+                class="w-full py-2.5 px-4 bg-green-700 hover:bg-yellow-800 text-slate-200 text-xs font-bold rounded-xl transition-all active:scale-[0.98]">
+                Configure Limit
+              </button>
+            </div>
+          </div>
           <div id="cfgplayer" class="switch_led" style="margin: auto; padding: 8px">
             <p4 id="swp1" style="font-size: 12px">autoplay radio on start</p4>
             <label class="switchled">
@@ -105,6 +122,23 @@ design by airasz
       <h2 id="cname">write by airasz</h2>
     </div>
     <!-- and class card_switch-->
+    <div id="demo-toast"
+      class="fixed bottom-6 right-6 transform translate-y-20 opacity-0 pointer-events-none transition-all duration-300 ease-out z-[99999] max-w-sm w-full">
+      <div
+        class="bg-emerald-950/90 border border-emerald-500/30 text-emerald-200 rounded-2xl p-4 shadow-2xl flex items-center gap-3 backdrop-blur-md">
+        <div class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd"
+              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+              clip-rule="evenodd" />
+          </svg>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-white">Preference Updated</h4>
+          <p id="demo-toast-desc" class="text-xs text-emerald-300/80"></p>
+        </div>
+      </div>
+    </div>
   </div>
   <!-- end div main -->
 </body>
@@ -181,7 +215,9 @@ design by airasz
           tbl.innerHTML = elements;
           console.log("remote>" + ajax_request.responseText);
           var ap = "";
-
+          var maxAutoStopValue = jsonObj["max_autostop"];
+          // document.getElementById("max_autostop").value = maxAutoStopValue / 60;
+          document.getElementById('timeout-display').textContent = maxAutoStopValue / 60;
           var apenable = jsonObj["autoload"] ? 'checked="true"' : "";
           var theme = jsonObj["web"]["client_web_theme"];
           ap += `<div class=\"switch_led\" style=\"margin: auto; padding: 8px\" ><p4 id=\"swp1\" style=\"font-size: 12px\"> 1 . autoload </p4><label class=\"switchled\"> <input id=\"autoload\" type=\"checkbox\" ${apenable}  value=\"autoload\" onchange=\"pconfig(1)\"/> <span class=\"slider\"></span></label> </div>`;
@@ -190,10 +226,10 @@ design by airasz
               <p4 id="rmode1" style="font-size: 12px"> 2 . web theme </p4>
               <select name="webtheme" id="webtheme" onchange="cwebtheme()" style="border-color: blue;">
               <option value="-1">select....</option>
-              <option value="0" ${(theme == 0) ? "selected" : ""}>blurry</option>
-              <option value="1" ${(theme == 1) ? "selected" : ""}>black border</option>
-              <option value="2" ${(theme == 2) ? "selected" : ""}>neumorphism</option>
-              <option value="3" ${(theme == 3) ? "selected" : ""}>glass</option>
+              <option value="0" ${theme == 0 ? "selected" : ""}>blurry</option>
+              <option value="1" ${theme == 1 ? "selected" : ""}>black border</option>
+              <option value="2" ${theme == 2 ? "selected" : ""}>neumorphism</option>
+              <option value="3" ${theme == 3 ? "selected" : ""}>glass</option>
               </select>
               <br>
             </form> `;
@@ -220,6 +256,49 @@ design by airasz
   //   xhttp.send(data);
   // }
 
+
+  let currentInactivityTimeout = 15;
+
+
+  // Toast element selectors
+  const toast = document.getElementById('demo-toast');
+  const toastDesc = document.getElementById('demo-toast-desc');
+
+  function triggerToast(message) {
+    toastDesc.textContent = message;
+    toast.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
+    toast.classList.add('translate-y-0', 'opacity-100');
+
+    setTimeout(() => {
+      toast.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
+      toast.classList.remove('translate-y-0', 'opacity-100');
+    }, 3000);
+  }
+  // --- INSTANCE 1: INACTIVITY PICKER (Custom presets, 'minutes' unit) ---
+  const timeoutPicker = new CustomNumberPicker({
+    title: 'Inactivity Limit',
+    subtitle: 'Set maximum allowed inactivity limit before player stop',
+    unit: 'minutes',
+    presets: [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60],
+    defaultValue: currentInactivityTimeout,
+    min: 1,
+    max: 65,
+    onSubmit: (value) => {
+      currentInactivityTimeout = value;
+      jsonObj["max_autostop"] = value * 60;
+      postplayerrconfig();
+      document.getElementById('timeout-display').textContent = value;
+      triggerToast(`Inactivity timeout changed to ${value} minutes.`);
+    }
+  });
+
+  // Wire up buttons to load library instances
+  document.getElementById('open-timeout-btn').addEventListener('click', () => {
+    // Open the picker synced with the current value
+    timeoutPicker.open(currentInactivityTimeout);
+  });
+
+
   function rchange(id) {
     // id -= 1;
     var cinput = document.getElementById("remote" + id);
@@ -231,6 +310,12 @@ design by airasz
     jsonObj["remote"][id - 1]["enable"] = state;
     var data = JSON.stringify(jsonObj);
     // xhttp.send(data);
+    postplayerrconfig();
+  }
+  function maxAutostopchange() {
+    var cinput = document.getElementById("max_autostop_countdown");
+    var maxAutoStopvalue = cinput.value;
+    jsonObj["max_autostop"] = maxAutoStopvalue * 60;
     postplayerrconfig();
   }
   function postplayerrconfig() {
