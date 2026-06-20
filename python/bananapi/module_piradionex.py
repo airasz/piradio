@@ -189,7 +189,7 @@ class sleeptimer:
                 # quit()
 
     # auto stop reset counting
-    def resetas(self):
+    def reset_auto_stop(self):
         global AUTOSTOP_COUNT_DOWN
         global nextion_page
         global BLANK_SCREEN

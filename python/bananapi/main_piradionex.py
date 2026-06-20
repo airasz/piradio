@@ -1,6 +1,5 @@
 #!usr/bin/env python
 # import RPi.GPIO as GPIO
-from python.bananapi import module_piradionex
 from pickle import FALSE
 import time
 import evdev
@@ -853,6 +852,7 @@ def drawPlayList():
         display.reinit()
         display.sendCommand("page page4")
         display.sendCommand('t0.txt="banana radio"')
+        display.frezeeDisplay(1)
 
 
 # elif drawPlayListMode> 0:
@@ -1008,7 +1008,7 @@ def processKB(kval):
 
 
 def processKboard(ecode):
-    sleeptimer.resetas()
+    sleeptimer.reset_auto_stop()
     if ecode == VOLUME_UP:
         setVOL(True)
     if ecode == VOLUME_DOWN:
@@ -1129,7 +1129,7 @@ async def print_events(device):
                 print("processIR")
         processIR(event.value)
         if event.value > 2000000:
-            sleeptimer.resetas()
+            sleeptimer.reset_auto_stop()
         if DBG_EVENT is True:
             print("===============end debug==========")
         # print(event.code)
@@ -1394,7 +1394,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
         self.clients.remove(self)
 
     def on_message(self, message):
-        sleeptimer.resetas()
+        sleeptimer.reset_auto_stop()
         print(f"[WS] Incoming message:{message}"), message
         interuptDisplay(1, (f"[WS] Incoming message:\n{message}"))
 
