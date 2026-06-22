@@ -212,8 +212,7 @@ class sleeptimer:
         return str(AUTOSTOP_COUNT_DOWN)
 
     def autostop(self):
-        global AUTOSTOP_COUNT_DOWN, AUTOSTOPCOUNTDOWNMAX, AUTOSTOPCOUNTDOWNMAX
-        global BLANK_SCREEN, TOBLANKSCREEN
+        global AUTOSTOP_COUNT_DOWN, AUTOSTOPCOUNTDOWNMAX
         # BLANK_SCREEN = 0
         # TOBLANKSCREEN = False
         if AUTOSTOP_COUNTDOWN_ENABLE is True and PLAYING is True:
@@ -425,7 +424,7 @@ def displaytooled(status):
     rv = GreenYellowRed(intvol)
     MyNextion.send_command(f"h0.bco1={rv}")  # cpu temp
     MyNextion.send_command(f"h0.val={intvol}")  # vol
-    get_mpc_status()
+    # get_mpc_status()
     if RADIO_STATUS["time"]["total_seconds"] > 0:
         MyNextion.send_command(f"h1.val={RADIO_STATUS['progress_percent']}")
     else:
@@ -654,6 +653,7 @@ def loop():
         else:
             PLAYING = False
         if U_COUNT == 20:
+            get_mpc_status()
             if nextion_page != 4 and BLANK_SCREEN ==0:
                 nextion_page = 4
                 MyNextion.send_command("page 4")  # sukses

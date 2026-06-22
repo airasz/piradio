@@ -126,7 +126,7 @@ PLAYLIST_POINTER = 0
 PLAYlists = [] #list of playlists
 splited_playlist = [] #splited list of stations/tracks
 splited_playlist_pointer = 0 #pointer of splited list
-splp = False
+START_SWITCH_PLAYLISTS = False
 
 
 pulse_ = 0
@@ -169,7 +169,6 @@ def interuptDisplay(delay, msg):
 
 
 def load_variable():
-    global CDOWN
     global TS_ENABLE
     try:
         with open("timer.json", "r") as f:
@@ -443,13 +442,13 @@ def restart_app():
         time.sleep(1)
         os.execv(sys.executable, [sys.executable] + sys.argv)
 
-def playPos(pos):
+def click_number(number):
     #global TEN
     global VOLTO
     global NUM_VOL
     global MIN_SLEEP
     global MINUTE_SLEEP_VALUE
-    global splp
+    global START_SWITCH_PLAYLISTS
     global secondDigit
     global pulse_
     global TO_SEEK_TO
@@ -458,21 +457,21 @@ def playPos(pos):
     status = ""
 
     pulse_ = 0
-    # display.display("volume to "+ str(pos + 10 if TEN else pos))
-    if NUM_VOL == 0 and MIN_SLEEP == 0 and splp is False and TO_SET_PLAYMODE is False and TO_SEEK_TO is False:
-        # display.display("play pos "+ str(pos), True)
+    # display.display("volume to "+ str(number + 10 if TEN else number))
+    if NUM_VOL == 0 and MIN_SLEEP == 0 and START_SWITCH_PLAYLISTS is False and TO_SET_PLAYMODE is False and TO_SEEK_TO is False:
+        # display.display("play number "+ str(number), True)
         # display.frezeeDisplay(3)
-        # myoled.displayfs("play pos "+ str(pos),15)
+        # myoled.displayfs("play pos "+ str(number),15)
         if TOQ < 10:
-            interuptDisplay(3, "play pos " + str(pos))
-            # os.system("mpc play " + str(pos))
-            noReturnSubprocess(f"mpc play {pos}")
+            interuptDisplay(3, "play pos " + str(number))
+            # os.system("mpc play " + str(number))
+            noReturnSubprocess(f"mpc play {number}")
             exitset(False)
 
             return
         else:
             if secondDigit > 0:
-                secondDigit += pos
+                secondDigit += number
                 if secondDigit > TOQ:
                     interuptDisplay(
                         3, "input out range\n" + (f"{secondDigit} in {TOQ}")
@@ -489,25 +488,25 @@ def playPos(pos):
                 exitset(False)
                 return
             else:
-                interuptDisplay(3, (f"play pos {str(pos)}_"))
-                secondDigit = pos * 10
+                interuptDisplay(3, (f"play pos {str(number)}_"))
+                secondDigit = number * 10
                 exitset(False)
                 return
 
-            # os.system("mpc play " + str(pos))
+            # os.system("mpc play " + str(number))
         return
 
-        # interuptDisplay(3, "play pos "+ str(pos))
-        # os.system("mpc play " + str(pos))
+        # interuptDisplay(3, "play pos "+ str(number))
+        # os.system("mpc play " + str(number))
         # exitset(False)
         # return
     if NUM_VOL == 1:
-        VOLTO = pos * 10
-        interuptDisplay(5, "volume to " + str(pos) + "x")
+        VOLTO = number * 10
+        interuptDisplay(5, "volume to " + str(number) + "x")
         print("start vol========== " + str(VOLTO))
         NUM_VOL = 2
     elif NUM_VOL == 2:
-        VOLTO += pos
+        VOLTO += number
         NUM_VOL = 0
         interuptDisplay(5, "volume to " + str(VOLTO))
         # os.system("mpc volume " + str(VOLTO))
@@ -515,28 +514,28 @@ def playPos(pos):
         exitset(False)
 
     if MIN_SLEEP == 1:
-        # MINUTE_SLEEP_VALUE+=pos**MIN_SLEEP
+        # MINUTE_SLEEP_VALUE+=number**MIN_SLEEP
         MINUTE_SLEEP_VALUE = 0
-        MINUTE_SLEEP_VALUE = pos * 10
-        interuptDisplay(5, "sleep in " + str(pos) + "x minutes")
+        MINUTE_SLEEP_VALUE = number * 10
+        interuptDisplay(5, "sleep in " + str(number) + "x minutes")
         #
         MIN_SLEEP = 2
     elif MIN_SLEEP == 2:
-        MINUTE_SLEEP_VALUE += pos
+        MINUTE_SLEEP_VALUE += number
         interuptDisplay(
             5, "sleep in " + str(MINUTE_SLEEP_VALUE) + " minutes\nClick OK to confirm"
         )
-    if splp is True:
+    if START_SWITCH_PLAYLISTS is True:
         # status = cmd("mpc clear")
         noReturnSubprocess("mpc clear")
         sleep(0.1)
-        if pos < len(PLAYlists) + 1:
-            status = cmd("mpc load " + PLAYlists[pos - 1])
+        if number < len(PLAYlists) + 1:
+            status = cmd("mpc load " + PLAYlists[number - 1])
             PLAY_CURL=False
             getstationlen()
-            CONFIGDATA["curent_pl_id"] = pos
+            CONFIGDATA["curent_pl_id"] = number
             global PLAYLIST_POINTER
-            PLAYLIST_POINTER = pos
+            PLAYLIST_POINTER = number
             status = status.replace(" ", "\n")
             interuptDisplay(1, status)
             sleep(0.6)
@@ -549,17 +548,17 @@ def playPos(pos):
             interuptDisplay(1, status)
             save_config()
         loadPLAYlists()
-        splp = False
+        START_SWITCH_PLAYLISTS = False
     if TO_SET_PLAYMODE:
-        if pos<5:
+        if number<5:
             RADIO_STATUS=module_piradionex.get_mpc_status()
             value_modes=[RADIO_STATUS["repeat"], RADIO_STATUS["random"], RADIO_STATUS["single"], RADIO_STATUS["consume"]]
             key_modes = ["repeat", "random", "single", "consume"]
-            value_modes[pos-1]= not value_modes[pos-1]
-            reslt= cmd(f'mpc {key_modes[pos-1]} {value_modes[pos-1] and "on" or "off"}')
+            value_modes[number-1]= not value_modes[number-1]
+            reslt= cmd(f'mpc {key_modes[number-1]} {value_modes[number-1] and "on" or "off"}')
             print(reslt)
             module_piradionex.get_mpc_status()
-            # noReturnSubprocess(f'mpc {key_modes[pos-1]} {value_modes[pos-1] and "on" or "off"}')
+            # noReturnSubprocess(f'mpc {key_modes[number-1]} {value_modes[number-1] and "on" or "off"}')
             info=""
             info+=f'1. repeat {"on" if RADIO_STATUS["repeat"] else "off"}\n'
             info+=f'2. random {"on" if RADIO_STATUS["random"] else "off"}\n'
@@ -580,28 +579,28 @@ def playPos(pos):
         print("TRACK_MINUTE="+str(TRACK_MINUTE))
         if TRACK_MINUTE<10:
             print("seeking under 10")
-            interuptDisplay(2,"seek to "+str(pos*60))
-            os.system(f'mpc seek {pos*60}')
+            interuptDisplay(2,"seek to "+str(number*60))
+            os.system(f'mpc seek {number*60}')
             TO_SEEK_TO = False
             return
         else:
             print("seeking over 10")
             if MINUTE_SEEK_TO>0:
-                MINUTE_SEEK_TO+=pos
+                MINUTE_SEEK_TO+=number
                 if MINUTE_SEEK_TO>TRACK_MINUTE:
                     interuptDisplay(2,"input out range\n"+str(MINUTE_SEEK_TO))
                     MINUTE_SEEK_TO = 0
                     return
                 else:
                     MINUTE_SEEK_TO*=10
-                    MINUTE_SEEK_TO+=pos
+                    MINUTE_SEEK_TO+=number
                     interuptDisplay(2,"seek to "+str(MINUTE_SEEK_TO))
                     os.system(f'mpc seek {MINUTE_SEEK_TO*60}')
                     TO_SEEK_TO = False
                 return
             else:
-                interuptDisplay(2,"seek to "+str(pos)+"_")
-                MINUTE_SEEK_TO=pos
+                interuptDisplay(2,"seek to "+str(number)+"_")
+                MINUTE_SEEK_TO=number
                 return
 
 
@@ -665,12 +664,12 @@ def startsetsleep():
 
 
 def startPlistTo():
-    global splp
+    global START_SWITCH_PLAYLISTS
     global PLAYlists
     global COUNT_ONMENU
     COUNT_ONMENU=0
     exitset(False)
-    splp = True
+    START_SWITCH_PLAYLISTS = True
     pls = ""
     ids = 0
     dbl = 0
@@ -736,7 +735,7 @@ def exitset(info):
     global STOP_SLEEP
     global MINUTE_SLEEP_VALUE
     global TO_REBOOT
-    global splp
+    global START_SWITCH_PLAYLISTS
     global GOTOSTATION
     global splited_playlist_pointer
     global TO_SET_PLAYMODE
@@ -749,7 +748,7 @@ def exitset(info):
     TO_SET_PLAYMODE = False
     GOTOSTATION = False
     TO_REBOOT = False
-    splp = False
+    START_SWITCH_PLAYLISTS = False
     TEN = False
     NUM_VOL = 0
     STOP_SLEEP = False
@@ -889,7 +888,7 @@ def processIR(irval):
             # NKV=int(KR_NUMKEYS[i][1])
             # NKI=int (KR_NUMKEYS[i][0])
             if irval == KR_NUMKEYS[i][1]:
-                playPos(KR_NUMKEYS[i][0])
+                click_number(KR_NUMKEYS[i][0])
                 break
         if irval == 2099218:
             print("UP")
@@ -1003,7 +1002,7 @@ def processKB(kval):
         # NKV=int(KR_NUMKEYS[i][1])
         # NKI=int (KR_NUMKEYS[i][0])
         if kval == KB_NUMKEYS[i][1]:
-            playPos(KB_NUMKEYS[i][0])
+            click_number(KB_NUMKEYS[i][0])
             break
 
 
@@ -1037,7 +1036,7 @@ def processKboard(ecode):
         mute()
     for i in range(len(NUMKEYS)):
         if ecode == NUMKEYS[i][1]:
-            playPos(NUMKEYS[i][0])
+            click_number(NUMKEYS[i][0])
             break
     if ecode == 209:
         TEN = True
