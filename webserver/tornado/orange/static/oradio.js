@@ -5,6 +5,8 @@ var json_radio_status;
 var theme = 0;
 var hostname = "";
 var isPaused = false;
+var playlist_group = {};
+
 function loop() {
   count++;
   if (count > 5 && !isPaused) {
@@ -81,6 +83,7 @@ function onMessage(event) {
     var sdata = event.data.substring(4);
     document.getElementById("svol").value = parseInt(sdata);
     var color = valueToLinearGradient(parseInt(sdata));
+    var tbl = document.getElementById("svol");
     tbl.style.setProperty("--slider-thumb-bg", color);
     var ivol = document.querySelector("#isvol");
     ivol.innerHTML = "volume : " + volume;
@@ -406,10 +409,13 @@ function update_control_button(stopped, isplaying) {
 
 function sendcmd(cmd) {
   websocket.send("0>" + cmd);
+  PopupJS.close();
+  PopupJS.toast(`send command ${cmd}`, "success");
   count = 4;
 }
 function sendwsm(cmd) {
   websocket.send("1>" + cmd);
+  PopupJS.toast(`send command ${cmd}`, "success");
   count = 4;
 }
 function playurl() {
@@ -499,7 +505,12 @@ function polpulatepl() {
   ajax_request.open("GET", "scmd/iplaylist", true);
   ajax_request.onreadystatechange = function () {
     if (ajax_request.status == 200) {
-      if (ajax_request.readyState == 4) stations.innerHTML = this.responseText;
+      if (ajax_request.readyState == 4) {
+        // let btnn = this.responseText.replaceAll("button1", "button2");
+        // stations.innerHTML = btnn;
+        playlist_group = this.responseText;
+        // playlist_group = btnn;
+      }
     } else {
       stations.innerHTML = "station list failed to loaded";
     }
@@ -544,6 +555,63 @@ function savepermanenttoplaylist() {
     }
   };
   ajax_request.send();
+}
+// Custom prompt callback
+var customPromptCallback = null;
+
+function showCustomPrompt(callback) {
+  customPromptCallback = callback;
+  var overlay = document.getElementById("customPromptOverlay");
+  var input = document.getElementById("customPromptInput");
+
+  overlay.style.display = "flex";
+  input.value = "";
+  input.focus();
+
+  // Allow Enter key to submit
+  input.onkeypress = function (e) {
+    if (e.key === "Enter") {
+      submitCustomPrompt();
+    }
+  };
+}
+
+function closeCustomPrompt() {
+  document.getElementById("customPromptOverlay").style.display = "none";
+  customPromptCallback = null;
+}
+
+function submitCustomPrompt() {
+  var input = document.getElementById("customPromptInput");
+  var value = input.value.trim();
+
+  if (customPromptCallback && value !== "") {
+    customPromptCallback(value);
+  }
+
+  closeCustomPrompt();
+}
+
+function savetonewplaylist() {
+  showCustomPrompt(function (playlistName) {
+    var ajax_request = new XMLHttpRequest();
+    var stations = document.getElementById("radiostatus");
+    ajax_request.open(
+      "GET",
+      "scmd/savetonewplaylist?name=" + encodeURIComponent(playlistName),
+      true,
+    );
+    ajax_request.onreadystatechange = function () {
+      if (ajax_request.status == 200) {
+        if (ajax_request.readyState == 4) {
+          stations.innerHTML = this.responseText;
+        }
+      } else {
+        stations.innerHTML = "save to new playlist failed";
+      }
+    };
+    ajax_request.send();
+  });
 }
 // var vol = document.querySelector("#isvol");
 // var _range = document.querySelector("#svol");
@@ -641,4 +709,17 @@ function valueToRadialGradient(value) {
     outerValue +
     "%)"
   );
+}
+// Demo Function: Playlists / Custom HTML
+function triggerCustomHTML() {
+  console.log("Firing Custom HTML Playlist Modal");
+
+  PopupJS.openCustomHTML("Choose playlist", playlist_group);
+}
+
+// Interactive Handler within Custom Modal
+function handlePlaylistSelection(name) {
+  logToConsole(`Playlist clicked inside Modal: "${name}"`, "promise");
+  PopupJS.close();
+  PopupJS.toast(`Playing: ${name}`, "success");
 }

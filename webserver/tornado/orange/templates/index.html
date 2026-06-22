@@ -13,15 +13,17 @@ design by airasz
   <meta http-equiv="Cache-Control" content="no-store" />
   <!--   <link rel="stylesheet" type="text/css" href="radio.css  " /> -->
   <link rel="stylesheet" type="text/css" href="style.css" />
-  <link rel="stylesheet" type="text/css" id="colorscheme">
+  <link rel="stylesheet" type="text/css" id="colorscheme" />
+  <!--     <script src="https://cdn.tailwindcss.com"></script> -->
   <!--   <link rel="stylesheet" type="text/css" id="colorscheme" href="orange.css" /> -->
   <script src="oradio.js"></script>
+  <script src="popList.js"></script>
+  <script src="popupjs_library.js"></script>
   <!-- <link rel="script" type="text/js" href="app.js"> -->
   <!-- <script type="text/javascript" src="https://unpkg.com/xlsx@0.15.1/dist/xlsx.full.min.js"></script> -->
   <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.min.js"></script> -->
   <!-- <script type="text/javascript" src="xlsx.full.js"></script> -->
   <!-- <script type="text/javascript" src="xlsx.min.js"></script> -->
-
 </head>
 
 <body onload="loadonce()" style="background-color: #dbdbdb">
@@ -128,7 +130,9 @@ design by airasz
 
       <div>
         <div class="buttonstation" id="stations"></div>
-        <button class="button1 button2" onclick="savepermanenttoplaylist()">save permanent to playlist</button>
+        <button class="button1 button2" onclick="savepermanenttoplaylist()">
+          save permanent to playlist
+        </button>
         <div class="groupbox">
           <form id="addtoplaylistform" method="post">
             <div class="ceditbox" id="cedit1">
@@ -145,6 +149,16 @@ design by airasz
       <div class="bottom-panel" id="bottompanel">
         <div class="groupbox">
           <p4>Playlist Group</p4>
+          <!--<button id="trigger-btn" class="trigger-button">
+              Open Choose Workspace
+            </button>
+            <div id="result-output">
+              Selected choice will be returned here...
+            </div>-->
+
+          <button class="button1" onclick="triggerCustomHTML()">
+            Open Playlists group
+          </button>
           <div class="buttonstation" id="playlists"></div>
         </div>
         <div id="floatmenu1" class="floatbox">
