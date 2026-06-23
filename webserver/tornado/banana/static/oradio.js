@@ -5,6 +5,8 @@ var json_radio_status;
 var theme = 0;
 var hostname = "";
 var isPaused = false;
+var playlist_group = {};
+
 function loop() {
   count++;
   if (count > 5 && !isPaused) {
@@ -81,6 +83,7 @@ function onMessage(event) {
     var sdata = event.data.substring(4);
     document.getElementById("svol").value = parseInt(sdata);
     var color = valueToLinearGradient(parseInt(sdata));
+    var tbl = document.getElementById("svol");
     tbl.style.setProperty("--slider-thumb-bg", color);
     var ivol = document.querySelector("#isvol");
     ivol.innerHTML = "volume : " + volume;
@@ -137,8 +140,8 @@ function getsleep() {
       if (ajax_request.readyState == 4) {
         document.getElementById("sleepinfo").style.display =
           this.responseText === "off" ? "none" : "block";
-        document.getElementById("sleepform").style.display =
-          this.responseText === "off" ? "block" : "none";
+        // document.getElementById("sleepform").style.display =
+          // this.responseText === "off" ? "block" : "none";
       }
       sinfo.innerHTML = this.responseText;
     }
@@ -149,8 +152,8 @@ function getsleep() {
 function updatesleep(timetxt) {
   document.getElementById("sleepinfo").style.display =
     timetxt === "off" ? "none" : "block";
-  document.getElementById("sleepform").style.display =
-    timetxt === "off" ? "block" : "none";
+  // document.getElementById("sleepform").style.display =
+    // timetxt === "off" ? "block" : "none";
   document.getElementById("timerinfo").innerHTML = "stop in > " + timetxt;
 }
 var scrollcount = 0;
@@ -406,10 +409,13 @@ function update_control_button(stopped, isplaying) {
 
 function sendcmd(cmd) {
   websocket.send("0>" + cmd);
+  PopupJS.close();
+  PopupJS.toast(`send command ${cmd}`, "success");
   count = 4;
 }
 function sendwsm(cmd) {
   websocket.send("1>" + cmd);
+  PopupJS.toast(`send command ${cmd}`, "success");
   count = 4;
 }
 function playurl() {
@@ -499,7 +505,12 @@ function polpulatepl() {
   ajax_request.open("GET", "scmd/iplaylist", true);
   ajax_request.onreadystatechange = function () {
     if (ajax_request.status == 200) {
-      if (ajax_request.readyState == 4) stations.innerHTML = this.responseText;
+      if (ajax_request.readyState == 4) {
+        // let btnn = this.responseText.replaceAll("button1", "button2");
+        // stations.innerHTML = btnn;
+        playlist_group = this.responseText;
+        // playlist_group = btnn;
+      }
     } else {
       stations.innerHTML = "station list failed to loaded";
     }
@@ -585,7 +596,11 @@ function savetonewplaylist() {
   showCustomPrompt(function (playlistName) {
     var ajax_request = new XMLHttpRequest();
     var stations = document.getElementById("radiostatus");
-    ajax_request.open("GET", "scmd/savetonewplaylist?name=" + encodeURIComponent(playlistName), true);
+    ajax_request.open(
+      "GET",
+      "scmd/savetonewplaylist?name=" + encodeURIComponent(playlistName),
+      true,
+    );
     ajax_request.onreadystatechange = function () {
       if (ajax_request.status == 200) {
         if (ajax_request.readyState == 4) {
@@ -694,4 +709,84 @@ function valueToRadialGradient(value) {
     outerValue +
     "%)"
   );
+}
+// Demo Function: Playlists / Custom HTML
+function triggerCustomHTML() {
+  console.log("Firing Custom HTML Playlist Modal");
+
+  PopupJS.openCustomHTML("Choose playlist", playlist_group);
+}
+
+function opencprompt(){
+	PopupJS.customPrompt(poster, "play url","play custom url", "http://..");
+}
+
+function opensleepprompt(){
+	PopupJS.customPrompt(postersleep, "set sleep","input sleeptimer in minutes", "20");
+}
+function openatoplprompt(){
+
+  PopupJS.customPrompt(poster3, "add url","add audio url to current active playlist", "http://..");
+}
+function poster(url) {
+    var ajax_request = new XMLHttpRequest();
+	console.log("poster called")
+    ajax_request.open("POST", "/", true);
+    ajax_request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+
+    ajax_request.onreadystatechange = function () {
+        if (ajax_request.readyState === 4) {
+            if (ajax_request.status === 200) {
+              console.log("success");
+              PopupJS.toast(`adding: ${url}`, "success");
+            } else {
+                console.log("failed");
+            }
+        }
+    };
+
+    ajax_request.send("curl=" + encodeURIComponent(url));
+}
+function postersleep(url) {
+    var ajax_request = new XMLHttpRequest();
+	console.log("poster called")
+    ajax_request.open("POST", "/", true);
+    ajax_request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+
+    ajax_request.onreadystatechange = function () {
+        if (ajax_request.readyState === 4) {
+            if (ajax_request.status === 200) {
+              console.log("success");
+              PopupJS.toast(`set sleep timer: ${url} minutes`, "success");
+                console.log("failed");
+            }
+        }
+    };
+
+    ajax_request.send("sleep=" + encodeURIComponent(url));
+}
+function poster3(url) {
+  var ajax_request = new XMLHttpRequest();
+  console.log("poster called")
+  ajax_request.open("POST", "/", true);
+  ajax_request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+
+  ajax_request.onreadystatechange = function () {
+    if (ajax_request.readyState === 4) {
+      if (ajax_request.status === 200) {
+        console.log("success");
+        PopupJS.toast(`adding: ${url}`, "success");
+      } else {
+        console.log("failed");
+      }
+    }
+  };
+
+  ajax_request.send("addtoplaylist=" + encodeURIComponent(url));
+}
+// Interactive Handler within Custom Modal
+function handlePlaylistSelection(name) {
+  logToConsole(`Playlist clicked inside Modal: "${name}"`, "promise");
+  PopupJS.close();
+  PopupJS.toast(`Playing: ${name}`, "success");
 }

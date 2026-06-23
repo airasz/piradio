@@ -140,8 +140,8 @@ function getsleep() {
       if (ajax_request.readyState == 4) {
         document.getElementById("sleepinfo").style.display =
           this.responseText === "off" ? "none" : "block";
-        document.getElementById("sleepform").style.display =
-          this.responseText === "off" ? "block" : "none";
+        // document.getElementById("sleepform").style.display =
+        // this.responseText === "off" ? "block" : "none";
       }
       sinfo.innerHTML = this.responseText;
     }
@@ -152,8 +152,8 @@ function getsleep() {
 function updatesleep(timetxt) {
   document.getElementById("sleepinfo").style.display =
     timetxt === "off" ? "none" : "block";
-  document.getElementById("sleepform").style.display =
-    timetxt === "off" ? "block" : "none";
+  // document.getElementById("sleepform").style.display =
+  // timetxt === "off" ? "block" : "none";
   document.getElementById("timerinfo").innerHTML = "stop in > " + timetxt;
 }
 var scrollcount = 0;
@@ -717,6 +717,73 @@ function triggerCustomHTML() {
   PopupJS.openCustomHTML("Choose playlist", playlist_group);
 }
 
+function opencprompt() {
+  PopupJS.customPrompt(poster, "play url", "play custom url", "http://..");
+}
+
+function opensleepprompt() {
+  PopupJS.customPrompt(postersleep, "set sleep", "input sleeptimer in minutes", "20");
+}
+function openatoplprompt() {
+
+  PopupJS.customPrompt(poster3, "add url", "add audio url to current active playlist", "http://..");
+}
+function poster(url) {
+  var ajax_request = new XMLHttpRequest();
+  console.log("poster called")
+  ajax_request.open("POST", "/", true);
+  ajax_request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+
+  ajax_request.onreadystatechange = function () {
+    if (ajax_request.readyState === 4) {
+      if (ajax_request.status === 200) {
+        console.log("success");
+        PopupJS.toast(`adding: ${url}`, "success");
+      } else {
+        console.log("failed");
+      }
+    }
+  };
+
+  ajax_request.send("curl=" + encodeURIComponent(url));
+}
+function postersleep(url) {
+  var ajax_request = new XMLHttpRequest();
+  console.log("poster called")
+  ajax_request.open("POST", "/", true);
+  ajax_request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+
+  ajax_request.onreadystatechange = function () {
+    if (ajax_request.readyState === 4) {
+      if (ajax_request.status === 200) {
+        console.log("success");
+        PopupJS.toast(`set sleep timer: ${url} minutes`, "success");
+        console.log("failed");
+      }
+    }
+  };
+
+  ajax_request.send("sleep=" + encodeURIComponent(url));
+}
+function poster3(url) {
+  var ajax_request = new XMLHttpRequest();
+  console.log("poster called")
+  ajax_request.open("POST", "/", true);
+  ajax_request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+
+  ajax_request.onreadystatechange = function () {
+    if (ajax_request.readyState === 4) {
+      if (ajax_request.status === 200) {
+        console.log("success");
+        PopupJS.toast(`adding: ${url}`, "success");
+      } else {
+        console.log("failed");
+      }
+    }
+  };
+
+  ajax_request.send("addtoplaylist=" + encodeURIComponent(url));
+}
 // Interactive Handler within Custom Modal
 function handlePlaylistSelection(name) {
   logToConsole(`Playlist clicked inside Modal: "${name}"`, "promise");

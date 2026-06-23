@@ -462,17 +462,21 @@ class PopupJSLibrary {
     return new Promise((resolve) => {
       const template = `
 				<div>
-          <div class="pjs-flex" style="align-items: center; gap: 0.75rem;">
-              <div style="width: 2rem; height: 2rem; border-radius: 0.5rem; background-color: rgba(99, 102, 241, 0.1); color: #818cf8; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(99, 102, 241, 0.2);">
-                  <svg style="width:1.25rem; height:1.25rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"></path></svg>
-              </div>
-              <div>
-                  <h3 class="pjs-text-white" style="font-weight: 700; font-size: 1.125rem; line-height: 1.2;">${title}</h3>
-                  <p class="pjs-text-white" style="font-size: 0.75rem; font-weight: 500; margin-top: 0.125rem;">${label}</p>
-              </div>
-          </div>
+
+
+                   <div class="pjs-flex" style="align-items: center; gap: 0.75rem;">
+                                <div style="width: 2rem; height: 2rem; border-radius: 0.5rem; background-color: rgba(99, 102, 241, 0.1); color: #818cf8; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(99, 102, 241, 0.2);">
+                                    <svg style="width:1.25rem; height:1.25rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"></path></svg>
+                                </div>
+                                <div>
+                                    <h3 class="pjs-text-white" style="font-weight: 700; font-size: 1.125rem; line-height: 1.2;">${title}</h3>
+                                    <p class="pjs-text-white" style="font-size: 0.75rem; font-weight: 500; margin-top: 0.125rem;">${label}</p>
+                                </div>
+                            </div>
+
 					<input type="text" id="prompt-input" placeholder="${placeholder}"
-						   class="w-full bg-slate-900 border border-slate-700 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none rounded-xl px-4 py-2.5 text-sm text-white mb-1 transition"/>
+						   class="w-full bg-slate-900 border border-slate-700 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none rounded-xl px-4 py-2.5 text-sm text-white mb-1 transition"
+					/>
 					<p id="prompt-error" class="text-xs text-rose-400 hidden mt-1">Input cannot be left empty.</p>
 
 					<div class="mt-6 flex justify-end space-x-3">
@@ -512,7 +516,7 @@ class PopupJSLibrary {
         }
         this.close();
         resolve(value);
-        callback(value);
+		callback(value);
       });
     });
   }

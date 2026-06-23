@@ -133,7 +133,7 @@ design by airasz
         <button class="button1 button2" onclick="savepermanenttoplaylist()">
           save permanent to playlist
         </button>
-        <div class="groupbox">
+        <!--<div class="groupbox">
           <form id="addtoplaylistform" method="post">
             <div class="ceditbox" id="cedit1">
               <p4>add to current playlist : </p4>
@@ -144,11 +144,11 @@ design by airasz
               </button>
             </div>
           </form>
-        </div>
+        </div>-->
       </div>
       <div class="bottom-panel" id="bottompanel">
         <div class="groupbox">
-          <p4>Playlist Group</p4>
+          <!-- <p4>advance</p4> -->
           <!--<button id="trigger-btn" class="trigger-button">
               Open Choose Workspace
             </button>
@@ -156,33 +156,42 @@ design by airasz
               Selected choice will be returned here...
             </div>-->
 
+          <button class="button1" onclick="openatoplprompt()">
+            add to current playlist
+          </button>
+          <button class="button1" onclick="opencprompt()">
+            play custom audio url
+          </button>
           <button class="button1" onclick="triggerCustomHTML()">
-            Open Playlists group
+            Open Playlists group</button><button class="button1" onclick="opensleepprompt()">
+            set sleep timer
           </button>
           <div class="buttonstation" id="playlists"></div>
         </div>
         <div id="floatmenu1" class="floatbox">
-          <div class="groupbox">
+          <!--<div class="groupbox">
             <form id="curlform" method="post">
               <div class="ceditbox" id="cedit1">
                 <p4>play custom url : </p4>
+
                 <input class="form_data" type="text" id="curl" name="curl" placeholder="http://.."
                   onfocus="this.value=''" style="color: darkslategray; align-content: flex-start" /><br />
                 <button id="playurl" type="submit" name="submit" class="button1 button2">
                   play
                 </button>
+
               </div>
             </form>
-          </div>
+          </div>-->
 
-          <div class="groupbox">
-            <div id="sleepinfo">
+          <div class="groupbox" id="sleepinfo">
+            <div id="sleepinfos">
               <div id="timerinfo" style="color: black"></div>
               <button class="button1 button2" id="bstop" onclick="sendwsm('stopsleep')">
                 <a>Abort</a>
               </button>
             </div>
-            <form id="sleepform" method="post">
+            <!--<form id="sleepform" method="post">
               <div class="ceditbox" id="cedit1">
                 <p4> set sleep timer in minutes : </p4>
                 <input class="form_data" type="text" id="tval" placeholder="30" name="sleep" onfocus="this.value=''"
@@ -191,7 +200,7 @@ design by airasz
                   submit
                 </button>
               </div>
-            </form>
+            </form>-->
           </div>
         </div>
       </div>

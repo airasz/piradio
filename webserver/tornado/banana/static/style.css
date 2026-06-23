@@ -13,22 +13,22 @@ html {
   display: inline-block;
   margin: 0px auto;
   text-align: center;
-  /*   height: 100%; */
+/*   height: 100%; */
   /* prevent page from growing beyond the viewport */
-  /*   overflow: hidden; */
+/*   overflow: hidden; */
 }
 
 body {
-  /*   height: 100vh; */
+/*   height: 100vh; */
   margin: 0;
-  /*   overflow: hidden; */
+/*   overflow: hidden; */
 }
 
 .main {
   display: flex;
-  /*   height: 100vh; */
+/*   height: 100vh; */
   /* fill exactly the viewport */
-  /*   overflow: hidden; */
+/*   overflow: hidden; */
   /* box-shadow: 6px 6px 12px #b3b0b0, -2px -2px 12px #fff; */
   /* border-radius: 10px; */
   /*   position: relative */
@@ -46,10 +46,10 @@ body {
 
 /* wrapper div around #stations — takes all spare vertical space */
 .stations-section {
-  /*   flex: 1; */
-  /*   min-height: 0; */
-  /*   display: flex; */
-  /*   flex-direction: column; */
+/*   flex: 1; */
+/*   min-height: 0; */
+/*   display: flex; */
+/*   flex-direction: column; */
   overflow: hidden;
 }
 
@@ -72,6 +72,11 @@ h1 {
   font-weight: lighter;
   /* font-size: 56px; */
   /* padding: 0vh; */
+}
+h3{
+
+  text-align: left;
+  font-weight: lighter;
 }
 
 p {
@@ -153,7 +158,7 @@ input[type="submit"]:hover {
   flex: 1 1 0;
   min-height: 0;
   /* required for flex children to shrink below content size */
-  /*   max-height: none; */
+/*   max-height: none; */
   /* override .buttonstation fixed cap */
   overflow-y: auto;
 }
@@ -219,9 +224,22 @@ input[type="submit"]:hover {
   min-width: 9cm;
 
   /* flex column so #stations can flex-grow to fill remaining height */
-  display: flex;
-  flex-direction: column;
+ /* display: flex;
+  flex-direction: column;*/
   height: 100%;
+  overflow: hidden;
+
+  /* banana */
+}
+
+.popup_card {
+  /* Add shadows to create the "card" effect */
+  margin-top: 0mm;
+  border-radius: 10px;
+  min-width: 9cm;
+
+  /* flex column so #stations can flex-grow to fill remaining height */
+  
   overflow: hidden;
 
   /* banana */
@@ -409,7 +427,7 @@ div p6 {
   transition: 0.4s;
 }
 
-input:focus+.slider {
+input:focus + .slider {
   /* box-shadow: 0 0 1px #2196F3; */
 
   box-shadow:
@@ -417,7 +435,7 @@ input:focus+.slider {
     inset -2px -2px 4px rgb(255, 255, 255);
 }
 
-input:checked+.slider:before {
+input:checked + .slider:before {
   -webkit-transform: translateX(26px);
   -ms-transform: translateX(26px);
   transform: translateX(26px);
@@ -464,7 +482,7 @@ input:checked+.slider:before {
   transition: 0.4s;
 }
 
-input:focus+.sslider {
+input:focus + .sslider {
   /* box-shadow: 0 0 1px #2196F3; */
 
   box-shadow:
@@ -472,7 +490,7 @@ input:focus+.sslider {
     inset -2px -2px 4px rgb(255, 255, 255);
 }
 
-input:checked+.sslider:before {
+input:checked + .sslider:before {
   -webkit-transform: translateX(26px);
   -ms-transform: translateX(26px);
   transform: translateX(26px);

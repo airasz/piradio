@@ -13,34 +13,57 @@ html {
   display: inline-block;
   margin: 0px auto;
   text-align: center;
-  height: 100%;
+/*   height: 100%; */
+  /* prevent page from growing beyond the viewport */
+/*   overflow: hidden; */
+}
+
+body {
+/*   height: 100vh; */
+  margin: 0;
+/*   overflow: hidden; */
 }
 
 .main {
   display: flex;
+/*   height: 100vh; */
+  /* fill exactly the viewport */
+/*   overflow: hidden; */
   /* box-shadow: 6px 6px 12px #b3b0b0, -2px -2px 12px #fff; */
   /* border-radius: 10px; */
   /*   position: relative */
 }
 
 .bottom-panel {
-  /*   position:absolute; */
-  bottom: 0;
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
+  flex-shrink: 0;
+  /* never shrink — always full size */
+  margin-top: auto;
+  /* push to the bottom of the flex column */
+}
+
+/* wrapper div around #stations — takes all spare vertical space */
+.stations-section {
+/*   flex: 1; */
+/*   min-height: 0; */
+/*   display: flex; */
+/*   flex-direction: column; */
+  overflow: hidden;
 }
 
 /*.floatbox {
- * position: fixed;
- * top: 50%;
- * left: 50%;
- * transform: translate(-50%, -50%);
- * z-index: 1000;
- * background-color: white;
- * padding: 20px;
- * border-radius: 10px;
- * box-shadow: 0 4px 8px rgba(0,0,0,0.1);
- } **/
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}*/
 
 h1 {
   color: rgb(0, 120, 141);
@@ -49,6 +72,11 @@ h1 {
   font-weight: lighter;
   /* font-size: 56px; */
   /* padding: 0vh; */
+}
+h3{
+
+  text-align: left;
+  font-weight: lighter;
 }
 
 p {
@@ -95,7 +123,7 @@ input[type="text"] {
   text-align: center;
   /* border-radius: 50px; */
   /* background: linear-gradient(145deg, #d3d3d3, #ffffff);
-   *     box-shadow:  10px 10px 18px #e0e0e0, -2px -2px 18px #fff; */
+      box-shadow:  10px 10px 18px #e0e0e0, -2px -2px 18px #fff; */
   box-shadow:
     inset 2px 2px 4px #8a8a8a,
     inset -2px -2px 4px rgb(255, 255, 255);
@@ -122,6 +150,17 @@ input[type="submit"]:hover {
 .buttonstation {
   overflow-y: auto;
   max-height: 300px;
+  padding: 6px;
+}
+
+/* #stations is the flexible element — it absorbs all remaining vertical space */
+#stations {
+  flex: 1 1 0;
+  min-height: 0;
+  /* required for flex children to shrink below content size */
+/*   max-height: none; */
+  /* override .buttonstation fixed cap */
+  overflow-y: auto;
 }
 
 .button1 {
@@ -131,10 +170,8 @@ input[type="submit"]:hover {
   font-size: 16px;
   margin: 4px 2px;
   /* border-radius: 10px; */
-  /*! background: linear-gradient(145deg, #d3d3d3, #ffffff); */
+  /*     background: linear-gradient(145deg, #d3d3d3, #ffffff); */
   cursor: pointer;
-  display: inline-flex;
-  background: white;
 }
 
 .button1:active {
@@ -146,56 +183,10 @@ input[type="submit"]:hover {
   cursor: pointer;
   /* border-radius: 50px; */
   /* background: linear-gradient(145deg, #d3d3d3, #ffffff);
-   *                   box-shadow:  10px 10px 18px #e0e0e0, -2px -2px 18px #fff; */
+                    box-shadow:  10px 10px 18px #e0e0e0, -2px -2px 18px #fff; */
   /*   background: linear-gradient(145deg, #d3d3d3, #ffffff); */
 
   cursor: pointer;
-}
-
-.bdelete {
-  border-radius: 50%;
-}
-
-.bdelete:hover {
-  background: red;
-  border: solid 1px #000;
-  box-shadow: none;
-}
-
-.bplay button {
-  color: rgb(8, 123, 131);
-  font-weight: 600;
-}
-
-.bplay {
-  background: #fffbe5;
-  color: rgb(240, 150, 29);
-  /* box-shadow: var(--shadow-out-hover) ; */
-  box-shadow: none;
-}
-
-.bplay {
-  background: #ffae21;
-  /*   background: linear-gradient(360deg, rgba(164,207,1,1) 0%, rgba(137,146,17,1) 42%, rgba(208,224,1,1) 43%, rgba(255,231,0,0.9668067055923932) 100%); */
-  color: #a2350d;
-  cursor: pointer;
-}
-
-.button2 {
-  color: #ecfa2d;
-  background: rgb(145, 144, 144);
-  display: inline-flex;
-}
-
-.button2:active {
-  color: rgb(255, 255, 255);
-  background: rgba(220, 120, 10, 0.9);
-}
-
-.no-style {
-  border: none;
-  outline: none;
-  background: none;
 }
 
 .port {
@@ -226,30 +217,31 @@ input[type="submit"]:hover {
 
 .card_switch {
   /* Add shadows to create the "card" effect */
-  /* flex-wrap: inherit; */
   transition: 0.3s;
   color: rgb(95, 95, 95);
   margin-top: 0mm;
-  display: block;
   border-radius: 10px;
-  /*   margin-right: 5mm; */
-  /* padding-bottom: 5mm; */
   min-width: 9cm;
-  align-items: left;
-  justify-content: left;
-  /* display: flex; */
-  justify-items: left;
-  /* position: relative; */
-  flex-flow: row wrap;
-  /* flex-wrap: inherit; */
-  flex-direction: column;
-  display: inline-block;
-  /* box-shadow: 12px 12px 12px #b3b0b0, -4px -4px 12px #fff; */
-  /*centering card
-   *   /* flex-wrap: wrap; */
-  /* position: relative; */
-  /* flex-direction: row; */
-  /* word-wrap: break-word; */
+
+  /* flex column so #stations can flex-grow to fill remaining height */
+ /* display: flex;
+  flex-direction: column;*/
+  height: 100%;
+  overflow: hidden;
+
+  /* banana */
+}
+
+.popup_card {
+  /* Add shadows to create the "card" effect */
+  margin-top: 0mm;
+  border-radius: 10px;
+  min-width: 9cm;
+
+  /* flex column so #stations can flex-grow to fill remaining height */
+  
+  overflow: hidden;
+
   /* banana */
 }
 
@@ -348,7 +340,6 @@ div p6 {
   justify-content: center;
   align-items: center;
   border-radius: 10px;
-  box-shadow: var(--tridi);
   background: #e8f9ff;
 }
 
@@ -378,11 +369,11 @@ div p6 {
 }
 
 /*
- . *switchled input {
- opacity: 0;
- width: 0;
- height: 0;
- } */
+.switchled input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+} */
 .playmode {
   display: flex;
   justify-content: center;
@@ -394,9 +385,9 @@ div p6 {
   /*   background-color: rgb(61, 61, 61); */
   align-items: center;
   /* centervertical/*
-   *         padding-left: 10mm;
-   *         padding-right: 10mm;
-   *         /* padding-bottom: 10mm; */
+          padding-left: 10mm;
+          padding-right: 10mm;
+          /* padding-bottom: 10mm; */
   justify-content: center;
   /* display: flex; */
 }
@@ -436,13 +427,7 @@ div p6 {
   transition: 0.4s;
 }
 
-input:checked+.slider {
-  /* background-color: rgb(95, 248, 215); */
-
-  /* background-color: rgb(126, 126, 126); */
-}
-
-input:focus+.slider {
+input:focus + .slider {
   /* box-shadow: 0 0 1px #2196F3; */
 
   box-shadow:
@@ -450,7 +435,7 @@ input:focus+.slider {
     inset -2px -2px 4px rgb(255, 255, 255);
 }
 
-input:checked+.slider:before {
+input:checked + .slider:before {
   -webkit-transform: translateX(26px);
   -ms-transform: translateX(26px);
   transform: translateX(26px);
@@ -497,13 +482,7 @@ input:checked+.slider:before {
   transition: 0.4s;
 }
 
-input:checked+.sslider {
-  /* background-color: rgb(95, 248, 215); */
-
-  /* background-color: rgb(126, 126, 126); */
-}
-
-input:focus+.sslider {
+input:focus + .sslider {
   /* box-shadow: 0 0 1px #2196F3; */
 
   box-shadow:
@@ -511,7 +490,7 @@ input:focus+.sslider {
     inset -2px -2px 4px rgb(255, 255, 255);
 }
 
-input:checked+.sslider:before {
+input:checked + .sslider:before {
   -webkit-transform: translateX(26px);
   -ms-transform: translateX(26px);
   transform: translateX(26px);
@@ -548,7 +527,9 @@ input:checked+.sslider:before {
   border-radius: 50%;
   border: none;
   background: #dbdbdb;
-  box-shadow: 6px 6px 12px #b3b0b0, -6px -6px 12px #fff;
+  box-shadow:
+    6px 6px 12px #b3b0b0,
+    -6px -6px 12px #fff;
   cursor: pointer;
   font-size: 24px;
   display: flex;
@@ -560,12 +541,16 @@ input:checked+.sslider:before {
 }
 
 .floating-pause-btn:hover {
-  box-shadow: 8px 8px 16px #b3b0b0, -8px -8px 16px #fff;
+  box-shadow:
+    8px 8px 16px #b3b0b0,
+    -8px -8px 16px #fff;
   transform: scale(1.05);
 }
 
 .floating-pause-btn:active {
-  box-shadow: inset 2px 2px 4px #8a8a8a, inset -2px -2px 4px rgb(255, 255, 255);
+  box-shadow:
+    inset 2px 2px 4px #8a8a8a,
+    inset -2px -2px 4px rgb(255, 255, 255);
 }
 
 .floating-pause-btn.paused {
@@ -573,5 +558,13 @@ input:checked+.sslider:before {
 }
 
 .floating-pause-btn.paused::before {
-  content: '▶';
+  content: "▶";
+}
+
+.media-controls,
+.playlist-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
 }
