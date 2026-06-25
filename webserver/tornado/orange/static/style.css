@@ -228,7 +228,7 @@ input[type="submit"]:hover {
   color: rgb(95, 95, 95);
   margin-top: 0mm;
   border-radius: 10px;
-  min-width: 9cm;
+  min-width: 6cm;
 
   /* flex column so #stations can flex-grow to fill remaining height */
   /* display: flex;

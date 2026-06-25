@@ -69,6 +69,11 @@ function deviceType() {
       infotrack.style.setProperty("display", "none", "important");
       infotrack.style.setProperty("visibility", "hidden", "important");
     }
+    var pausebtn = document.getElementById("pauseButton");
+    if (pausebtn) {
+      pausebtn.style.setProperty("display", "none", "important");
+      pausebtn.style.setProperty("visibility", "hidden", "important");
+    }
   }
 }
 
@@ -112,7 +117,7 @@ function onMessage(event) {
     var tbl = document.getElementById("svol");
     tbl.style.setProperty("--slider-thumb-bg", color);
     var ivol = document.querySelector("#isvol");
-    ivol.innerHTML = "volume : " + volume;
+    ivol.innerHTML = "volume : " + sdata;
     console.log("updating volume slide");
   } else if (event.data.startsWith("pls")) {
     var sdata = event.data.substring(4);
