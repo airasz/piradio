@@ -135,12 +135,20 @@ class PopupJSLibrary {
 
                     /* Custom dynamic playlists layout system */
                     .pjs-playlist-wrapper {
-                        display: grid;
+                        /* display: grid; */
                         grid-template-columns: repeat(2, minmax(0, 1fr));
                         gap: 0.75rem;
                         width: 100%;
                         margin-top: 1rem;
                         margin-bottom: 1rem;
+
+                        flex: 1 1 0;
+                        min-height: 0;
+                        /* required for flex children to shrink below content size */
+                        /*   max-height: none; */
+                        /* override .buttonstation fixed cap */
+                        overflow-y: auto;
+                        max-height: 400px;
                     }
                     @media (min-width: 640px) {
                         .pjs-playlist-wrapper {
@@ -151,18 +159,18 @@ class PopupJSLibrary {
 /*                         background-color: rgba(2, 6, 23, 0.6); */
 /*                         border: 1px solid rgba(71, 85, 105, 0.4); */
 /*                         border-radius: 0.75rem; */
-                        padding: 0.75rem 1rem;
+                        /*padding: 0.75rem 1rem;*/
 
                         font-weight: 500;
                         font-size: 0.875rem;
                         transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
                         text-align: left;
-                        display: flex;
+                        // display: flex;
                         align-items: center;
                         justify-content: space-between;
                         cursor: pointer;
-                        width: 100%;
-                        backdrop-filter: none !important;
+                        /* width: 100%;
+                        backdrop-filter: none !important;*/
                     }
                     .pjs-playlist-wrapper .button1:hover {
                         background-color: rgba(19, 142, 41, 0.45);

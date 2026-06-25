@@ -6,6 +6,7 @@ var theme = 0;
 var hostname = "";
 var isPaused = false;
 var playlist_group = {};
+var stations_list = {};
 
 function loop() {
   count++;
@@ -91,8 +92,28 @@ function onMessage(event) {
   } else if (event.data.startsWith("pls")) {
     var sdata = event.data.substring(4);
     var stations = document.getElementById("stations");
-    stations.innerHTML = sdata;
+    // stations.innerHTML = sdata;
+    const htmlString = this.responseText;
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(htmlString, 'text/html');
 
+    // Extract elements and join them into a single string separated by a newline
+    const resultString = Array.from(doc.querySelectorAll('a'))
+      .map(a => {
+        // .closest('.bplay') checks if any parent element has the 'bplay' class
+        if (a.closest('.bplay')) {
+          a.style.color = 'black';
+          a.setAttribute("id", "focused");
+        }
+        return a.outerHTML;
+      })
+      .join('\n');
+
+    console.log(resultString);
+    // stations.innerhtml = resultString;
+    stations.innerHTML = resultString;
+    stations_list = this.responseText;
+    scroll_to_name("stations", "focused");
     // console.log("got pls");
   } else if (event.data.startsWith("resettimer")) {
     count = 4;
@@ -261,6 +282,17 @@ function scroll_to() {
     var bplaying = document.getElementById("playing");
     if (bplaying !== null) bplaying.focus();
     // console.log("has vertical scrollbar");
+  }
+}
+function scroll_to_name(parent, name) {
+  var el = document.getElementById(parent);
+  if (hasVerticalScrollbar(el)) {
+    var bplaying = document.getElementById(name);
+    if (bplaying !== null) {
+      bplaying.focus();
+      console.log(`element ${name} exist`);
+    }
+    console.log("has vertical scrollbar");
   }
 }
 function hasVerticalScrollbar(element) {
@@ -476,13 +508,45 @@ function polpulatesl() {
         // console.log("got playlist");
         if (this.responseText != old_sl) {
           // console.log("got playlist");
-          stations.innerHTML = this.responseText;
+          // stations.innerHTML = this.responseText;
           old_sl = this.responseText;
         }
-        stations.innerHTML = this.responseText;
+        // // 1. Instantiate the DOMParser
+        // const parser = new DOMParser();
+
+        // // 2. Parse the string into a real HTML Document
+        // const doc = parser.parseFromString(this.responseText, 'text/html');
+
+        // // 3. Now you can use querySelectorAll on the 'doc' object!
+        // const links = doc.querySelectorAll('.button1 a');
+
+        // // 2. Convert NodeList to an array and extract the text
+        // const stationNames = Array.from(links).map(link => link.textContent.trim());
+
+        // console.log(stationNames);
+        const htmlString = this.responseText;
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(htmlString, 'text/html');
+
+        // Extract elements and join them into a single string separated by a newline
+        const resultString = Array.from(doc.querySelectorAll('a'))
+          .map(a => {
+            // .closest('.bplay') checks if any parent element has the 'bplay' class
+            if (a.closest('.bplay')) {
+              a.style.color = 'black';
+              a.setAttribute("id", "focused");
+            }
+            return a.outerHTML;
+          })
+          .join('\n');
+
+        console.log(resultString);
+        // stations.innerhtml = resultString;
+        stations.innerHTML = resultString;
+        stations_list = this.responseText;
         scrollcount++;
         if (scrollcount > 3) {
-          scroll_to();
+          scroll_to_name("stations", "focused");
           scrollcount = 0;
         }
         count = 0;
@@ -715,6 +779,15 @@ function triggerCustomHTML() {
   console.log("Firing Custom HTML Playlist Modal");
 
   PopupJS.openCustomHTML("Choose playlist", playlist_group);
+}
+
+function openStationsPopUp() {
+  console.log("Firing Custom HTML Playlist Modal");
+
+  PopupJS.openCustomHTML("Choose track", stations_list);
+  setTimeout(() => {
+    scroll_to();
+  }, 200);
 }
 
 function opencprompt() {
