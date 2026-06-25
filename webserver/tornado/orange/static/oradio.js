@@ -7,7 +7,7 @@ var hostname = "";
 var isPaused = false;
 var playlist_group = {};
 var stations_list = {};
-
+var isMobile = false;
 function loop() {
   count++;
   if (count > 5 && !isPaused) {
@@ -49,7 +49,32 @@ function loadonce() {
   load_cofig();
   document.getElementById("loading").style.display = "none";
   // loadvol();
+  deviceType();
 }
+function deviceType() {
+  // isMobile = navigator.userAgentData.mobile || false;
+  isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  // console.log("Is mobile device:", isMobile);
+
+  console.log("isMobile: " + isMobile);
+  if (isMobile) {
+    // alert("Mobile device detected");
+    var pmode = document.getElementById("playmode");
+    if (pmode) {
+      pmode.style.setProperty("display", "none", "important");
+      pmode.style.setProperty("visibility", "hidden", "important");
+    }
+    var infotrack = document.getElementById("card-body");
+    if (infotrack) {
+      infotrack.style.setProperty("display", "none", "important");
+      infotrack.style.setProperty("visibility", "hidden", "important");
+    }
+  }
+}
+
+
+
+
 var gateway = `ws://${window.location.hostname}:8888/websocket`;
 var websocket;
 // window.addEventListener('load', onLoad);
@@ -277,22 +302,22 @@ function load_cofig() {
 }
 
 function scroll_to() {
-  var el = document.getElementById("stations");
-  if (hasVerticalScrollbar(el)) {
-    var bplaying = document.getElementById("playing");
-    if (bplaying !== null) bplaying.focus();
-    // console.log("has vertical scrollbar");
+  var bplaying = document.getElementById("playing");
+  if (bplaying !== null) {
+    bplaying.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
 }
 function scroll_to_name(parent, name) {
-  var el = document.getElementById(parent);
-  if (hasVerticalScrollbar(el)) {
-    var bplaying = document.getElementById(name);
-    if (bplaying !== null) {
-      bplaying.focus();
-      console.log(`element ${name} exist`);
-    }
-    console.log("has vertical scrollbar");
+  var parentEl = document.getElementById(parent);
+  var bplaying = null;
+  if (parentEl) {
+    bplaying = parentEl.querySelector("#" + name) || document.getElementById(name);
+  } else {
+    bplaying = document.getElementById(name);
+  }
+  if (bplaying !== null) {
+    console.log(`element ${name} exist`);
+    bplaying.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
 }
 function hasVerticalScrollbar(element) {
@@ -540,7 +565,7 @@ function polpulatesl() {
           })
           .join('\n');
 
-        console.log(resultString);
+        // console.log(resultString);
         // stations.innerhtml = resultString;
         stations.innerHTML = resultString;
         stations_list = this.responseText;

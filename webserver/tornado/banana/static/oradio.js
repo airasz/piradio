@@ -256,11 +256,9 @@ function load_cofig() {
 }
 
 function scroll_to() {
-  var el = document.getElementById("stations");
-  if (hasVerticalScrollbar(el)) {
-    var bplaying = document.getElementById("playing");
-    if (bplaying !== null) bplaying.focus();
-    // console.log("has vertical scrollbar");
+  var bplaying = document.getElementById("playing");
+  if (bplaying !== null) {
+    bplaying.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
 }
 function hasVerticalScrollbar(element) {

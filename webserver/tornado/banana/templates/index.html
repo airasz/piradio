@@ -79,7 +79,7 @@ design by airasz
         restart app
       </button>
       <br />
-      <div class="playmode">
+      <div class="playmode" id="playmode">
         <div class="switch_button">
           <p4 id="swp1" style="font-size: 12px">repeat</p4>
           <label class="switchbutton">
@@ -128,10 +128,13 @@ design by airasz
 
       <p></p>
 
-      <div>
+      <div class="stations-container">
         <div class="buttonstation" id="stations"></div>
         <button class="button1 button2" onclick="savepermanenttoplaylist()">
           save permanent to playlist
+        </button>
+        <button class="button-trans" onclick="openStationsPopUp()">
+          open stations lists
         </button>
         <!--<div class="groupbox">
           <form id="addtoplaylistform" method="post">
