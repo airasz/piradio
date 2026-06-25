@@ -129,15 +129,15 @@ function onMessage(event) {
 
     // Extract elements and join them into a single string separated by a newline
     const resultString = Array.from(doc.querySelectorAll('a'))
-      .map(a => {
-        // .closest('.bplay') checks if any parent element has the 'bplay' class
-        if (a.closest('.bplay')) {
-          a.style.color = 'black';
-          a.setAttribute("id", "focused");
-        }
-        return a.outerHTML;
-      })
-      .join('\n');
+    .map(a => {
+      // .closest('.bplay') checks if any parent element has the 'bplay' class
+      if (a.closest('.bplay')) {
+        a.style.color = 'black';
+        a.setAttribute("id", "focused");
+      }
+      return a.outerHTML;
+    })
+    .join('\n');
 
     console.log(resultString);
     // stations.innerhtml = resultString;
@@ -190,7 +190,7 @@ function getsleep() {
     if (ajax_request.status == 200) {
       if (ajax_request.readyState == 4) {
         document.getElementById("sleepinfo").style.display =
-          this.responseText === "off" ? "none" : "block";
+        this.responseText === "off" ? "none" : "block";
         // document.getElementById("sleepform").style.display =
         // this.responseText === "off" ? "block" : "none";
       }
@@ -202,7 +202,7 @@ function getsleep() {
 }
 function updatesleep(timetxt) {
   document.getElementById("sleepinfo").style.display =
-    timetxt === "off" ? "none" : "block";
+  timetxt === "off" ? "none" : "block";
   // document.getElementById("sleepform").style.display =
   // timetxt === "off" ? "block" : "none";
   document.getElementById("timerinfo").innerHTML = "stop in > " + timetxt;
@@ -245,26 +245,26 @@ function load_status_json() {
         //   (json_radio_status.title == null ? "" : json_radio_status.title);
 
         var radiostatus =
-          (json_radio_status.artist == null ||
-            typeof json_radio_status.artist === "undefined"
-            ? ""
-            : json_radio_status.artist + " - ") +
-          (json_radio_status.title == null ? "" : json_radio_status.title);
+        (json_radio_status.artist == null ||
+        typeof json_radio_status.artist === "undefined"
+        ? ""
+        : json_radio_status.artist + " - ") +
+        (json_radio_status.title == null ? "" : json_radio_status.title);
         document.getElementById("radiostatus").innerHTML = radiostatus;
         updatevolslider(json_radio_status.volume);
         if (json_radio_status.time.total_seconds > 0) {
           document.getElementById("track-progress-container").style.display =
-            "block";
-          updateauidoprogress(
-            json_radio_status.time.elapsed_seconds,
-            json_radio_status.time.total_seconds,
-            json_radio_status.time.elapsed,
-            json_radio_status.time.total,
-            json_radio_status.progress_percent,
-          );
+          "block";
+        updateauidoprogress(
+          json_radio_status.time.elapsed_seconds,
+          json_radio_status.time.total_seconds,
+          json_radio_status.time.elapsed,
+          json_radio_status.time.total,
+          json_radio_status.progress_percent,
+        );
         } else {
           document.getElementById("track-progress-container").style.display =
-            "none";
+          "none";
         }
         update_play_mode(
           json_radio_status.repeat,
@@ -388,9 +388,9 @@ function update_play_mode(repeat, random, single, consume) {
 }
 function set_play_mode(mode) {
   var cmd =
-    "mpc " +
-    mode +
-    (document.getElementById("radio" + mode).checked ? " on" : " off");
+  "mpc " +
+  mode +
+  (document.getElementById("radio" + mode).checked ? " on" : " off");
   websocket.send("0>" + cmd);
   console.log("set play mode: ", cmd);
 }
@@ -452,11 +452,11 @@ function playbutton(txt) {
 
   if (ps) {
     document.getElementById("bplay").innerHTML =
-      ps == "playing" ? "pause" : "play";
+    ps == "playing" ? "pause" : "play";
     if (document.getElementById("bstop") !== null)
       document.getElementById("bstop").style.display = txt.includes("stopped")
-        ? "none"
-        : "initial";
+      ? "none"
+      : "initial";
   }
 }
 function update_control_button(stopped, isplaying) {
@@ -500,7 +500,7 @@ function gethostname() {
         hostname = this.responseText;
         document.querySelector("#nav").style.display = "block";
         document.getElementById("title").innerHTML =
-          this.responseText + " radio &#x1F34C";
+        this.responseText + " radio &#x1F34C";
         body.style.setProperty(
           "--main-background-color-gradient",
           "linear-gradient(135deg, #245f93 0%, #327125 25%, #8c851f 50%, #1f5135 75%, #246464 100%)",
@@ -510,7 +510,7 @@ function gethostname() {
         hostname = this.responseText;
         document.querySelector("#nav").style.display = "block";
         document.getElementById("title").innerHTML =
-          this.responseText + " radio &#x1F34A";
+        this.responseText + " radio &#x1F34A";
         body.style.setProperty(
           "--main-background-color-gradient",
           "linear-gradient(135deg, #248393 0%, #2f59d5 25%, #7620ae 50%, #a42d69 75%, #a3343c 100%);",
@@ -560,15 +560,15 @@ function polpulatesl() {
 
         // Extract elements and join them into a single string separated by a newline
         const resultString = Array.from(doc.querySelectorAll('a'))
-          .map(a => {
-            // .closest('.bplay') checks if any parent element has the 'bplay' class
-            if (a.closest('.bplay')) {
-              a.style.color = 'black';
-              a.setAttribute("id", "focused");
-            }
-            return a.outerHTML;
-          })
-          .join('\n');
+        .map(a => {
+          // .closest('.bplay') checks if any parent element has the 'bplay' class
+          if (a.closest('.bplay')) {
+            a.style.color = 'black';
+            a.setAttribute("id", "focused");
+          }
+          return a.outerHTML;
+        })
+        .join('\n');
 
         // console.log(resultString);
         // stations.innerhtml = resultString;
@@ -587,7 +587,7 @@ function polpulatesl() {
     } else {
       console.log("failed get playist");
       stations.innerHTML =
-        '<button class="button1" onclick="windows.location.reload()"><a>reload page</a></button>';
+      '<button class="button1" onclick="windows.location.reload()"><a>reload page</a></button>';
     }
   };
   ajax_request.send();
@@ -693,7 +693,7 @@ function savetonewplaylist() {
     ajax_request.open(
       "GET",
       "scmd/savetonewplaylist?name=" + encodeURIComponent(playlistName),
-      true,
+                      true,
     );
     ajax_request.onreadystatechange = function () {
       if (ajax_request.status == 200) {
@@ -727,21 +727,21 @@ function valueToLinearGradient(value) {
   if (value <= 50) {
     // 0-50: Turquoise (173, 240, 228) to Yellow (242, 227, 105)
     r =
-      hostname == "banana"
-        ? Math.floor(173 + 1.38 * value)
-        : Math.floor(5.1 * value);
+    hostname == "banana"
+    ? Math.floor(173 + 1.38 * value)
+    : Math.floor(5.1 * value);
     g =
-      hostname == "banana"
-        ? Math.floor(240 - 0.26 * value)
-        : Math.floor(100 + 3.1 * value);
+    hostname == "banana"
+    ? Math.floor(240 - 0.26 * value)
+    : Math.floor(100 + 3.1 * value);
     b = hostname == "banana" ? Math.floor(228 - 2.46 * value) : 0;
   } else {
     // 50-100: Yellow (242, 227, 105) to Dark Yellow (178, 145, 45)
     r = hostname == "banana" ? Math.floor(242 - 1.28 * (value - 50)) : 255;
     g =
-      hostname == "banana"
-        ? Math.floor(227 - 1.64 * (value - 50))
-        : Math.floor(255 - 1.8 * (value - 50));
+    hostname == "banana"
+    ? Math.floor(227 - 1.64 * (value - 50))
+    : Math.floor(255 - 1.8 * (value - 50));
     b = hostname == "banana" ? Math.floor(105 - 1.2 * (value - 50)) : 0;
   }
 
@@ -774,11 +774,11 @@ function valueToRadialGradient(value) {
 
   // Inner color: yellowish-green
   var innerColor =
-    hostname == "banana" ? "rgba(196, 209, 8, 1)" : "rgba(221, 169, 0, 1)";
+  hostname == "banana" ? "rgba(196, 209, 8, 1)" : "rgba(221, 169, 0, 1)";
 
   // Outer color: cyan
   var outerColor =
-    hostname == "banana" ? "rgba(2, 214, 214, 1)" : "rgba(2, 71, 33, 1)";
+  hostname == "banana" ? "rgba(2, 214, 214, 1)" : "rgba(2, 71, 33, 1)";
 
   var innerValue, outerValue;
 

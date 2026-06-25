@@ -181,6 +181,19 @@ input[type="submit"]:hover {
   cursor: pointer;
 }
 
+.button-trans {
+  background: rgba(132, 132, 132, 0.02);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  backdrop-filter: blur(2px);
+  cursor: pointer;
+  border: none;
+  border-radius: 40px;
+  padding: 30px;
+  font-size: larger;
+}
 .button1:active {
   /*   color: rgb(78, 75, 75); */
   padding: 8px;
@@ -195,7 +208,9 @@ input[type="submit"]:hover {
 
   cursor: pointer;
 }
-
+.stations-container{
+  position:relative;
+}
 .port {
   padding: 8px;
   border: 0px;
@@ -228,7 +243,7 @@ input[type="submit"]:hover {
   color: rgb(95, 95, 95);
   margin-top: 0mm;
   border-radius: 10px;
-  min-width: 6cm;
+  min-width: 9cm;
 
   /* flex column so #stations can flex-grow to fill remaining height */
   /* display: flex;
