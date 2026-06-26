@@ -6,7 +6,8 @@ var theme = 0;
 var hostname = "";
 var isPaused = false;
 var playlist_group = {};
-
+var stations_list = {};
+var isMobile = false;
 function loop() {
   count++;
   if (count > 5 && !isPaused) {
@@ -48,7 +49,97 @@ function loadonce() {
   load_cofig();
   document.getElementById("loading").style.display = "none";
   // loadvol();
+  deviceType();
 }
+function deviceType() {
+  // isMobile = navigator.userAgentData.mobile || false;
+  isMobile =
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+      navigator.userAgent,
+    );
+  // console.log("Is mobile device:", isMobile);
+
+  console.log("isMobile: " + isMobile);
+  if (isMobile) setupMobileUI();
+  else setupDesktopUI();
+  // alert("Mobile device detected");
+}
+
+function setupMobileUI() {
+  var pmode = document.getElementById("playmode");
+  if (pmode) {
+    pmode.style.setProperty("display", "none", "important");
+    pmode.style.setProperty("visibility", "hidden", "important");
+  }
+  var infotrack = document.getElementById("card-body");
+  if (infotrack) {
+    infotrack.style.setProperty("display", "none", "important");
+    infotrack.style.setProperty("visibility", "hidden", "important");
+  }
+  var pausebtn = document.getElementById("pauseButton");
+  if (pausebtn) {
+    pausebtn.style.setProperty("display", "none", "important");
+    pausebtn.style.setProperty("visibility", "hidden", "important");
+  }
+  var station_container = document.getElementById("stations-container");
+  // var button_choose_station = document.getElementById("stations-launcher");
+  var button_station_container = document.getElementById("buttonstations");
+
+  if (station_container) {
+    console.log("station_container exist");
+    station_container.style.setProperty("position", "relative", "important");
+    // if (button_choose_station) {
+    //   console.log("button_choose_station exist");
+    //   button_choose_station.style.setProperty(
+    //     "position",
+    //     "absolute",
+    //     "important",
+    //   );
+    //   button_choose_station.style.setProperty(
+    //     "display",
+    //     "inline-block",
+    //     "important",
+    //   );
+    // }
+    if (button_station_container) {
+      button_station_container.style.setProperty(
+        "display",
+        "content",
+        "important",
+      );
+    }
+  }
+  var divstation = document.getElementById("stations");
+  if (divstation) {
+    divstation.addEventListener("click", function () {
+      console.log("stations clicked");
+      openStationsPopUp();
+    });
+  }
+}
+function setupDesktopUI() {
+  console.log("setupDesktopUI");
+  var station_container = document.getElementById("stations-container");
+  var button_choose_station = document.getElementById("stations-launcher");
+  var button_station_container = document.getElementById("buttonstations");
+  if (station_container) {
+    console.log("station_container exist");
+    station_container.style.setProperty("position", "none", "important");
+    if (button_choose_station) {
+      console.log("button_choose_station exist");
+      button_choose_station.style.setProperty("position", "none", "important");
+      button_choose_station.style.setProperty("display", "none", "important");
+    }
+    if (button_station_container) {
+      button_station_container.style.setProperty(
+        "display",
+        "inline-block",
+        "important",
+      );
+    }
+  }
+}
+
 var gateway = `ws://${window.location.hostname}:8888/websocket`;
 var websocket;
 // window.addEventListener('load', onLoad);
@@ -86,13 +177,38 @@ function onMessage(event) {
     var tbl = document.getElementById("svol");
     tbl.style.setProperty("--slider-thumb-bg", color);
     var ivol = document.querySelector("#isvol");
-    ivol.innerHTML = "volume : " + volume;
+    ivol.innerHTML = "volume : " + sdata;
     console.log("updating volume slide");
   } else if (event.data.startsWith("pls")) {
     var sdata = event.data.substring(4);
     var stations = document.getElementById("stations");
-    stations.innerHTML = sdata;
+    // stations.innerHTML = sdata;
+    const htmlString = sdata;
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(htmlString, "text/html");
 
+    // Extract elements and join them into a single string separated by a newline
+    const resultString = Array.from(doc.querySelectorAll("a"))
+      .map((a) => {
+        // .closest('.bplay') checks if any parent element has the 'bplay' class
+        if (a.closest(".bplay")) {
+          a.style.color = "black";
+          a.setAttribute("id", "focused");
+        }
+        return a.outerHTML;
+      })
+      .join("\n");
+
+    console.log(resultString);
+    // stations.innerhtml = resultString;
+    if (isMobile) {
+      stations.innerHTML = resultString;
+      stations_list = this.responseText;
+      scroll_to_name("stations", "focused");
+    } else {
+      stations.innerHTML = sdata;
+      scroll_to();
+    }
     // console.log("got pls");
   } else if (event.data.startsWith("resettimer")) {
     count = 4;
@@ -141,7 +257,7 @@ function getsleep() {
         document.getElementById("sleepinfo").style.display =
           this.responseText === "off" ? "none" : "block";
         // document.getElementById("sleepform").style.display =
-          // this.responseText === "off" ? "block" : "none";
+        // this.responseText === "off" ? "block" : "none";
       }
       sinfo.innerHTML = this.responseText;
     }
@@ -153,7 +269,7 @@ function updatesleep(timetxt) {
   document.getElementById("sleepinfo").style.display =
     timetxt === "off" ? "none" : "block";
   // document.getElementById("sleepform").style.display =
-    // timetxt === "off" ? "block" : "none";
+  // timetxt === "off" ? "block" : "none";
   document.getElementById("timerinfo").innerHTML = "stop in > " + timetxt;
 }
 var scrollcount = 0;
@@ -258,7 +374,21 @@ function load_cofig() {
 function scroll_to() {
   var bplaying = document.getElementById("playing");
   if (bplaying !== null) {
-    bplaying.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    bplaying.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+}
+function scroll_to_name(parent, name) {
+  var parentEl = document.getElementById(parent);
+  var bplaying = null;
+  if (parentEl) {
+    bplaying =
+      parentEl.querySelector("#" + name) || document.getElementById(name);
+  } else {
+    bplaying = document.getElementById(name);
+  }
+  if (bplaying !== null) {
+    console.log(`element ${name} exist`);
+    bplaying.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }
 }
 function hasVerticalScrollbar(element) {
@@ -474,15 +604,57 @@ function polpulatesl() {
         // console.log("got playlist");
         if (this.responseText != old_sl) {
           // console.log("got playlist");
-          stations.innerHTML = this.responseText;
+          // stations.innerHTML = this.responseText;
           old_sl = this.responseText;
         }
-        stations.innerHTML = this.responseText;
+        // // 1. Instantiate the DOMParser
+        // const parser = new DOMParser();
+
+        // // 2. Parse the string into a real HTML Document
+        // const doc = parser.parseFromString(this.responseText, 'text/html');
+
+        // // 3. Now you can use querySelectorAll on the 'doc' object!
+        // const links = doc.querySelectorAll('.button1 a');
+
+        // // 2. Convert NodeList to an array and extract the text
+        // const stationNames = Array.from(links).map(link => link.textContent.trim());
+
+        // console.log(stationNames);
+        const htmlString = this.responseText;
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(htmlString, "text/html");
+
+        // Extract elements and join them into a single string separated by a newline
+        const resultString = Array.from(doc.querySelectorAll("a"))
+          .map((a) => {
+            // .closest('.bplay') checks if any parent element has the 'bplay' class
+            if (a.closest(".bplay")) {
+              a.style.color = "black";
+              a.setAttribute("id", "focused");
+            }
+            return a.outerHTML;
+          })
+          .join("\n");
+
+        // console.log(resultString);
+        // stations.innerhtml = resultString;
+
         scrollcount++;
-        if (scrollcount > 3) {
-          scroll_to();
-          scrollcount = 0;
+        if (isMobile) {
+          stations.innerHTML = resultString;
+          stations_list = this.responseText;
+          if (scrollcount > 3) {
+            scroll_to_name("stations", "focused");
+            scrollcount = 0;
+          }
+        } else {
+          stations.innerHTML = this.responseText;
+          if (scrollcount > 3) {
+            scroll_to();
+            scrollcount = 0;
+          }
         }
+
         count = 0;
         polpulatepl();
       }
@@ -715,59 +887,86 @@ function triggerCustomHTML() {
   PopupJS.openCustomHTML("Choose playlist", playlist_group);
 }
 
-function opencprompt(){
-	PopupJS.customPrompt(poster, "play url","play custom url", "http://..");
+function openStationsPopUp() {
+  console.log("Firing Custom HTML Playlist Modal");
+
+  PopupJS.openCustomHTML("Choose track", stations_list);
+  setTimeout(() => {
+    scroll_to();
+  }, 200);
 }
 
-function opensleepprompt(){
-	PopupJS.customPrompt(postersleep, "set sleep","input sleeptimer in minutes", "20");
+function opencprompt() {
+  PopupJS.customPrompt(poster, "play url", "play custom url", "http://..");
 }
-function openatoplprompt(){
 
-  PopupJS.customPrompt(poster3, "add url","add audio url to current active playlist", "http://..");
+function opensleepprompt() {
+  PopupJS.customPrompt(
+    postersleep,
+    "set sleep",
+    "input sleeptimer in minutes",
+    "20",
+  );
+}
+function openatoplprompt() {
+  PopupJS.customPrompt(
+    poster3,
+    "add url",
+    "add audio url to current active playlist",
+    "http://..",
+  );
 }
 function poster(url) {
-    var ajax_request = new XMLHttpRequest();
-	console.log("poster called")
-    ajax_request.open("POST", "/", true);
-    ajax_request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+  var ajax_request = new XMLHttpRequest();
+  console.log("poster called");
+  ajax_request.open("POST", "/", true);
+  ajax_request.setRequestHeader(
+    "Content-Type",
+    "application/x-www-form-urlencoded",
+  );
 
-    ajax_request.onreadystatechange = function () {
-        if (ajax_request.readyState === 4) {
-            if (ajax_request.status === 200) {
-              console.log("success");
-              PopupJS.toast(`adding: ${url}`, "success");
-            } else {
-                console.log("failed");
-            }
-        }
-    };
+  ajax_request.onreadystatechange = function () {
+    if (ajax_request.readyState === 4) {
+      if (ajax_request.status === 200) {
+        console.log("success");
+        PopupJS.toast(`adding: ${url}`, "success");
+      } else {
+        console.log("failed");
+      }
+    }
+  };
 
-    ajax_request.send("curl=" + encodeURIComponent(url));
+  ajax_request.send("curl=" + encodeURIComponent(url));
 }
 function postersleep(url) {
-    var ajax_request = new XMLHttpRequest();
-	console.log("poster called")
-    ajax_request.open("POST", "/", true);
-    ajax_request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+  var ajax_request = new XMLHttpRequest();
+  console.log("poster called");
+  ajax_request.open("POST", "/", true);
+  ajax_request.setRequestHeader(
+    "Content-Type",
+    "application/x-www-form-urlencoded",
+  );
 
-    ajax_request.onreadystatechange = function () {
-        if (ajax_request.readyState === 4) {
-            if (ajax_request.status === 200) {
-              console.log("success");
-              PopupJS.toast(`set sleep timer: ${url} minutes`, "success");
-                console.log("failed");
-            }
-        }
-    };
+  ajax_request.onreadystatechange = function () {
+    if (ajax_request.readyState === 4) {
+      if (ajax_request.status === 200) {
+        console.log("success");
+        PopupJS.toast(`set sleep timer: ${url} minutes`, "success");
+        console.log("failed");
+      }
+    }
+  };
 
-    ajax_request.send("sleep=" + encodeURIComponent(url));
+  ajax_request.send("sleep=" + encodeURIComponent(url));
 }
 function poster3(url) {
   var ajax_request = new XMLHttpRequest();
-  console.log("poster called")
+  console.log("poster called");
   ajax_request.open("POST", "/", true);
-  ajax_request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+  ajax_request.setRequestHeader(
+    "Content-Type",
+    "application/x-www-form-urlencoded",
+  );
 
   ajax_request.onreadystatechange = function () {
     if (ajax_request.readyState === 4) {
