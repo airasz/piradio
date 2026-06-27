@@ -75,7 +75,6 @@ h1 {
 }
 
 h3 {
-
   text-align: left;
   font-weight: lighter;
 }
@@ -152,7 +151,18 @@ input[type="submit"]:hover {
   overflow-y: auto;
   max-height: 250px;
   padding: 6px;
-  display: contents;
+  /* display: contents; */
+}
+
+/* #stations is the flexible element — it absorbs all remaining vertical space */
+#stations-launcher {
+  flex: 1 1 0;
+  min-height: 0;
+  /* required for flex children to shrink below content size */
+  /*   max-height: none; */
+  /* override .buttonstation fixed cap */
+  /* overflow-y: auto; */
+  display: none;
 }
 
 /* #stations is the flexible element — it absorbs all remaining vertical space */
@@ -163,11 +173,11 @@ input[type="submit"]:hover {
   /*   max-height: none; */
   /* override .buttonstation fixed cap */
   overflow-y: auto;
-  display: inline-block;
+  /* display: none; */
 }
 
 #stations>a {
-  color: rgba(0, 0, 0, 0.27)
+  color: rgba(0, 0, 0, 0.27);
 }
 
 .button1 {
@@ -183,7 +193,7 @@ input[type="submit"]:hover {
 
 .button-trans {
   background: rgba(132, 132, 132, 0.02);
-  position: absolute;
+  /* position: absolute; */
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
@@ -194,6 +204,7 @@ input[type="submit"]:hover {
   padding: 30px;
   font-size: larger;
 }
+
 .button1:active {
   /*   color: rgb(78, 75, 75); */
   padding: 8px;
@@ -208,9 +219,11 @@ input[type="submit"]:hover {
 
   cursor: pointer;
 }
-.stations-container{
-  position:relative;
+
+.stations-container {
+  /* position:relative; */
 }
+
 .port {
   padding: 8px;
   border: 0px;

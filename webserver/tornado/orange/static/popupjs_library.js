@@ -226,7 +226,7 @@ class PopupJSLibrary {
                         gap: 0.75rem;
                         pointer-events: none;
                         max-width: 24rem;
-                        width: 100%;
+                        width: 60%;
                     }
                     .pjs-toast {
                         pointer-events: auto;
