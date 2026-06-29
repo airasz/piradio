@@ -33,7 +33,7 @@ from luma.core.legacy import show_message
 from luma.core.legacy.font import proportional, SINCLAIR_FONT
 
 from pathlib import Path
-from PIL import ImageFont
+from PIL import ImageFont, ImageDraw
 
 import tornado
 import os.path
@@ -47,8 +47,9 @@ import tornado.web
 
 # ----------------OLED DISPLAY SETUP------------
 font_path = str(Path(__file__).resolve().parent.joinpath("fonts", "DejaVuSansMono.ttf"))
-font2 = ImageFont.truetype(font_path, 10)
-font3 = ImageFont.truetype(font_path, 30)
+font_path2 = str(Path(__file__).resolve().parent.joinpath("fonts", "DejaVuSans.ttf"))
+font2 = ImageFont.truetype(font_path, 10, encoding="utf-8")
+font3 = ImageFont.truetype(font_path, 30, encoding="utf-8")
 
 
 def do_nothing(obj):
@@ -268,9 +269,9 @@ def loop():
             G_VAR["MAXUCOUNT"] = 20
             G_VAR["STOP_COUNT"] += 1
             # print("G_VAR["STOP_COUNT"]" + str(G_VAR["STOP_COUNT"]))
-            if G_VAR["STOP_COUNT"] > 600:
+            if G_VAR["STOP_COUNT"] > 120:
                 myoled.display("", (0, 0))
-                G_VAR["STOP_COUNT"] = 201
+                G_VAR["STOP_COUNT"] = 121
                 if G_VAR["SCREEN_SLEEP"] is False:
                     G_VAR["SCREEN_SLEEP"] = True
                     # myoled.clear(1)
@@ -284,9 +285,10 @@ def loop():
                     )
                     os.system()
                 else:
-                    ypos = random.randint(0, 30)
+                    ypos = random.randint(0, 25)
                     xpos = random.randint(0, 50)
-                    myoled.display("player stopped\n" + G_VAR["LOCAL_IP"], (xpos, ypos))
+                    #myoled.display("player stopped\n" + G_VAR["LOCAL_IP"] +"\n "+G_VAR["STOP_COUNT"], (xpos, ypos))
+                    myoled.display((f'player stopped\n{G_VAR["LOCAL_IP"]}\n{G_VAR["STOP_COUNT"]}'), (xpos, ypos))
             # sleep(0.4)
     G_VAR["U_COUNT"] += 1
     if G_VAR["U_COUNT"] == 25:
@@ -854,14 +856,17 @@ def save_config():
 def cmd(cmd):
     rtr = ""
     try:
-        rtr = subprocess.check_output(cmd, shell=True, timeout=3)
+        crst = subprocess.check_output(cmd, shell=True, timeout=3)
+        rtr= crst.decode("utf-8")
     except subprocess.TimeoutExpired:
         print("timeout in cmd: " + cmd)
+        rtr= ('timeout')
     except subprocess.CalledProcessError as e:
         rtr = e.output
+        rtr = rtr.decode("utf-8")
         # rtr="eror"
 
-    rtr = rtr.decode("utf-8")
+  #  rtr = rtr.decode("utf-8")
     return rtr
 
 
@@ -1078,7 +1083,9 @@ def setVOL(up):
     status = cmd(
         "mpc volume " + ("+5" if up else "-5") + " | grep volume | awk '{print$2}'"
     )
-    interuptDisplay(3, 25, "v " + status)
+    # interuptDisplay(3, 25, "v " + status)
+    interuptDisplay(3, 25, "v")
+    interuptDisplay(3, 50, status)
     broadcast_message("vol=" + status)
 
 
@@ -1124,8 +1131,11 @@ def clickNum(pos):
         and G_VAR["TO_SET_PLAYMODE"] is False
         and G_VAR["TO_SEEK_TO"] is False
     ):
+    #========= track handler =========
         if G_VAR["TOTAL_OF_QUEUE"] < 10:
-            interuptDisplay(3, 15, "play pos " + str(pos))
+            # interuptDisplay(3, 15, "play pos " + str(pos))
+            # interuptDisplay(3, 25, "pos")
+            interuptDisplay(3, 50, str(pos))
             os.system("mpc play " + str(pos))
             return
         else:
@@ -1141,30 +1151,39 @@ def clickNum(pos):
                     G_VAR["SECOND_DIGIT"] = 0
                     return
                 else:
-                    interuptDisplay(3, 15, "play pos " + str(G_VAR["SECOND_DIGIT"]))
+                    # interuptDisplay(3, 15, "play pos " + str(G_VAR["SECOND_DIGIT"]))
+                    interuptDisplay(3, 50, (f"{str(G_VAR['SECOND_DIGIT'])}"))
+                    # interuptDisplay(3, 50, (f"{str(pos)}_" + str(G_VAR["SECOND_DIGIT"])[1:]))
                     os.system("mpc play " + str(G_VAR["SECOND_DIGIT"]))
                     G_VAR["SECOND_DIGIT"] = 0
                     broadcast_message("resettimer")
                 return
             else:
-                interuptDisplay(3, 15, (f"play pos {str(pos)}_"))
+                # interuptDisplay(3, 15, (f"play pos {str(pos)}_"))
+
+                interuptDisplay(3, 50, (f"{str(pos)}_"))
                 G_VAR["SECOND_DIGIT"] = pos * 10
                 print(f'second digit = {G_VAR["SECOND_DIGIT"]}')
                 return
         return
+
+    #========= volume handle =========
     if G_VAR["NUM_VOL"] == 1:
         G_VAR["VOLTO"] = pos * 10
         interuptDisplay(5, 15, "volume to\n" + str(pos) + "x")
+        interuptDisplay(5, 50, str(pos) + "_")
         print("start vol========== " + str(G_VAR["VOLTO"]))
         G_VAR["NUM_VOL"] = 2
         broadcast_message("resettimer")
     elif G_VAR["NUM_VOL"] == 2:
         G_VAR["VOLTO"] += pos
         G_VAR["NUM_VOL"] = 0
-        interuptDisplay(5, 15, "set volume to\n" + str(G_VAR["VOLTO"]))
+        # interuptDisplay(5, 15, "set volume to\n" + str(G_VAR["VOLTO"]))
+        interuptDisplay(5, 50, str(G_VAR["VOLTO"]))
         os.system("mpc volume " + str(G_VAR["VOLTO"]))
         broadcast_message("resettimer")
 
+    #========= sleep handler =========
     if G_VAR["MINUTE_SLEEP"] == 1:
         G_VAR["MIN_SLEEP_VALUE"] = 0
         G_VAR["MIN_SLEEP_VALUE"] = pos * 10
@@ -1179,6 +1198,7 @@ def clickNum(pos):
             + str(G_VAR["MIN_SLEEP_VALUE"])
             + " minutes\nClick OK to\nconfirm",
         )
+    #========= playlist handler ==========
     if G_VAR["PICK_PLAYLIST"] is True:
         status = cmd("mpc clear")
         sleep(0.1)
@@ -1200,6 +1220,8 @@ def clickNum(pos):
             broadcast_message("info=" + status)
             display.frezeeDisplay(3)
         G_VAR["PICK_PLAYLIST"] = False
+
+    #========= play mode handler =========
     if G_VAR["TO_SET_PLAYMODE"]:
         if pos in [1, 2, 3, 4]:
             value_modes = [
@@ -1222,6 +1244,8 @@ def clickNum(pos):
             info += f'3. single {"on" if RADIO_STATUS["single"] else "off"}\n'
             info += f'4. consume {"on" if RADIO_STATUS["consume"] else "off"}\n'
             interuptDisplay(8, 0, info)
+
+    #========= seek handler =========
     if G_VAR["TO_SEEK_TO"]:
         """ seek 100 = seek to second 100th from 0
         seekthrough 100  seek to SECOND 100th from current position """
@@ -1269,7 +1293,7 @@ def clickNum(pos):
         #         interuptDisplay(3,15,"seek to\n"+str(G_VAR["MINUTE_SEEK_TO"]))
 
         # pass
-        # if pos < 
+        # if pos <
 
 
 def switchPLAYLIST():
@@ -1621,6 +1645,10 @@ def processIRe(irval):
         interuptDisplay(2, 10, "remote locked")
         return
     else:
+        if G_VAR["STOP_COUNT"] > 120:
+            ypos = random.randint(0, 25)
+            xpos = random.randint(0, 50)
+            myoled.display("HAI...!", (xpos, ypos))
         for i in range(len(KR_eNUM)):
             if irval == KR_eNUM[i][1]:
                 clickNum(KR_eNUM[i][0])
@@ -1992,7 +2020,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
                 subprocess.check_output(sbmsg, shell=True).decode("utf-8")
                 getstationlen()
                 subprocess.check_output("mpc play ", shell=True).decode("utf-8")
-                CONFIGDATA["play_custom"] = False 
+                CONFIGDATA["play_custom"] = False
                 for i in range(len(PLAYlists)):
                     if PLAYlists[i] in sbmsg:
                         CONFIGDATA["curent_pl_id"] = i + 1
