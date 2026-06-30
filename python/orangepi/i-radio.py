@@ -736,7 +736,7 @@ load_remote_codes()
 
 
 # print(REMOTE_CODES)
-def getlocal_ip():
+def getlocal_ip2():
     cmd = "hostname -I | awk '{print$1}'"
     result = subprocess.check_output(cmd, shell=True)
     G_VAR["LOCAL_IP"] = result.decode("utf-8")
@@ -746,6 +746,16 @@ def getlocal_ip():
     G_VAR["LOCAL_IP"] = "IP: " + G_VAR["LOCAL_IP"]
     print(G_VAR["LOCAL_IP"])
 
+
+# print(REMOTE_CODES)
+def getlocal_ip():
+    cmd = "hostname -I"
+    result = subprocess.check_output(cmd, shell=True)
+    ips = result.decode("utf-8").strip().split()
+    ipv4_ips = [ip for ip in ips if ":" not in ip]
+    G_VAR["LOCAL_IP"] = " \n".join(ipv4_ips)# + "\n"
+    G_VAR["LOCAL_IP"] = "IP: " + G_VAR["LOCAL_IP"]
+    print(G_VAR["LOCAL_IP"])
 
 getlocal_ip()
 
