@@ -9,7 +9,7 @@ import time
 import random
 import serial
 import subprocess
-from threading import *
+#from threading import *
 import threading
 import json
 import asyncio
@@ -22,6 +22,7 @@ import math
 import psutil
 
 
+import threading
 # import oledis
 # import module_radio
 # import mpcstimer
@@ -108,11 +109,13 @@ G_VAR = {
     "TO_SEEK_TO": False,
     "MINUTE_SEEK_TO": 0,
     "SECOND_DIGIT_SEEK_TO": 0,
-
+    "COUNT_ONMENU": 0,
 }
 CONFIGDATA = {}
 RADIO_STATUS = {}
 PLAYlists = []
+splited_playlist = []
+splited_playlist_pointer = 0
 # Remote control key codes as JSON data
 REMOTE_CODES = {}
 
@@ -816,7 +819,7 @@ def send_wall_message(message: str):
         print(f"Failed to send message: {e}")
 
 
-def interuptDisplay(delay, fontsize, msg):
+def interuptDisplay(delay: int, fontsize: int, msg: str):
     G_VAR["U_COUNT"] = 20 - delay
     if fontsize == 0:
         myoled.display_onpos(msg, False)
@@ -1002,7 +1005,7 @@ def startTenPos():
     G_VAR["TEN_PLUS"] = True
 
 
-def startPlistTo():
+def startSelectPlaylistTo():
     if G_VAR["PICK_PLAYLIST"] is False:
         exitset(False)
         G_VAR["PICK_PLAYLIST"] = True
@@ -1042,14 +1045,14 @@ def startSetPlayMode():
         # displaytooled(cmd("mpc"))
 
 
-def seekthrough(forward):
+def seekthrough(forward: bool):
     status = ""
     vol = ""
     status = cmd("mpc seekthrough " + ("+1:00" if forward else "-1:00"))
     print("vol " + status)
 
 
-def setSTATION(next):
+def setSTATION(next: bool):
     status = ""
     ypos = random.randint(0, 54)
     xpos = random.randint(0, 50)
@@ -1085,6 +1088,63 @@ def stationPage(next):
             cs = 1
         interuptDisplay(3, 15, "play pos " + str(cs))
         noReturnSubprocess(f"mpc play {cs}")
+
+
+
+#convert playlist to string of stations/tracks split by new line
+def dividePlayList():
+    global splited_playlist
+    # display.frezeeDisplay(50)
+    pl=[]
+    sr = subprocess.check_output("mpc playlist", shell=True).decode("utf-8")
+    for index, line in enumerate(sr.splitlines(), start=1):
+        if len(line) > 18:
+            line = line[-18:]  # keep only the last 18 characters
+        pl.append(f"{index}. {line}")
+        print(f"{index}. {line}")
+
+    # pl = [f"{index}. {line}" for index, line in enumerate(sr.splitlines(), start=1)]
+    # if len(pl) >18:
+    #     pl = pl[-18:]  # keep only the last 20 items
+    chunk_size = 4
+    splited_playlist = [pl[i : i + chunk_size] for i in range(0, len(pl), chunk_size)]
+    # print(split_list)
+    # for item in split_list:
+    # print(item)
+
+    # display.sendCommand(f't1.txt="{rp}"')
+
+
+def drawPlayList():
+    dividePlayList()
+    global splited_playlist
+    global splited_playlist_pointer
+    display.frezeeDisplay(50)
+    rp = ""
+    prange = ""
+    splited_playlist_pointer += 1
+    if splited_playlist_pointer < len(splited_playlist) + 1:
+        if splited_playlist_pointer < len(splited_playlist):
+            prange = f"{(splited_playlist_pointer*4)-4+1} - {(splited_playlist_pointer*10)}"
+        else:
+            prange = f"{(splited_playlist_pointer*4)-4+1} - {G_VAR['TOTAL_OF_QUEUE']}"
+        rp = "\n".join(splited_playlist[splited_playlist_pointer - 1])
+        print(rp)
+        rp = rp.replace("https://", "").replace("http://", "")
+        # if len(rp) >  :]
+        # if splited_playlist_pointer == 1:
+        #     display.sendCommand("page page9")
+        interuptDisplay(3, 10, (f"{rp}"))
+        # display.sendCommand(f't0.txt="playlist ({prange}) {G_VAR['TOTAL_OF_QUEUE']}"')
+        # display.sendCommand(f't1.txt="{rp}"')
+    else:
+        splited_playlist_pointer = 0
+        # display.setPage(1)
+        # display.reinit()
+        # display.sendCommand("page page4")
+        # display.sendCommand('t0.txt="banana radio"')
+        display.frezeeDisplay(1)
+
 
 
 def setVOL(up):
@@ -1398,7 +1458,7 @@ def displaytooled(status):
         sm = str(msglist[x])
         text += sm
         text += "\n"
-    display.display(text, (0, 0))
+    myoled.display(text, (0, 0))
     print("to display=" + text)
 
 
@@ -1534,7 +1594,7 @@ def processIR(irval):
         elif irval == REMOTE_CODES["NEXMEDIA"]["KR_EXIT"]:
             exitset(True)
         elif irval == REMOTE_CODES["NEXMEDIA"]["KR_MEDIA"]:
-            startPlistTo()
+            startSelectPlaylistTo()
         elif irval == REMOTE_CODES["NEXMEDIA"]["KR_TV"]:
             G_VAR["GOTOSTATION"] = True
 
@@ -1700,8 +1760,9 @@ def processIRe(irval):
             print("call > vol jump")  # start vol
             startVol()
         elif irval == REMOTE_CODES["EVERCROSS"]["KRE_INFO"]:  # 10+
-            print("ccall > ten+")
-            startTenPos()
+            # print("ccall > ten+")
+            # startTenPos()
+            drawPlayList()
         elif irval == REMOTE_CODES["EVERCROSS"]["KRE_POWER"]:  # 10+
             print("reboot")
             reboot()
@@ -1712,7 +1773,7 @@ def processIRe(irval):
         elif irval == REMOTE_CODES["EVERCROSS"]["KRE_MUTE"]:
             restart()
         elif irval == REMOTE_CODES["EVERCROSS"]["KRE_FAV"]:
-            startPlistTo()
+            startSelectPlaylistTo()
         elif irval == REMOTE_CODES["EVERCROSS"]["KRE_EXIT"]:
             exitset(True)
         elif irval == REMOTE_CODES["EVERCROSS"]["KRE_PAGEUP"]:
@@ -2157,7 +2218,7 @@ def broadcast_rplist():
         G_VAR["PREV_PLAYLIST"] = rp
         broadcast_message("pls=" + rp)
 
-
+#100ms callback, 10 times per second, to check status and send to websocket if changed
 def infinity():
     G_VAR["SCOUNT"] += 1
     if G_VAR["SCOUNT"] % 2 == 0:
