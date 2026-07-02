@@ -400,13 +400,13 @@ def displayto_oled(status):
 
 
 class sleeptimer:
-    def startcdown(self, minutes):
+    def startCountdown(self, minutes):
         G_VAR["T_ENABLE"] = True
         G_VAR["SECOND_CDOWN"] = minutes * 60
         return
 
     # cancel sleep timer
-    def stopcdown(self):
+    def stopCountdown(self):
         G_VAR["T_ENABLE"] = False
         G_VAR["SECOND_CDOWN"] = 0
         print("sleep timer stopped by user")
@@ -427,7 +427,7 @@ class sleeptimer:
                 G_VAR["T_ENABLE"] = False
                 # quit()
 
-    # auto stop reset counting
+    # reset counting for auto stop 
     def resetAutoStop(self):
         # print("auto stop timer resetted")
         G_VAR["AUTOSTOP_SECOND_CDOWN"] = 0
@@ -436,27 +436,31 @@ class sleeptimer:
     def getsecac(self):
         return str(G_VAR["AUTOSTOP_SECOND_CDOWN"])
 
+    # auto stop counting for no user activity
     def autostop(self):
-        if G_VAR["AUTOSTOP_COUNT_DOWN"] is True and G_VAR["PLAYING"] is True:
+        if G_VAR["AUTOSTOP_COUNT_DOWN"] is True and G_VAR["PLAYING"] is True and G_VAR["T_ENABLE"] is False:
             G_VAR["AUTOSTOP_SECOND_CDOWN"] += 1
             if G_VAR["AUTOSTOP_SECOND_CDOWN"] % 10 == 0:
                 print("auto stop second: " + str(G_VAR["AUTOSTOP_SECOND_CDOWN"]))
                 print("ASSECMX: " + str(G_VAR["ASSECMX"]))
             # print("iradio_oled auto stop  "+str(G_VAR["AUTOSTOP_SECOND_CDOWN"]))
             if G_VAR["AUTOSTOP_SECOND_CDOWN"] == G_VAR["ASSECMX"]:
-                print("\nauto stop due a 1 hour no user activity!")
-                send_wall_message("mpc stopped due 1 hour without user control")
+                print(f"\nauto stop due a {(G_VAR['ASSECMX']/60)} no user activity!")
+                send_wall_message(f"mpc stopped due {(G_VAR['ASSECMX']/60)} minutes no user activity!")
                 os.system("mpc stop")
             elif G_VAR["AUTOSTOP_SECOND_CDOWN"] > (G_VAR["ASSECMX"] + 1):
                 G_VAR["AUTOSTOP_SECOND_CDOWN"] = G_VAR["ASSECMX"] + 1
 
+    # run every second to countdown and auto stop
     def beat(self):
         self.countdown()
         self.autostop()
 
+    # check if sleep timer is running
     def isrunning(self):
         return G_VAR["T_ENABLE"]
 
+    #return sleep timer countdown progress in string format
     def update(self):
         # print("sec cd = "+str(SEC_CD))
         if G_VAR["T_ENABLE"] is True:
@@ -797,10 +801,10 @@ def getNetData():
         shell=True,
     )
     signal = dbm.decode("utf-8")
-    G_VAR["NETSTAT"] = G_VAR["NETSTAT"] + dbtopercent(dbm)  # + signal[1:]
+    G_VAR["NETSTAT"] = G_VAR["NETSTAT"] + db_to_percent(dbm)  # + signal[1:]
 
 
-def dbtopercent(value):
+def db_to_percent(value):
     inval = int(value)
     if inval != 0:
         percent = 100 * (1 - ((-1) - inval) / ((-1) - (-98)))
@@ -901,7 +905,7 @@ PLAYlists = cmd("mpc lsplaylists").splitlines(keepends=False)
 PLAYlists = sorted(PLAYlists, key=str.lower)
 
 
-def getVol():
+def get_Volume():
     status = "radio volume: 50%"
     status = cmd("mpc")
     displaytooled(status)
@@ -912,7 +916,7 @@ def getVol():
 
 
 def mute():
-    getVol()
+    get_Volume()
     print("P_VOL=" + str(G_VAR["P_VOL"]))
     if G_VAR["P_VOL"] > 0:
         G_VAR["CURENT_VOL"] = G_VAR["P_VOL"]
@@ -964,7 +968,7 @@ def startsetsleep():
             stimerStop += 1
         elif stimerStop == 1:
             display.frezeeDisplay(3)
-            sleeptimer.stopcdown()
+            sleeptimer.stopCountdown()
             interuptDisplay(3, 0, "timer is stopped")
             stimerStop = 0
     else:
@@ -982,7 +986,7 @@ def startsetsleep():
     #             stimerStop += 1
     #         elif stimerStop == 1:
     #             display.frezeeDisplay(3)
-    #             sleeptimer.stopcdown()
+    #             sleeptimer.stopCountdown()
     #             interuptDisplay(3, 0, "timer is stopped")
     #             stimerStop = 0
     #     else:
@@ -1173,8 +1177,8 @@ def reboot():
         sleep(1)
         os.system("reboot")
 
-
-def exitset(info):
+#exit set mode and reset all variables, draw info on display if true
+def exitset(info=False):
     G_VAR["SECOND_DIGIT"] = 0
     G_VAR["GOTOSTATION"] = False
     G_VAR["PICK_PLAYLIST"] = False
@@ -1189,9 +1193,9 @@ def exitset(info):
         interuptDisplay(3, 16, "operation\ncanceled")
 
 
-def clickNum(pos):
-    ypos = random.randint(0, 54)
-    xpos = random.randint(0, 50)
+def clickNumber(number):
+    ynumber = random.randint(0, 54)
+    xnumber = random.randint(0, 50)
     G_VAR["PULSE_COUNT"] = 0
     status = ""
     if (
@@ -1203,14 +1207,14 @@ def clickNum(pos):
     ):
     #========= track handler =========
         if G_VAR["TOTAL_OF_QUEUE"] < 10:
-            # interuptDisplay(3, 15, "play pos " + str(pos))
-            # interuptDisplay(3, 25, "pos")
-            interuptDisplay(3, 50, str(pos))
-            os.system("mpc play " + str(pos))
+            # interuptDisplay(3, 15, "play number " + str(number))
+            # interuptDisplay(3, 25, "number")
+            interuptDisplay(3, 50, str(number))
+            os.system("mpc play " + str(number))
             return
         else:
             if G_VAR["SECOND_DIGIT"] > 0:
-                G_VAR["SECOND_DIGIT"] += pos
+                G_VAR["SECOND_DIGIT"] += number
                 if G_VAR["SECOND_DIGIT"] > G_VAR["TOTAL_OF_QUEUE"]:
                     interuptDisplay(
                         3,
@@ -1221,32 +1225,32 @@ def clickNum(pos):
                     G_VAR["SECOND_DIGIT"] = 0
                     return
                 else:
-                    # interuptDisplay(3, 15, "play pos " + str(G_VAR["SECOND_DIGIT"]))
+                    # interuptDisplay(3, 15, "play number " + str(G_VAR["SECOND_DIGIT"]))
                     interuptDisplay(3, 50, (f"{str(G_VAR['SECOND_DIGIT'])}"))
-                    # interuptDisplay(3, 50, (f"{str(pos)}_" + str(G_VAR["SECOND_DIGIT"])[1:]))
+                    # interuptDisplay(3, 50, (f"{str(number)}_" + str(G_VAR["SECOND_DIGIT"])[1:]))
                     os.system("mpc play " + str(G_VAR["SECOND_DIGIT"]))
                     G_VAR["SECOND_DIGIT"] = 0
                     broadcast_message("resettimer")
                 return
             else:
-                # interuptDisplay(3, 15, (f"play pos {str(pos)}_"))
+                # interuptDisplay(3, 15, (f"play number {str(number)}_"))
 
-                interuptDisplay(3, 50, (f"{str(pos)}_"))
-                G_VAR["SECOND_DIGIT"] = pos * 10
+                interuptDisplay(3, 50, (f"{str(number)}_"))
+                G_VAR["SECOND_DIGIT"] = number * 10
                 print(f'second digit = {G_VAR["SECOND_DIGIT"]}')
                 return
         return
 
     #========= volume handle =========
     if G_VAR["NUM_VOL"] == 1:
-        G_VAR["VOLTO"] = pos * 10
-        interuptDisplay(5, 15, "volume to\n" + str(pos) + "x")
-        interuptDisplay(5, 50, str(pos) + "_")
+        G_VAR["VOLTO"] = number * 10
+        interuptDisplay(5, 15, "volume to\n" + str(number) + "x")
+        interuptDisplay(5, 50, str(number) + "_")
         print("start vol========== " + str(G_VAR["VOLTO"]))
         G_VAR["NUM_VOL"] = 2
         broadcast_message("resettimer")
     elif G_VAR["NUM_VOL"] == 2:
-        G_VAR["VOLTO"] += pos
+        G_VAR["VOLTO"] += number
         G_VAR["NUM_VOL"] = 0
         # interuptDisplay(5, 15, "set volume to\n" + str(G_VAR["VOLTO"]))
         interuptDisplay(5, 50, str(G_VAR["VOLTO"]))
@@ -1256,11 +1260,11 @@ def clickNum(pos):
     #========= sleep handler =========
     if G_VAR["MINUTE_SLEEP"] == 1:
         G_VAR["MIN_SLEEP_VALUE"] = 0
-        G_VAR["MIN_SLEEP_VALUE"] = pos * 10
-        interuptDisplay(5, 15, "sleep in\n" + str(pos) + "x minutes")
+        G_VAR["MIN_SLEEP_VALUE"] = number * 10
+        interuptDisplay(5, 15, "sleep in\n" + str(number) + "x minutes")
         G_VAR["MINUTE_SLEEP"] = 2
     elif G_VAR["MINUTE_SLEEP"] == 2:
-        G_VAR["MIN_SLEEP_VALUE"] += pos
+        G_VAR["MIN_SLEEP_VALUE"] += number
         interuptDisplay(
             8,
             13,
@@ -1272,15 +1276,15 @@ def clickNum(pos):
     if G_VAR["PICK_PLAYLIST"] is True:
         status = cmd("mpc clear")
         sleep(0.1)
-        if pos < len(PLAYlists) + 1:
-            status = cmd("mpc load " + PLAYlists[pos - 1])
+        if number < len(PLAYlists) + 1:
+            status = cmd("mpc load " + PLAYlists[number - 1])
             G_VAR["PLAY_CURL"] = False
             getstationlen()
             status = status.replace(" ", "\n")
             interuptDisplay(2, 16, status)
             sleep(1)
-            CONFIGDATA["curent_pl_id"] = pos
-            G_VAR["PLAYLIST_POINTER"] = pos
+            CONFIGDATA["curent_pl_id"] = number
+            G_VAR["PLAYLIST_POINTER"] = number
             print(f'PLAYLIST_POINTER = {G_VAR["PLAYLIST_POINTER"]-1}/{len(PLAYlists)}')
 
             # with open(config_path, "w") as f:
@@ -1293,7 +1297,7 @@ def clickNum(pos):
 
     #========= play mode handler =========
     if G_VAR["TO_SET_PLAYMODE"]:
-        if pos in [1, 2, 3, 4]:
+        if number in [1, 2, 3, 4]:
             value_modes = [
                 RADIO_STATUS["repeat"],
                 RADIO_STATUS["random"],
@@ -1301,13 +1305,13 @@ def clickNum(pos):
                 RADIO_STATUS["consume"],
             ]
             key_modes = ["repeat", "random", "single", "consume"]
-            value_modes[pos - 1] = not value_modes[pos - 1]
+            value_modes[number - 1] = not value_modes[number - 1]
             reslt = cmd(
-                f'mpc {key_modes[pos-1]} {value_modes[pos-1] and "on" or "off"}'
+                f'mpc {key_modes[number-1]} {value_modes[number-1] and "on" or "off"}'
             )
             print(reslt)
             get_mpc_status()
-            # noReturnSubprocess(f'mpc {key_modes[pos-1]} {value_modes[pos-1] and "on" or "off"}')
+            # noReturnSubprocess(f'mpc {key_modes[number-1]} {value_modes[number-1] and "on" or "off"}')
             info = ""
             info += f'1. repeat {"on" if RADIO_STATUS["repeat"] else "off"}\n'
             info += f'2. random {"on" if RADIO_STATUS["random"] else "off"}\n'
@@ -1318,7 +1322,7 @@ def clickNum(pos):
     #========= seek handler =========
     if G_VAR["TO_SEEK_TO"]:
         """ seek 100 = seek to second 100th from 0
-        seekthrough 100  seek to SECOND 100th from current position """
+        seekthrough 100  seek to SECOND 100th from current numberition """
         get_mpc_status()
         TRACK_MINUTE=0
         if RADIO_STATUS["time"]["total_seconds"]>0:
@@ -1330,28 +1334,28 @@ def clickNum(pos):
         print("TRACK_MINUTE="+str(TRACK_MINUTE))
         if TRACK_MINUTE<10:
             print("seeking under 10")
-            interuptDisplay(3,15,"seek to\n"+str(pos))
-            os.system(f'mpc seek {pos*60}')
+            interuptDisplay(3,15,"seek to\n"+str(number))
+            os.system(f'mpc seek {number*60}')
             G_VAR["TO_SEEK_TO"] = False
             return
         else:
             print("seeking over 10")
             if G_VAR["MINUTE_SEEK_TO"]>0:
-                G_VAR["MINUTE_SEEK_TO"]+=pos
+                G_VAR["MINUTE_SEEK_TO"]+=number
                 if G_VAR["MINUTE_SEEK_TO"]>TRACK_MINUTE:
                     interuptDisplay(3,15,"input out range\n"+str(G_VAR["MINUTE_SEEK_TO"]))
                     G_VAR["MINUTE_SEEK_TO"] = 0
                     return
                 else:
                     G_VAR["MINUTE_SEEK_TO"]*=10
-                    G_VAR["MINUTE_SEEK_TO"]+=pos
+                    G_VAR["MINUTE_SEEK_TO"]+=number
                     interuptDisplay(3,15,"seek to\n"+str(G_VAR["MINUTE_SEEK_TO"]))
                     os.system(f'mpc seek {G_VAR["MINUTE_SEEK_TO"]*60}')
                     G_VAR["TO_SEEK_TO"] = False
                 return
             else:
-                interuptDisplay(3,15,"seek to\n"+str(pos)+"_")
-                G_VAR["MINUTE_SEEK_TO"]=pos
+                interuptDisplay(3,15,"seek to\n"+str(number)+"_")
+                G_VAR["MINUTE_SEEK_TO"]=number
                 return
 
 
@@ -1359,11 +1363,12 @@ def clickNum(pos):
         # if TRACK_MINUTE>9:
         #     if G_VAR["MINUTE_SEEK_TO"]==0:
         #         G_VAR["MINUTE_SEEK_TO"] =1
-        #         G_VAR["SECOND_DIGIT_SEEK_TO"] =pos*10
+        #         G_VAR["SECOND_DIGIT_SEEK_TO"] =number*10
         #         interuptDisplay(3,15,"seek to\n"+str(G_VAR["MINUTE_SEEK_TO"]))
 
         # pass
-        # if pos <
+        # if number <
+
 
 
 def switchPLAYLIST():
@@ -1487,7 +1492,7 @@ def restart_app():
 
 
 def msleep(minutes):
-    sleeptimer.startcdown(minutes)
+    sleeptimer.startCountdown(minutes)
 
 
 def ok():
@@ -1503,7 +1508,7 @@ def ok():
             + " minutes"
         )
         G_VAR["MINUTE_SLEEP"] = 0
-        sleeptimer.startcdown(G_VAR["MIN_SLEEP_VALUE"])
+        sleeptimer.startCountdown(G_VAR["MIN_SLEEP_VALUE"])
 
 
 def millis():
@@ -1538,7 +1543,7 @@ def processIR(irval):
     if G_VAR["EN_NEXMEDIA_R"]:
         for i in range(len(KR_nNUM)):
             if irval == KR_nNUM[i][1]:
-                clickNum(KR_nNUM[i][0])
+                clickNumber(KR_nNUM[i][0])
                 break
         if irval == REMOTE_CODES["NEXMEDIA"]["KR_VOLUP"]:
             print("volume up")
@@ -1609,7 +1614,7 @@ def processIRc(irval):
         return
     for i in range(len(KR_cNUM)):
         if irval == KR_cNUM[i][1]:
-            clickNum(KR_cNUM[i][0])
+            clickNumber(KR_cNUM[i][0])
             break
     if irval == REMOTE_CODES["KRC"]["KRC_VOLUP"]:
         print("volume up")
@@ -1658,7 +1663,7 @@ def processIRw(irval):
     else:
         for i in range(len(KR_wNUM)):
             if irval == KR_wNUM[i][1]:
-                clickNum(KR_wNUM[i][0])
+                clickNumber(KR_wNUM[i][0])
                 break
         if irval == REMOTE_CODES["PUTIH"]["KW_VOLUP"]:
             print("volume up")
@@ -1721,7 +1726,7 @@ def processIRe(irval):
             myoled.display("HAI...!", (xpos, ypos))
         for i in range(len(KR_eNUM)):
             if irval == KR_eNUM[i][1]:
-                clickNum(KR_eNUM[i][0])
+                clickNumber(KR_eNUM[i][0])
                 break
         if irval == REMOTE_CODES["EVERCROSS"]["KRE_VOLUP"]:
             print("volume up")
@@ -1840,7 +1845,7 @@ class MainHandler(tornado.web.RequestHandler):
             print("skiping cause argument not contain " + atplval)
         if value != "":
             G_VAR["MIN_SLEEP_VALUE"] = int(value)
-            sleeptimer.startcdown(G_VAR["MIN_SLEEP_VALUE"])
+            sleeptimer.startCountdown(G_VAR["MIN_SLEEP_VALUE"])
             RADIO_STATUS["sleeptimer"]["enable"] = True
 
             interuptDisplay(
@@ -2038,7 +2043,7 @@ class shellCmd(tornado.web.RequestHandler):  # scmd
             sst = sleeptimer.update()
             self.write(sst)
         elif input == "stopsleep":
-            sst = sleeptimer.stopcdown()
+            sst = sleeptimer.stopCountdown()
             self.write("timer stopped")
         elif input == "restart":
             print("This program will restart itself in 2 seconds...")
@@ -2111,7 +2116,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
         elif message.startswith("1>"):
             sbmsg = message[2:]
             if sbmsg.startswith("stopsleep"):
-                sleeptimer.stopcdown()
+                sleeptimer.stopCountdown()
 
     @classmethod
     async def send_message(cls, message):
