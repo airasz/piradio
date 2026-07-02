@@ -587,27 +587,30 @@ def getNetData():
 
 
 def dbtopercent(value):
-    inval = int(value)
-    if inval != 0:
-        # percent = 100 * (1 - ((-1) - inval) / ((-1)- (-98)))
-        # percent =max(0, min(100, (inval + 100) * 100 / 50))
+    if value:
+        inval = int(value)
+        if inval != 0:
+            # percent = 100 * (1 - ((-1) - inval) / ((-1)- (-98)))
+            # percent =max(0, min(100, (inval + 100) * 100 / 50))
 
-        # percent =max(0, min(100, (inval + 100) * 100 / 50))
+            # percent =max(0, min(100, (inval + 100) * 100 / 50))
 
-        maxdb = -20
-        mindb = -100  # signal parameter in dbm
-        percent = int(0 + (inval - (mindb)) * (100 - 0) / ((maxdb) - (mindb)))
-        pct = math.floor(percent)
+            maxdb = -20
+            mindb = -100  # signal parameter in dbm
+            percent = int(0 + (inval - (mindb)) * (100 - 0) / ((maxdb) - (mindb)))
+            pct = math.floor(percent)
 
-        cl = RedYellowGreen(pct)
-        # print(f'pct: {pct}')
-        MyNextion.send_command(f"j2.pco={cl}")  # cpu temp\
-        MyNextion.send_command(f"j2.val={pct}")
-        # pct=pct[:]
-        # print("percent="+pct)
-        return "\nWiFi signal: " + str(pct) + "%"
+            cl = RedYellowGreen(pct)
+            # print(f'pct: {pct}')
+            MyNextion.send_command(f"j2.pco={cl}")  # cpu temp\
+            MyNextion.send_command(f"j2.val={pct}")
+            # pct=pct[:]
+            # print("percent="+pct)
+            return "\nWiFi signal: " + str(pct) + "%"
+        else:
+            return "\nWiFi signal: 0%"  
     else:
-        return "\nWiFi signal: 0%"
+        return ""
 
 
 U_COUNT = 20
