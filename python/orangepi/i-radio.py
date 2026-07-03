@@ -805,11 +805,14 @@ def getNetData():
 
 
 def db_to_percent(value):
-    inval = int(value)
-    if inval != 0:
-        percent = 100 * (1 - ((-1) - inval) / ((-1) - (-98)))
-        pct = str(math.floor(percent))
-        return " sig: " + pct + "%"
+    if value:
+        inval = int(value)
+        if inval != 0:
+            percent = 100 * (1 - ((-1) - inval) / ((-1) - (-98)))
+            pct = str(math.floor(percent))
+            return " sig: " + pct + "%"
+        else:
+            return " sig: 0%"
     else:
         return " sig: 0%"
 

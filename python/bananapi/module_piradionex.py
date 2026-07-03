@@ -608,9 +608,9 @@ def dbtopercent(value):
             # print("percent="+pct)
             return "\nWiFi signal: " + str(pct) + "%"
         else:
-            return "\nWiFi signal: 0%"  
+            return "\nWiFi signal: 0%"
     else:
-        return ""
+        return "\nWiFi signal: 0%"
 
 
 U_COUNT = 20
