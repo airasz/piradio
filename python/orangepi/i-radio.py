@@ -119,6 +119,14 @@ splited_playlist_pointer = 0
 # Remote control key codes as JSON data
 REMOTE_CODES = {}
 
+# eq presets
+AUDIOOUTPUT = {
+    "mono" : "go-mono",
+    "stereo" : "go-stereo",
+    "vocal" : "eq-vocal",
+    "rock" : "eq-rock"
+}
+
 
 config_path = "radioconfig.json"
 remote_path = "remote_code.json"
@@ -427,7 +435,7 @@ class sleeptimer:
                 G_VAR["T_ENABLE"] = False
                 # quit()
 
-    # reset counting for auto stop 
+    # reset counting for auto stop
     def resetAutoStop(self):
         # print("auto stop timer resetted")
         G_VAR["AUTOSTOP_SECOND_CDOWN"] = 0
@@ -2061,6 +2069,11 @@ class shellCmd(tornado.web.RequestHandler):  # scmd
             noReturnSubprocess("mpc rm " + PLAYlists[G_VAR["PLAYLIST_POINTER"]-1])
             noReturnSubprocess("mpc save " + PLAYlists[G_VAR["PLAYLIST_POINTER"]-1])
             self.write("playlist saved to " + PLAYlists[G_VAR["PLAYLIST_POINTER"]-1])
+        elif input=="equalizerlist":
+            htmlpreset=""
+            for key,value in AUDIOOUTPUT.items():
+                htmlpreset+='<button class="button1" onclick="sendcmd(\'' + value + '\')"><a>' + key + '</a></button>'
+            self.write(htmlpreset)
         else:
             self.write("command not recognized")
 
@@ -2114,6 +2127,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
                 interuptDisplay(3, 25, "v " + out)
             else:
                 sr = cmd(sbmsg)
+                WSHandler.send_message(sr)
                 print("incoming ws msg: " + sr)
                 interuptDisplay(3, 16, sr)
         elif message.startswith("1>"):

@@ -897,6 +897,23 @@ function openStationsPopUp() {
   }, 200);
 }
 
+function openEqualizerPopUp() {
+  console.log("Firing Custom HTML Playlist Modal");
+  var ajax_request = new XMLHttpRequest();
+  ajax_request.open("GET", "scmd/equalizerlist", true);
+  ajax_request.onreadystatechange = function () {
+    if (ajax_request.status == 200) {
+      if (ajax_request.readyState == 4) {
+        equalizer_list = this.responseText;
+        PopupJS.openCustomHTML("Choose equalizer", equalizer_list);
+      }
+    } else {
+      equalizer_list = "equalizer list failed";
+    }
+  };
+  ajax_request.send();
+}
+
 function opencprompt() {
   PopupJS.customPrompt(poster, "play url", "play custom url", "http://..");
 }
