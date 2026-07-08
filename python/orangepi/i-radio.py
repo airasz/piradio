@@ -102,6 +102,7 @@ G_VAR = {
     "TO_REBOOT": False,
     "TO_RESTARTAPP": False,
     "TO_SET_PLAYMODE": False,
+    "TO_AUDIO_OUT": False,
     "TS_ENABLE": False,
     "STOP_SLEEP": 0,
     "CDOWN": 0,
@@ -448,9 +449,9 @@ class sleeptimer:
     def autostop(self):
         if G_VAR["AUTOSTOP_COUNT_DOWN"] is True and G_VAR["PLAYING"] is True and G_VAR["T_ENABLE"] is False:
             G_VAR["AUTOSTOP_SECOND_CDOWN"] += 1
-            if G_VAR["AUTOSTOP_SECOND_CDOWN"] % 10 == 0:
-                print("auto stop second: " + str(G_VAR["AUTOSTOP_SECOND_CDOWN"]))
-                print("ASSECMX: " + str(G_VAR["ASSECMX"]))
+            # if G_VAR["AUTOSTOP_SECOND_CDOWN"] % 10 == 0:
+                # print("auto stop second: " + str(G_VAR["AUTOSTOP_SECOND_CDOWN"]))
+                # print("ASSECMX: " + str(G_VAR["ASSECMX"]))
             # print("iradio_oled auto stop  "+str(G_VAR["AUTOSTOP_SECOND_CDOWN"]))
             if G_VAR["AUTOSTOP_SECOND_CDOWN"] == G_VAR["ASSECMX"]:
                 print(f"\nauto stop due a {(G_VAR['ASSECMX']/60)} no user activity!")
@@ -1059,6 +1060,13 @@ def startSetPlayMode():
         loop()
         # displaytooled(cmd("mpc"))
 
+def startSetAudioOutput():
+    if G_VAR["TO_AUDIO_OUT"] is False:
+        exitset(False)
+        G_VAR["TO_AUDIO_OUT"] = True
+        audio_outs = ["mono", "stereo", "vocal", "rock"]
+        info = "\n".join(f"{i}. {key}" for i, key in enumerate(AUDIOOUTPUT.keys(), start=1))
+        interuptDisplay(8, 0, f"select audio output:\n{info}")
 
 def seekthrough(forward: bool):
     status = ""
@@ -1200,6 +1208,7 @@ def exitset(info=False):
     G_VAR["TO_SET_PLAYMODE"] = False
     G_VAR["TO_SEEK_TO"] = False
     G_VAR["MINUTE_SEEK_TO"] = 0
+    G_VAR["TO_AUDIO_OUT"] = False
     if info:
         interuptDisplay(3, 16, "operation\ncanceled")
 
@@ -1215,6 +1224,7 @@ def clickNumber(number):
         and G_VAR["PICK_PLAYLIST"] is False
         and G_VAR["TO_SET_PLAYMODE"] is False
         and G_VAR["TO_SEEK_TO"] is False
+        and G_VAR["TO_AUDIO_OUT"] is False
     ):
     #========= track handler =========
         if G_VAR["TOTAL_OF_QUEUE"] < 10:
@@ -1329,7 +1339,18 @@ def clickNumber(number):
             info += f'3. single {"on" if RADIO_STATUS["single"] else "off"}\n'
             info += f'4. consume {"on" if RADIO_STATUS["consume"] else "off"}\n'
             interuptDisplay(8, 0, info)
-
+    #========= audio output handler =========
+    if G_VAR["TO_AUDIO_OUT"]:
+        if number in [1, 2, 3, 4]:
+            key_modes = list(AUDIOOUTPUT.keys())
+            selected_output = key_modes[number - 1]
+            command = AUDIOOUTPUT[selected_output]
+            reslt = cmd(command)
+            print(reslt)
+            interuptDisplay(3, 0, f"audio output set to\n{selected_output}")
+            G_VAR["TO_AUDIO_OUT"] = False
+        else:
+            interuptDisplay(3, 0, "invalid selection\npress again")
     #========= seek handler =========
     if G_VAR["TO_SEEK_TO"]:
         """ seek 100 = seek to second 100th from 0
@@ -1814,6 +1835,8 @@ def processIRe(irval):
             startSetPlayMode()
         elif irval == REMOTE_CODES["EVERCROSS"]["KRE_RECORD"]:
             startSeekTo()
+        elif irval == REMOTE_CODES["EVERCROSS"]["KRE_EPG"]:
+            startSetAudioOutput();
 
 
 settings = dict(
@@ -2127,8 +2150,9 @@ class WSHandler(tornado.websocket.WebSocketHandler):
                 interuptDisplay(3, 25, "v " + out)
             else:
                 sr = cmd(sbmsg)
-                WSHandler.send_message(sr)
-                print("incoming ws msg: " + sr)
+                # WSHandler.send_message(sr)
+                
+                print("result: " + sr)
                 interuptDisplay(3, 16, sr)
         elif message.startswith("1>"):
             sbmsg = message[2:]
