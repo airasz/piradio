@@ -217,8 +217,8 @@ class sleeptimer:
         # TOBLANKSCREEN = False
         if AUTOSTOP_COUNTDOWN_ENABLE is True and PLAYING is True:
             AUTOSTOP_COUNT_DOWN += 1
-            if AUTOSTOP_COUNT_DOWN % 10 == 0:
-                print(f'autostop countdown: {AUTOSTOP_COUNT_DOWN} - {AUTOSTOPCOUNTDOWNMAX}')
+            # if AUTOSTOP_COUNT_DOWN % 10 == 0:
+            #     print(f'autostop countdown: {AUTOSTOP_COUNT_DOWN} - {AUTOSTOPCOUNTDOWNMAX}')
             # print("serial display auto stop  "+str(AUTOSTOP_COUNT_DOWN))
             if AUTOSTOP_COUNT_DOWN == AUTOSTOPCOUNTDOWNMAX:
                 print("\nauto stop due a 1 hour no user activity!")
@@ -608,9 +608,9 @@ def dbtopercent(value):
             # print("percent="+pct)
             return "\nWiFi signal: " + str(pct) + "%"
         else:
-            return "\nWiFi signal: 0%"
+            return "\nWiFi signal: 0%"  
     else:
-        return "\nWiFi signal: 0%"
+        return ""
 
 
 U_COUNT = 20

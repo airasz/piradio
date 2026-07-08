@@ -116,6 +116,11 @@ function setupMobileUI() {
       openStationsPopUp();
     });
   }
+  const style = document.createElement("style");
+  style.textContent = `.pjs-playlist-wrapper {
+		animation: none !important;
+	}`;
+  document.head.appendChild(style);
 }
 function setupDesktopUI() {
   console.log("setupDesktopUI");
@@ -243,6 +248,7 @@ function setvol() {
     tbl.style.setProperty("--slider-thumb-bg", color);
   }
   websocket.send("0>" + cmd);
+  PopupJS.toast("Volume set to " + tbl.value);
 }
 
 function getsleep() {
@@ -894,6 +900,23 @@ function openStationsPopUp() {
   setTimeout(() => {
     scroll_to();
   }, 200);
+}
+
+function openEqualizerPopUp() {
+  console.log("Firing Custom HTML Playlist Modal");
+  var ajax_request = new XMLHttpRequest();
+  ajax_request.open("GET", "scmd/equalizerlist", true);
+  ajax_request.onreadystatechange = function () {
+    if (ajax_request.status == 200) {
+      if (ajax_request.readyState == 4) {
+        equalizer_list = this.responseText;
+        PopupJS.openCustomHTML("Choose equalizer", equalizer_list);
+      }
+    } else {
+      equalizer_list = "equalizer list failed";
+    }
+  };
+  ajax_request.send();
 }
 
 function opencprompt() {

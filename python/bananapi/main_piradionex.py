@@ -103,6 +103,15 @@ KB_NUMKEYS = [
 
 # KB_NUMKEYS=[[1 , KEY_KP1],[2 , KEY_KP2],[3 , KEY_KP3],[4 , KEY_KP4],[5 , KEY_KP5],[6 , KEY_KP6],[7 , KEY_KP7],[8 , KEY_KP8],[9 , KEY_KP9],[10 , KEY_KP0]]
 
+# eq presets
+AUDIOOUTPUT = {
+    "mono" : "go-mono",
+    "stereo" : "go-stereo",
+    "vocal" : "eq-vocal",
+    "rock" : "eq-rock"
+}
+
+
 stationAlternative = {"My Station name": "Hang FM Batam"}
 # temporary flag
 TEN = False
@@ -122,6 +131,7 @@ MINUTE_SEEK_TO= 0
 SCREEN_BRIGHTNESS = 100
 TO_SET_SCREEN_BRIGHTNESS = False
 PLAYLIST_POINTER = 0
+TO_AUDIO_OUT = False
 
 PLAYlists = [] #list of playlists
 splited_playlist = [] #splited list of stations/tracks
@@ -453,12 +463,13 @@ def click_number(number):
     global pulse_
     global TO_SEEK_TO
     global MINUTE_SEEK_TO
+    global TO_AUDIO_OUT
     # global RADIO_STATUS
     status = ""
 
     pulse_ = 0
     # display.display("volume to "+ str(number + 10 if TEN else number))
-    if NUM_VOL == 0 and MIN_SLEEP == 0 and START_SWITCH_PLAYLISTS is False and TO_SET_PLAYMODE is False and TO_SEEK_TO is False:
+    if NUM_VOL == 0 and MIN_SLEEP == 0 and START_SWITCH_PLAYLISTS is False and TO_SET_PLAYMODE is False and TO_SEEK_TO is False and TO_AUDIO_OUT is False:
         # display.display("play number "+ str(number), True)
         # display.frezeeDisplay(3)
         # myoled.displayfs("play pos "+ str(number),15)
@@ -602,7 +613,18 @@ def click_number(number):
                 interuptDisplay(2,"seek to "+str(number)+"_")
                 MINUTE_SEEK_TO=number
                 return
-
+    if TO_AUDIO_OUT:
+        print("TO_AUDIO_OUT")
+        audio_outs = list(AUDIOOUTPUT.keys())
+        if 1 <= number <= len(audio_outs):
+            selected_key = audio_outs[number-1]
+            command = AUDIOOUTPUT[selected_key]
+            interuptDisplay(2, f"set {selected_key}")
+            os.system(command)
+            TO_AUDIO_OUT = False
+            exitset(False)
+        else:
+            interuptDisplay(2, f"invalid input {number}")
 
 
 
@@ -711,6 +733,17 @@ def startSetPlayMode():
     info+=f'4. consume {"on" if RADIO_STATUS["consume"] else "off"}\n'
     interuptDisplay(2, info)
 
+def startSetAudioOutput():
+    global TO_AUDIO_OUT
+    global COUNT_ONMENU
+    COUNT_ONMENU=0
+    if TO_AUDIO_OUT is False:
+        exitset(False)
+        TO_AUDIO_OUT = True
+        audio_outs = ["mono", "stereo", "vocal", "rock"]
+        info = "\n".join(f"{i}. {key}" for i, key in enumerate(AUDIOOUTPUT.keys(), start=1))
+        interuptDisplay(8, f"select audio output:\n{info}")
+
 def ok():
     global MIN_SLEEP
     global MINUTE_SLEEP_VALUE
@@ -742,6 +775,8 @@ def exitset(info):
     global TO_SEEK_TO
     global MINUTE_SEEK_TO
     global TO_SET_SCREEN_BRIGHTNESS
+    global TO_AUDIO_OUT
+    TO_AUDIO_OUT = False
     TO_SET_SCREEN_BRIGHTNESS = False
     TO_SEEK_TO = False
     MINUTE_SEEK_TO = 0
@@ -990,6 +1025,9 @@ def processIR(irval):
             startSetPlayMode()
         elif irval == 2099276: #record
             startSetScreenBrightness()
+        elif irval==2099211:#audio
+            startSetAudioOutput()
+
 
     else:
         if irval > 2000000:
@@ -1437,6 +1475,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
                 interuptDisplay(1, "set playlist " + out)
             else:
                 sr = subprocess.check_output(sbmsg, shell=True).decode("utf-8")
+                print(f'sr = {sr}')
         elif message.startswith("1>"):
             sbmsg = message[2:]
             if sbmsg.startswith("stopsleep"):
