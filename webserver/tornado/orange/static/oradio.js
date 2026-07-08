@@ -116,6 +116,11 @@ function setupMobileUI() {
       openStationsPopUp();
     });
   }
+  const style = document.createElement("style");
+  style.textContent = `.pjs-playlist-wrapper {
+		animation: none !important;
+	}`;
+  document.head.appendChild(style);
 }
 function setupDesktopUI() {
   console.log("setupDesktopUI");
