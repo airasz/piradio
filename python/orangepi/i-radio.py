@@ -23,7 +23,7 @@ import psutil
 
 
 import threading
-# import oledis
+# import oledisa
 # import module_radio
 # import mpcstimer
 
@@ -111,6 +111,7 @@ G_VAR = {
     "MINUTE_SEEK_TO": 0,
     "SECOND_DIGIT_SEEK_TO": 0,
     "COUNT_ONMENU": 0,
+    "RUN_FROM_CRONTAB": False,
 }
 CONFIGDATA = {}
 RADIO_STATUS = {}
@@ -257,6 +258,33 @@ class oled:
 
 
 myoled = oled()
+
+
+
+def detect_execution_environment():
+    # True if running in a terminal, False if running from cron
+    is_interactive = sys.stdout.isatty()
+    
+    # Get the directory where the script itself is located
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    
+    # Get the current working directory from where the process was launched
+    current_wd = os.getcwd()
+
+    if is_interactive:
+        print("Executed from the Terminal")
+        # Optional: Check if executed from the script's own folder
+        if current_wd == script_dir:
+            print("Running from own directory.")
+        else:
+            print(f"Running from: {current_wd}")
+    else:
+        G_VAR["RUN_FROM_CRONTAB"] = True
+        print("Executed from Cron")
+        
+    return is_interactive
+
+detect_execution_environment()
 
 
 def loop():
@@ -1345,7 +1373,10 @@ def clickNumber(number):
             key_modes = list(AUDIOOUTPUT.keys())
             selected_output = key_modes[number - 1]
             command = AUDIOOUTPUT[selected_output]
-            reslt = cmd(command)
+            if G_VAR["RUN_FROM_CRONTAB"] is True:
+                reslt = subprocess.check_output((f"/usr/local/bin/{command}"), shell=True).decode("utf-8")
+            else:
+                reslt = cmd(command)
             print(reslt)
             interuptDisplay(3, 0, f"audio output set to\n{selected_output}")
             G_VAR["TO_AUDIO_OUT"] = False
@@ -2149,7 +2180,11 @@ class WSHandler(tornado.websocket.WebSocketHandler):
                 out = cmd(sbmsg + " | grep volume | awk '{print$2}'")
                 interuptDisplay(3, 25, "v " + out)
             else:
-                sr = cmd(sbmsg)
+                if sbmsg.startswith("eq-") or sbmsg.startswith("go-"):
+                    if G_VAR["RUN_FROM_CRONTAB"] is True:
+                        sr = subprocess.check_output((f"/usr/local/bin/{sbmsg}"), shell=True).decode("utf-8")
+                else:
+                 sr = cmd(sbmsg)
                 # WSHandler.send_message(sr)
                 
                 print("result: " + sr)
