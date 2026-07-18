@@ -919,6 +919,22 @@ function openEqualizerPopUp() {
   ajax_request.send();
 }
 
+function openOutputPopUp() {
+  console.log("Firing Custom HTML Playlist Modal");
+  var ajax_request = new XMLHttpRequest();
+  ajax_request.open("GET", "scmd/mpcoutputs", true);
+  ajax_request.onreadystatechange = function () {
+    if (ajax_request.status == 200) {
+      if (ajax_request.readyState == 4) {
+        audiooutput_list = this.responseText;
+        PopupJS.openCustomHTML("Choose output device to set enable or disable", audiooutput_list);
+      }
+    } else {
+      audiooutput_list = "output device list failed";
+    }
+  };
+  ajax_request.send();
+}
 function opencprompt() {
   PopupJS.customPrompt(poster, "play url", "play custom url", "http://..");
 }

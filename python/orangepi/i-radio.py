@@ -122,12 +122,19 @@ splited_playlist_pointer = 0
 REMOTE_CODES = {}
 
 # eq presets
-AUDIOOUTPUT = {
+AUDIOEFFECT = {
     "mono" : "go-mono",
     "stereo" : "go-stereo",
     "vocal" : "eq-vocal",
     "rock" : "eq-rock"
 }
+SOUNDOUTPUT={
+    "JBL" : "mpc enable 1; mpc disable 2;",
+    "BTS" : "mpc enable 2; mpc disable 1;",
+    "TWS" : "mpc enable 3",
+    "DAC Stereo" : "mpc enable 4",
+    "DAC Mono" : "mpc enable 5"
+    }
 
 
 config_path = "radioconfig.json"
@@ -264,10 +271,10 @@ myoled = oled()
 def detect_execution_environment():
     # True if running in a terminal, False if running from cron
     is_interactive = sys.stdout.isatty()
-    
+
     # Get the directory where the script itself is located
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    
+
     # Get the current working directory from where the process was launched
     current_wd = os.getcwd()
 
@@ -281,7 +288,7 @@ def detect_execution_environment():
     else:
         G_VAR["RUN_FROM_CRONTAB"] = True
         print("Executed from Cron")
-        
+
     return is_interactive
 
 detect_execution_environment()
@@ -1093,7 +1100,7 @@ def startSetAudioOutput():
         exitset(False)
         G_VAR["TO_AUDIO_OUT"] = True
         audio_outs = ["mono", "stereo", "vocal", "rock"]
-        info = "\n".join(f"{i}. {key}" for i, key in enumerate(AUDIOOUTPUT.keys(), start=1))
+        info = "\n".join(f"{i}. {key}" for i, key in enumerate(AUDIOEFFECT.keys(), start=1))
         interuptDisplay(8, 0, f"select audio output:\n{info}")
 
 def seekthrough(forward: bool):
@@ -1370,9 +1377,9 @@ def clickNumber(number):
     #========= audio output handler =========
     if G_VAR["TO_AUDIO_OUT"]:
         if number in [1, 2, 3, 4]:
-            key_modes = list(AUDIOOUTPUT.keys())
+            key_modes = list(AUDIOEFFECT.keys())
             selected_output = key_modes[number - 1]
-            command = AUDIOOUTPUT[selected_output]
+            command = AUDIOEFFECT[selected_output]
             if G_VAR["RUN_FROM_CRONTAB"] is True:
                 reslt = subprocess.check_output((f"/usr/local/bin/{command}"), shell=True).decode("utf-8")
             else:
@@ -2125,8 +2132,22 @@ class shellCmd(tornado.web.RequestHandler):  # scmd
             self.write("playlist saved to " + PLAYlists[G_VAR["PLAYLIST_POINTER"]-1])
         elif input=="equalizerlist":
             htmlpreset=""
-            for key,value in AUDIOOUTPUT.items():
+            for key,value in AUDIOEFFECT.items():
                 htmlpreset+='<button class="button1" onclick="sendcmd(\'' + value + '\')"><a>' + key + '</a></button>'
+            self.write(htmlpreset)
+        elif input=="mpcoutputs":
+            result = cmd("mpc outputs")
+            htmlpreset = ""
+            for line in result.splitlines():
+                line = line.strip()
+                match = re.match(r"Output (\d+) \((.+)\) is (enabled|disabled)", line)
+                if match:
+                    num = match.group(1)
+                    name = match.group(2)
+                    status = match.group(3)
+                    btn_class = "button1 bplay" if status == "enabled" else "button1"
+                    value = f"mpc disable {num}" if status == "enabled" else f"mpc enable {num}"
+                    htmlpreset += '<button class="' + btn_class + '" onclick="sendcmd(\'' + value + '\')"><a>' + name + '</a></button>'
             self.write(htmlpreset)
         else:
             self.write("command not recognized")
@@ -2186,7 +2207,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
                 else:
                  sr = cmd(sbmsg)
                 # WSHandler.send_message(sr)
-                
+
                 print("result: " + sr)
                 interuptDisplay(3, 16, sr)
         elif message.startswith("1>"):
