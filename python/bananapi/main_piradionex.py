@@ -104,12 +104,20 @@ KB_NUMKEYS = [
 # KB_NUMKEYS=[[1 , KEY_KP1],[2 , KEY_KP2],[3 , KEY_KP3],[4 , KEY_KP4],[5 , KEY_KP5],[6 , KEY_KP6],[7 , KEY_KP7],[8 , KEY_KP8],[9 , KEY_KP9],[10 , KEY_KP0]]
 
 # eq presets
-AUDIOOUTPUT = {
+AUDIOEFFECT = {
     "mono" : "go-mono",
     "stereo" : "go-stereo",
     "vocal" : "eq-vocal",
     "rock" : "eq-rock"
 }
+SOUNDOUTPUT={
+    "JBL" : "mpc enable 1; mpc disable 2;",
+    "BTS" : "mpc enable 2; mpc disable 1;",
+    "TWS" : "mpc enable 3",
+    "DAC Stereo" : "mpc enable 4",
+    "DAC Mono" : "mpc enable 5"
+    }
+
 
 
 stationAlternative = {"My Station name": "Hang FM Batam"}
@@ -1397,6 +1405,11 @@ class shellCmd(tornado.web.RequestHandler):  # scmd
                 self.write("playlist saved to " + plname)
             except:
                 self.write("playlist not saved")
+        elif input=="equalizerlist":
+            htmlpreset=""
+            for key,value in AUDIOEFFECT.items():
+                htmlpreset+='<button class="button1" onclick="sendcmd(\'' + value + '\')"><a>' + key + '</a></button>'
+            self.write(htmlpreset)
 
         else:
             self.write("command not recognized")
