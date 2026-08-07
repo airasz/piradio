@@ -98,7 +98,7 @@ div p4 {
 }
 
 .bplay button {
-    color: rgb(8, 123, 131);
+    color: rgb(30, 145, 246);
     font-weight: 600;
 }
 
@@ -251,19 +251,19 @@ input:checked+.slider_switch::before {
 
 /* Floating Menu */
 /* .floatbox {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 1000;
-    background-color: var(--bg-color);
-    padding: 30px;
-    border-radius: 20px;
-    box-shadow: var(--shadow-out);
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-} */
+ *   position: fixed;
+ *   top: 50%;
+ *   left: 50%;
+ *   transform: translate(-50%, -50%);
+ *   z-index: 1000;
+ *   background-color: var(--bg-color);
+ *   padding: 30px;
+ *   border-radius: 20px;
+ *   box-shadow: var(--shadow-out);
+ *   display: flex;
+ *   flex-direction: column;
+ *   gap: 15px;
+ } * */
 
 .text-center {
     text-align: center;

@@ -1,7 +1,7 @@
 :root {
     --bg-color: #e0e5ec;
     --text-color: #4a4a4a;
-    --accent-color: #059f25;
+    --accent-color: #5f93f7;
     --shadow-light: #ffffff;
     --shadow-dark: #a3b1c6;
     --shadow-inset-light: inset 2px 2px 5px #a3b1c6, inset -2px -2px 5px #ffffff;
@@ -22,6 +22,7 @@
             rgba(135, 132, 132, 1) 50%,
             rgba(247, 249, 250, 1) 1000%);
     --slider-thumb-bg: #5f93f7;
+    /* --slider-thumb-bg-progress: #5f93f7; */
 
 }
 
@@ -97,34 +98,27 @@ div p4 {
 }
 
 .bplay button {
-    color: rgb(8, 123, 131);
+    color: rgb(30, 145, 246);
     font-weight: 600;
 }
 
-
 .bplay {
     background: #fffbe5;
-    color: rgb(200, 200, 29);
+    color: rgb(240, 150, 29);
     background-image: var(--curve-convex);
     /* box-shadow: var(--shadow-out-hover) !important; */
-    box-shadow:
-        10px 10px 16px rgba(190, 190, 180, 0.2) inset,
-        -3px -3px 8px rgba(180, 180, 180, 0.8),
-        1px 1px 1px rgb(25, 25, 25, 0.4),
-        3px 4px 9px rgb(255, 255, 255, 0.9) !important;
+    box-shadow: 10px 10px 16px rgba(190, 190, 180, 0.2) inset, -3px -3px 8px rgba(180, 180, 180, 0.8), 1px 1px 1px rgb(25, 25, 25, 0.4), 3px 4px 9px rgb(255, 255, 255, 0.9) !important;
 }
 
 .button1:hover {
     box-shadow: var(--shadow-out-hover);
     /*   transform: translateY(-2px); */
     color: var(--accent-color);
-    display: inline-flex;
 }
 
 .button1:active {
     box-shadow: var(--shadow-active);
     transform: translateY(0);
-    display: inline-flex;
 }
 
 input[type="text"] {
@@ -180,7 +174,6 @@ input[type="text"] {
     width: 20px;
     height: 20px;
     border-radius: 50%;
-    border: none;
     /* background: var(--accent-color); */
     cursor: pointer;
     box-shadow: var(--shadow-out);
@@ -237,7 +230,7 @@ input[type="text"] {
     left: 0px;
     bottom: 0px;
     /* background-color: var(--text-color); */
-    background: linear-gradient(145deg, #6ac5bf, #149e94);
+    background: linear-gradient(145deg, #007500, #003300);
     -webkit-transition: 0.4s;
     transition: 0.4s;
     border-radius: 50%;
@@ -253,24 +246,24 @@ input:checked+.slider_switch::before {
     -ms-transform: translateX(24px);
     transform: translateX(24px);
     /* background-color: var(--accent-color); */
-    background: linear-gradient(145deg, #f2e369, #b2912d);
+    background: linear-gradient(145deg, #fbb40c, #c65808);
 }
 
 /* Floating Menu */
 /* .floatbox {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 1000;
-    background-color: var(--bg-color);
-    padding: 30px;
-    border-radius: 20px;
-    box-shadow: var(--shadow-out);
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-} */
+ *   position: fixed;
+ *   top: 50%;
+ *   left: 50%;
+ *   transform: translate(-50%, -50%);
+ *   z-index: 1000;
+ *   background-color: var(--bg-color);
+ *   padding: 30px;
+ *   border-radius: 20px;
+ *   box-shadow: var(--shadow-out);
+ *   display: flex;
+ *   flex-direction: column;
+ *   gap: 15px;
+ } * */
 
 .text-center {
     text-align: center;
@@ -315,7 +308,6 @@ p4 {
 
 .groupbox {
     margin-bottom: 15px;
-    /* background: var(--curve-sunken); */
     box-shadow: var(--shadow-inset-light);
 }
 
