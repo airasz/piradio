@@ -1305,10 +1305,11 @@ class shellCmd(tornado.web.RequestHandler):  # scmd
                     pl[i] = pl[i][pl[i].index("//") + 2 :]
                 if i + 1 == idd:
                     rp += (
-                        '<div class="button1 bplay">'
-                        + '<button id="playing" class="no-style" onclick="sendcmd(\'mpc play '
+                        '<div class="button1 bplay" onclick="sendcmd(\'mpc play '
                         + str(i + 1)
-                        + "')\"><a>"
+                        +"')\">"
+                        + '<button id="playing" class="no-style"'
+                        + "><a>"
                         + str(i + 1)
                         + ". "
                         + pl[i]
@@ -1320,10 +1321,11 @@ class shellCmd(tornado.web.RequestHandler):  # scmd
                     )
                 else:
                     rp += (
-                        '<div class="button1">'
-                        + '<button class="no-style" onclick="sendcmd(\'mpc play '
+                        '<div class="button1" onclick="sendcmd(\'mpc play '
                         + str(i + 1)
-                        + "')\"><a>"
+                        +"')\">"
+                        + '<button id="playing" class="no-style"'
+                        + "><a>"
                         + str(i + 1)
                         + ". "
                         + pl[i]
