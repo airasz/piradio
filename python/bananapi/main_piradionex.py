@@ -319,17 +319,20 @@ os.system("ir-keytable -p nec")
 # os.system("/usr/bin/mpc play")
 TOQ = getTotalQ()
 
-
 # os.system("/usr/bin/python3 mpcsleeper.py")
 def getVol():
-    # status = subprocess.check_output("mpc volume | grep volume | awk '{print$2}'",shell=True).decode("utf-8").replace("%","")
-    status = cmd("mpc status | grep -o 'volume: [0-9]\+' | sed 's/volume: //'")
-    # status=mpc("mpc status | awk '/volume:/ {for(i=1;i<=NF;i++) if($i ~ /^volume:/) print substr($i,8)}'")
-    # print("s="+status )
-    vol = int(status)
-    print("vol=" + str(vol))
-    global P_VOL
-    P_VOL = vol
+    try:
+        # status = subprocess.check_output("mpc volume | grep volume | awk '{print$2}'",shell=True).decode("utf-8").replace("%","")
+        status = cmd("mpc status | grep -o 'volume: [0-9]\+' | sed 's/volume: //'")
+        # status=mpc("mpc status | awk '/volume:/ {for(i=1;i<=NF;i++) if($i ~ /^volume:/) print substr($i,8)}'")
+        # print("s="+status )
+        vol = int(status)
+        print("vol=" + str(vol))
+        global P_VOL
+        P_VOL = vol
+    except Exception as e:
+        print("error in getVol() " + str(e))
+        P_VOL = 0
 
 
 def mute():
@@ -363,11 +366,16 @@ def playToggle():
 def setVOL(up):
     status = ""
     vol = ""
-
+    getVol()
     # status = subprocess.check_output(("mpc volume +5 | grep volume | awk '{print$2}'") if up else ("mpc volume -5 | grep volume | awk '{print$2}'"), shell=True).decode("utf-8")
-    status = cmd(
-        "mpc volume " + ("+5" if up else "-5") + " | grep volume | awk '{print$2}'"
-    )
+    if P_VOL < 7:
+        status = cmd(
+            "mpc volume " + ("+2" if up else "-2") + " | grep volume | awk '{print$2}'"
+        )
+    else:
+        status = cmd(
+            "mpc volume " + ("+5" if up else "-5") + " | grep volume | awk '{print$2}'"
+        )
     vol=status.replace("%", "")
     intvol=int(vol)
     print("vol " + status)
@@ -1562,7 +1570,6 @@ if __name__ == "__main__":
                 # Start the Tornado I/O loop
                 print("start tornado")
                 tornado.ioloop.IOLoop.current().start()
-
                 # asyncio.run(iorun())
             except KeyboardInterrupt:
                 print("try stop")

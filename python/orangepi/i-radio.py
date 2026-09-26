@@ -354,6 +354,7 @@ def loop():
 
 # split and paged all information to display
 def displayto_oled(status):
+    global ipv4_ips, ipv4_ips_len
     get_mpc_status()
     # print(json.dumps(get_mpc_status(), indent=2))
     if len(G_VAR["LOCAL_IP"]) < 8:
@@ -404,7 +405,10 @@ def displayto_oled(status):
         sst = "sleep in : " + timer
         # sst="sleep in : "+stimer.update()
         msglist.append(sst)
-    msglist.append(G_VAR["LOCAL_IP"])
+    #msglist.append(G_VAR["LOCAL_IP"])
+    #for i in ipv4_ips:
+    msglist.extend(ipv4_ips)
+    #msglist.append(ipv4_ips[ipv4_ips_pointer++
     # msglist.append("test")
     msglist.append(G_VAR["NETSTAT"])
     msglist.append(G_VAR["CPU_TEMP"])
@@ -417,6 +421,7 @@ def displayto_oled(status):
     # myoled.showmsg(status)
 
     msglist.append(sysinfo())
+    #print(msglist)
     totline = len(msglist)
     # print(totline)
     sm = ""
@@ -796,15 +801,19 @@ def getlocal_ip2():
     G_VAR["LOCAL_IP"] = G_VAR["LOCAL_IP"].replace("\n", "")
     G_VAR["LOCAL_IP"] = "IP: " + G_VAR["LOCAL_IP"]
     print(G_VAR["LOCAL_IP"])
-
+ipv4_ips=[]
+ipv4_ips_len=0
+ipv4_ips_pointer=0
 
 # print(REMOTE_CODES)
 def getlocal_ip():
     cmd = "hostname -I"
     result = subprocess.check_output(cmd, shell=True)
     ips = result.decode("utf-8").strip().split()
+    global ipv4_ips, ipv4_ips_len, ipv4_ips_pointer
     ipv4_ips = [ip for ip in ips if ":" not in ip]
-    G_VAR["LOCAL_IP"] = " \n".join(ipv4_ips)# + "\n"
+    #print(ipv4_ips[1])
+    G_VAR["LOCAL_IP"] = " ".join(ipv4_ips)# + "\n"
     G_VAR["LOCAL_IP"] = "IP: " + G_VAR["LOCAL_IP"]
     print(G_VAR["LOCAL_IP"])
 
@@ -953,17 +962,32 @@ PLAYlists = sorted(PLAYlists, key=str.lower)
 
 
 def get_Volume():
-    status = "radio volume: 50%"
-    status = cmd("mpc")
-    displaytooled(status)
-    # status= mpc("mpc status | grep -o 'volume: [0-9]\+' | sed 's/volume: //'")
-    G_VAR["P_VOL"] = int(
-        cmd("mpc status | grep -o 'volume: [0-9]\+' | sed 's/volume: //'")
-    )
+    try:
+        # Run 'mpc' command and capture stdout
+        result = subprocess.run(['mpc'], capture_output=True, text=True, check=True)
+
+        # 'Grep' the volume line and parse the integer digits
+        # Matches 'volume: ' followed by one or more digits
+        match = re.search(r'volume:\s*(\d+)%', result.stdout)
+
+        if match:
+            # Convert string representation of digits into an integer
+            volume_decimal = int(match.group(1))
+            return volume_decimal
+        else:
+            print("Volume field not found in mpc output.")
+            return None
+
+    except subprocess.CalledProcessError:
+        print("Failed to run 'mpc'. Ensure Music Player Daemon (MPD) is running.")
+        return None
+    except FileNotFoundError:
+        print("The 'mpc' command-line tool is not installed.")
+        return None
 
 
 def mute():
-    get_Volume()
+    G_VAR["P_VOL"]=get_Volume()
     print("P_VOL=" + str(G_VAR["P_VOL"]))
     if G_VAR["P_VOL"] > 0:
         G_VAR["CURENT_VOL"] = G_VAR["P_VOL"]
@@ -1208,9 +1232,15 @@ def drawPlayList():
 def setVOL(up):
     status = ""
     vol = ""
-    status = cmd(
-        "mpc volume " + ("+5" if up else "-5") + " | grep volume | awk '{print$2}'"
-    )
+    G_VAR["P_VOL"]=get_Volume()
+    if G_VAR["P_VOL"] < 7:
+        status = cmd(
+            "mpc volume " + ("+2" if up else "-2") + " | grep volume | awk '{print$2}'"
+        )
+    else:
+        status = cmd(
+            "mpc volume " + ("+5" if up else "-5") + " | grep volume | awk '{print$2}'"
+        )
     # interuptDisplay(3, 25, "v " + status)
     interuptDisplay(3, 25, "v")
     interuptDisplay(3, 50, status)
@@ -1518,6 +1548,7 @@ def displaytooled(status):
     for i in infolist:
         msglist.append(i)
 
+    print(infolist)
     status = status.replace("(0%)", "")
     status = status.replace("(volume", "\nvolume")
 
@@ -1997,10 +2028,11 @@ class shellCmd(tornado.web.RequestHandler):  # scmd
                     pl[i] = pl[i][pl[i].index("//") + 2 :]
                 if i + 1 == idd:
                     rp += (
-                        '<div class="button1 bplay">'
-                        + '<button id="playing" class="no-style" onclick="sendcmd(\'mpc play '
+                        '<div class="button1 bplay" onclick="sendcmd(\'mpc play '
                         + str(i + 1)
-                        + "')\"><a>"
+                        +"')\">"
+                        + '<button id="playing" class="no-style"'
+                        + "><a>"
                         + str(i + 1)
                         + ". "
                         + pl[i]
@@ -2012,10 +2044,11 @@ class shellCmd(tornado.web.RequestHandler):  # scmd
                     )
                 else:
                     rp += (
-                        '<div class="button1">'
-                        + '<button class="no-style" onclick="sendcmd(\'mpc play '
+                        '<div class="button1" onclick="sendcmd(\'mpc play '
                         + str(i + 1)
-                        + "')\"><a>"
+                        +"')\">"
+                        + '<button id="playing" class="no-style"'
+                        + "><a>"
                         + str(i + 1)
                         + ". "
                         + pl[i]
