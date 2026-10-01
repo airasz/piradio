@@ -30,7 +30,7 @@ body {
     background-color: var(--bg-color);
     color: var(--text-color);
     font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-    display: flex;
+    /*     display: flex; */
     justify-content: center;
     align-items: center;
     min-height: 100vh;
