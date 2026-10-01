@@ -113,6 +113,8 @@ G_VAR = {
     "COUNT_ONMENU": 0,
     "RUN_FROM_CRONTAB": False,
 }
+
+C_VOL=0
 CONFIGDATA = {}
 RADIO_STATUS = {}
 PLAYlists = []
@@ -1877,7 +1879,7 @@ def processIRe(irval):
         elif irval == REMOTE_CODES["EVERCROSS"]["KRE_TIMER"]:
             startsetsleep()
         elif irval == REMOTE_CODES["EVERCROSS"]["KRE_MUTE"]:
-            restart()
+            mute()
         elif irval == REMOTE_CODES["EVERCROSS"]["KRE_FAV"]:
             startSelectPlaylistTo()
         elif irval == REMOTE_CODES["EVERCROSS"]["KRE_EXIT"]:
@@ -1906,7 +1908,56 @@ def processIRe(irval):
             startSeekTo()
         elif irval == REMOTE_CODES["EVERCROSS"]["KRE_EPG"]:
             startSetAudioOutput();
+        elif irval == REMOTE_CODES["EVERCROSS"]["KRE_PVR"]:
+            reconnect_bt();
 
+
+def getVol():
+    try:
+        # status = subprocess.check_output("mpc volume | grep volume | awk '{print$2}'",shell=True).decode("utf-8").replace("%","")
+        status = cmd("mpc status | grep -o 'volume: [0-9]\+' | sed 's/volume: //'")
+        # status=mpc("mpc status | awk '/volume:/ {for(i=1;i<=NF;i++) if($i ~ /^volume:/) print substr($i,8)}'")
+        # print("s="+status )
+        vol = int(status)
+        print("vol=" + str(vol))
+
+        G_VAR["P_VOL"] = vol
+    except Exception as e:
+        print("error in getVol() " + str(e))
+        G_VAR["P_VOL"] = 0
+
+
+def mute():
+    getVol()
+    print("P_VOL=" + str(G_VAR["P_VOL"]))
+    if G_VAR["P_VOL"] > 0:
+        global C_VOL
+        C_VOL = G_VAR["P_VOL"]
+        os.system("mpc volume 0")
+    else:
+        os.system("mpc volume " + str(C_VOL))
+
+
+def reconnect_bt():
+    device = "00:08:4C:F0:2C:F1"
+    result = subprocess.run(
+        ["mpc", "stop"],
+        capture_output=True,
+        text=True
+    )
+    result = subprocess.run(
+        ["python3", "/root/bt-reconnect.py", device],
+        capture_output=True,
+        text=True
+    )
+
+    print(result.stdout)
+    print(result.stderr)
+
+    if result.returncode == 0:
+        print("Reconnect successful")
+    else:
+        print("Reconnect failed")
 
 settings = dict(
     template_path=os.path.join(os.path.dirname(__file__), "templates"),
