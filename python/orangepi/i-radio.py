@@ -43,6 +43,8 @@ import tornado.websocket
 import tornado.ioloop
 import tornado.web
 
+import argparse
+USB_ADAPTER = "00:1A:7D:46:4C:52"
 # import wsradio
 
 
@@ -122,7 +124,8 @@ splited_playlist = []
 splited_playlist_pointer = 0
 # Remote control key codes as JSON data
 REMOTE_CODES = {}
-
+connected_devices = []
+last_connected_device=[]
 # eq presets
 AUDIOEFFECT = {
     "mono" : "go-mono",
@@ -587,6 +590,74 @@ class display:
 display = display()
 
 
+class bluetooth:
+    
+    def bt(command):
+        result = subprocess.run(
+            ["bluetoothctl"] + command.split(),
+            capture_output=True,
+            text=True
+        )
+        return result.stdout
+
+
+    def select_adapter():
+        print(f"Selecting USB Bluetooth adapter: {USB_ADAPTER}")
+
+        output = bt(f"select {USB_ADAPTER}")
+        print(output.strip())
+
+        # Check which adapter is selected
+        output = bt("show")
+
+        if USB_ADAPTER.lower() not in output.lower():
+            print("Warning: USB adapter may not have been selected.")
+
+
+    def is_connected(device):
+        output = bt(f"info {device}")
+        return "Connected: yes" in output
+
+
+    def reconnect(device):
+        select_adapter()
+
+        if is_connected(device):
+            print(f"{device} is connected.\n Disconnecting...")
+            bt(f"disconnect {device}")
+            time.sleep(5)
+        else:
+            print(f"{device} is already disconnected.")
+
+        print(f"Connecting to {device}...")
+        output = bt(f"connect {device}")
+        print(output.strip())
+
+        if is_connected(device):
+            print(f"Successfully connected to {device}")
+            return True
+
+        print(f"Failed to connect to {device}")
+        return False
+
+
+    def main():
+        parser = argparse.ArgumentParser(
+            description="Reconnect a Bluetooth device using the USB Bluetooth adapter."
+        )
+
+        parser.add_argument(
+            "mac",
+            help="Bluetooth device MAC address, e.g. AA:BB:CC:DD:EE:FF"
+        )
+
+        args = parser.parse_args()
+
+        device = args.mac.upper()
+
+        if not reconnect(device):
+            sys.exit(1)
+            
 def to_bool(value: str) -> bool:
     return value.lower() == "on"
 
@@ -1826,7 +1897,10 @@ def processIRe(irval):
         if G_VAR["STOP_COUNT"] > 120:
             ypos = random.randint(0, 25)
             xpos = random.randint(0, 50)
-            myoled.display("HAI...!", (xpos, ypos))
+            # myoled.display("HAI...!", (xpos, ypos))
+            G_VAR["STOP_COUNT"]=0
+            interuptDisplay(3, 16, "HAI...!")
+            return
         for i in range(len(KR_eNUM)):
             if irval == KR_eNUM[i][1]:
                 clickNumber(KR_eNUM[i][0])
@@ -1938,26 +2012,68 @@ def mute():
         os.system("mpc volume " + str(C_VOL))
 
 
+def get_connected_via_cli():
+    global connected_devices, last_connected_device
+    try:
+        # Run 'bluetoothctl info' or filter connected devices from 'bluetoothctl devices Connected'
+        output = subprocess.check_output(["bluetoothctl", "devices", "Connected"], universal_newlines=True)
+
+        # Output format example: Device XX:XX:XX:XX:XX:XX Device Name
+        for line in output.strip().split("\n"):
+            match = re.search(r"^Device\s+([0-9A-Fa-f:]+)\s+(.*)", line)
+            if match:
+                connected_devices.append({
+                    "mac": match.group(1),
+                    "name": match.group(2)
+                })
+                print(f"connected_device: {connected_devices}")
+                break
+        
+    except Exception as e:
+        print(f"Error running bluetoothctl: {e}")
+
+    # print(f"last_connected_device mac: {last_connected_device[0]['mac']}")
+    if connected_devices:
+        if not last_connected_device:
+                print('last_connected_device empty')
+                last_connected_device=connected_devices
+        else:
+            if last_connected_device[0]['mac']=="":
+                print('last_connected_device empty')
+                last_connected_device=connected_devices
+
+    #return connected_devices
+get_connected_via_cli()
+
 def reconnect_bt():
+    global connected_devices, last_connected_device
+
     device = "00:08:4C:F0:2C:F1"
-    result = subprocess.run(
-        ["mpc", "stop"],
-        capture_output=True,
-        text=True
-    )
-    result = subprocess.run(
-        ["python3", "/root/bt-reconnect.py", device],
-        capture_output=True,
-        text=True
-    )
+    print(f"last_connected_device: {last_connected_device}")
+    if last_connected_device:
+        interuptDisplay(8, 15, (f"reconnect to:\n{last_connected_device[0]['name']}"))
+        result = subprocess.run(
+            ["mpc", "stop"],
+            capture_output=True,
+            text=True
+        )
+        result = subprocess.run(
+            ["python3", "/root/bt-reconnect.py", last_connected_device[0]['mac']],
+            capture_output=True,
+            text=True
+        )
 
-    print(result.stdout)
-    print(result.stderr)
+        print(result.stdout)
+        print(result.stderr)
 
-    if result.returncode == 0:
-        print("Reconnect successful")
+        if result.returncode == 0:
+            print("Reconnect successful")
+            interuptDisplay(8, 15, "Reconnect successful")
+        else:
+            print("Reconnect failed")
+            interuptDisplay(8, 15, "failed")
     else:
-        print("Reconnect failed")
+        interuptDisplay(8, 15, (f"no BT devices\nconnected"))
 
 settings = dict(
     template_path=os.path.join(os.path.dirname(__file__), "templates"),
@@ -2446,6 +2562,7 @@ async def tick():  # 100ms pulse
         # exitset(False)
         G_VAR["PULSE_COUNT"] += 1
         if G_VAR["PULSE_COUNT"] > 15:
+
             G_VAR["PULSE_COUNT"] = 0
             # print(f'second digit = {G_VAR["SECOND_DIGIT"]}')
             if G_VAR["SECOND_DIGIT"] > 0:
